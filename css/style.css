@@ -596,22 +596,79 @@ main {
   line-height: 1.35;
 }
 
-.music-player {
-  min-height: 16rem;
-  border-radius: 0.95rem;
-  border: 1px solid var(--gold-line);
-  background: rgba(8, 12, 10, 0.5);
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  padding: 0.55rem;
+.ambient-split-list-only {
+  grid-template-columns: 1fr;
 }
 
-.music-player iframe {
+.music-persist-note {
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px dashed var(--gold-line);
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.85rem !important;
+  color: var(--muted) !important;
+}
+
+/* Sticky dock — keeps playing across themes / scroll */
+.music-dock {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  width: min(400px, calc(100vw - 1.5rem));
+  border-radius: 14px;
+  border: 1px solid var(--gold-line);
+  background: rgba(10, 14, 12, 0.95);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+}
+
+.music-dock[hidden] {
+  display: none !important;
+}
+
+.music-dock-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.music-dock-label {
+  font-size: 0.72rem;
+  color: var(--gold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-dock-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.music-dock-frame-wrap iframe {
+  display: block;
   width: 100%;
-  min-height: 22rem;
+  height: 152px;
   border: 0;
-  border-radius: 0.55rem;
+  background: #000;
+}
+
+.music-dock.is-minimized .music-dock-frame-wrap {
+  display: none;
+}
+
+.music-dock.is-minimized .music-dock-bar {
+  border-bottom: 0;
+}
+
+body:has(#music-dock:not([hidden])) {
+  padding-bottom: 5rem;
 }
 
 .wallpaper-grid {
