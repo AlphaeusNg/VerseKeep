@@ -110,12 +110,27 @@
         <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
         <button type="button" class="btn ghost" id="music-stop">Stop</button>
       </div>
-      <div class="ambient-split ambient-split-list-only">
+      <div class="ambient-split">
         <div class="pick-list" id="music-list"></div>
-        <p class="music-persist-note hint" style="margin:0">
-          Player sticks to the bottom of the screen and keeps playing while you change themes or sections.
-          Only <strong>Stop</strong> or picking another station changes it.
-        </p>
+        <div class="music-player-slot" id="music-player-slot">
+          <p id="music-empty" class="music-empty-inline">Pick a station — try God’s encouragement or SSBC.</p>
+          <div class="music-player-shell" id="music-player-shell" hidden>
+            <div class="music-player-bar">
+              <span class="music-player-label mono" id="music-player-label">Playing…</span>
+              <span class="music-dock-pin mono" id="music-dock-pin" hidden>following you</span>
+              <button type="button" class="btn ghost" id="music-player-stop" style="padding:0.3rem 0.55rem;font-size:0.78rem">Stop</button>
+            </div>
+            <div class="music-player-frame-wrap">
+              <iframe
+                id="music-frame"
+                title="Worship player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -143,26 +158,6 @@
       · Scripture for formation, not score-chasing.
     </p>
   </footer>
-
-  <!-- Persistent music dock — never torn down by section re-renders -->
-  <div id="music-dock" class="music-dock" hidden>
-    <div class="music-dock-bar">
-      <span class="music-dock-label mono" id="music-dock-label">Playing…</span>
-      <div class="music-dock-actions">
-        <button type="button" class="btn ghost" id="music-dock-stop" style="padding:0.3rem 0.55rem;font-size:0.78rem">Stop</button>
-        <button type="button" class="btn ghost" id="music-dock-minimize" title="Collapse" style="padding:0.3rem 0.55rem;font-size:0.78rem">▾</button>
-      </div>
-    </div>
-    <div class="music-dock-frame-wrap" id="music-dock-frame-wrap">
-      <iframe
-        id="music-frame"
-        title="Worship player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-        loading="lazy"
-      ></iframe>
-    </div>
-  </div>
 
   <script src="js/bible-config.js" defer></script>
   <script src="js/bible-live.js" defer></script>

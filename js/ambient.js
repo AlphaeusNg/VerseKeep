@@ -1,7 +1,7 @@
 /**
- * Worship music (YouTube / Spotify) + wallpaper picker for VerseKeep.
- * Music iframe lives in a sticky dock and is never reloaded unless the station
- * changes or the user hits Stop (survives tab switches in the UI + scrolling).
+ * Worship music + wallpapers for VerseKeep.
+ * Player sits inline in the Music section; when you scroll away it docks
+ * to the bottom of the screen (same iframe — no reload).
  */
 (function () {
   "use strict";
@@ -18,7 +18,7 @@
   let musicTab = "spotify";
   let activeMusicId = null;
   let currentEmbed = "";
-  let minimized = false;
+  let playing = false;
 
   function escapeHtml(s) {
     return String(s)
@@ -92,19 +92,37 @@
     });
   }
 
+  function updateDockState() {
+    const s = $("#music-player-shell");
+    const sl = $("#music-player-slot");
+    if (!s || !playing) return;
+
+    const rect = sl?.getBoundingClientRect();
+    const slotVisible =
+      sl &&
+      rect &&
+      rect.bottom > 64 &&
+      rect.top < (window.innerHeight || 0) - 64;
+
+    const shouldDock = !slotVisible;
+    s.classList.toggle("is-docked", shouldDock);
+    sl?.classList.toggle("is-player-docked", shouldDock);
+    const pin = $("#music-dock-pin");
+    if (pin) pin.hidden = !shouldDock;
+  }
+
   function selectMusic(id, embed, title) {
     if (!embed) return;
     const frame = $("#music-frame");
-    const dock = $("#music-dock");
-    if (!frame || !dock) return;
+    const shell = $("#music-player-shell");
+    const empty = $("#music-empty");
+    if (!frame || !shell) return;
 
     activeMusicId = id;
 
-    // Same station already playing — only refresh UI highlight, never reload iframe
-    if (currentEmbed === embed && frame.getAttribute("src") === embed && !dock.hidden) {
+    if (currentEmbed === embed && playing) {
       paintMusicList();
-      dock.classList.remove("is-minimized");
-      minimized = false;
+      updateDockState();
       return;
     }
 
@@ -112,11 +130,11 @@
     if (frame.getAttribute("src") !== embed) {
       frame.src = embed;
     }
-    dock.hidden = false;
-    dock.classList.remove("is-minimized");
-    minimized = false;
+    playing = true;
+    shell.hidden = false;
+    if (empty) empty.hidden = true;
 
-    const lab = $("#music-dock-label");
+    const lab = $("#music-player-label");
     if (lab) lab.textContent = title || id || "Playing…";
 
     try {
@@ -128,37 +146,32 @@
       /* ignore */
     }
     paintMusicList();
+    updateDockState();
   }
 
   function stopMusic() {
     const frame = $("#music-frame");
-    const dock = $("#music-dock");
+    const shell = $("#music-player-shell");
+    const empty = $("#music-empty");
     if (frame) {
       frame.removeAttribute("src");
       frame.src = "about:blank";
     }
-    if (dock) {
-      dock.hidden = true;
-      dock.classList.remove("is-minimized");
+    if (shell) {
+      shell.hidden = true;
+      shell.classList.remove("is-docked");
     }
+    $("#music-player-slot")?.classList.remove("is-player-docked");
+    if (empty) empty.hidden = false;
     activeMusicId = null;
     currentEmbed = "";
-    minimized = false;
+    playing = false;
     try {
       localStorage.removeItem(MUSIC_KEY);
     } catch {
       /* ignore */
     }
     paintMusicList();
-  }
-
-  function toggleMinimize() {
-    const dock = $("#music-dock");
-    if (!dock || dock.hidden) return;
-    minimized = !minimized;
-    dock.classList.toggle("is-minimized", minimized);
-    const btn = $("#music-dock-minimize");
-    if (btn) btn.textContent = minimized ? "▴" : "▾";
   }
 
   function paintWallpapers() {
@@ -226,7 +239,6 @@
       if (data.tab) musicTab = data.tab;
       paintMusicTabs();
       paintMusicList();
-      // Restore without forcing a double-load if already set
       if (data.embed) {
         activeMusicId = data.id || null;
         currentEmbed = "";
@@ -237,19 +249,31 @@
     }
   }
 
+  function watchVisibility() {
+    const sl = $("#music-player-slot");
+    if (sl && "IntersectionObserver" in window) {
+      new IntersectionObserver(() => updateDockState(), {
+        root: null,
+        threshold: [0, 0.05, 0.2, 0.5, 1],
+        rootMargin: "-48px 0px -48px 0px",
+      }).observe(sl);
+    }
+    window.addEventListener("scroll", updateDockState, { passive: true });
+    window.addEventListener("resize", updateDockState);
+  }
+
   function bindUi() {
     $$("[data-music-tab]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        // Only switch the station list — never touch the playing iframe
         musicTab = btn.dataset.musicTab;
         paintMusicTabs();
         paintMusicList();
+        // list only — never touch the iframe
       });
     });
 
     $("#music-stop")?.addEventListener("click", stopMusic);
-    $("#music-dock-stop")?.addEventListener("click", stopMusic);
-    $("#music-dock-minimize")?.addEventListener("click", toggleMinimize);
+    $("#music-player-stop")?.addEventListener("click", stopMusic);
   }
 
   async function boot() {
@@ -266,6 +290,7 @@
       restoreWallpaper();
       restoreMusic();
       bindUi();
+      watchVisibility();
     } catch (err) {
       console.warn("[ambient]", err);
       const el = $("#ambient-error");
