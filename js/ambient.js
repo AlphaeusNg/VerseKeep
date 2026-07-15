@@ -1,5 +1,6 @@
 /**
  * Worship music (YouTube / Spotify) + wallpaper picker for VerseKeep.
+ * Groups stations by category; features Alphaeus Ng (alphang) playlists on Spotify.
  */
 (function () {
   "use strict";
@@ -9,10 +10,11 @@
 
   const WP_KEY = "versekeep-wallpaper";
   const MUSIC_KEY = "versekeep-music";
+  const DEFAULT_WP = "dawn-hills";
 
   let playlists = { youtube: [], spotify: [] };
   let wallpapers = [];
-  let musicTab = "youtube";
+  let musicTab = "spotify";
   let activeMusicId = null;
 
   function escapeHtml(s) {
@@ -35,17 +37,49 @@
     });
   }
 
+  function groupByCategory(list) {
+    const order = [];
+    const map = new Map();
+    for (const p of list) {
+      const cat = p.category || "More";
+      if (!map.has(cat)) {
+        map.set(cat, []);
+        order.push(cat);
+      }
+      map.get(cat).push(p);
+    }
+    // Prefer "From Alphaeus" first
+    order.sort((a, b) => {
+      if (a === "From Alphaeus") return -1;
+      if (b === "From Alphaeus") return 1;
+      return 0;
+    });
+    return order.map((cat) => ({ cat, items: map.get(cat) }));
+  }
+
   function paintMusicList() {
     const host = $("#music-list");
     if (!host) return;
     const list = playlists[musicTab] || [];
-    host.innerHTML = list
+    const groups = groupByCategory(list);
+
+    host.innerHTML = groups
       .map(
-        (p) => `
-      <button type="button" class="pick-card${p.id === activeMusicId ? " is-active" : ""}" data-music-id="${escapeHtml(p.id)}" data-embed="${escapeHtml(p.embed)}">
-        <strong>${escapeHtml(p.title)}</strong>
-        <small>${escapeHtml(p.blurb || "")}</small>
-      </button>`
+        (g) => `
+      <div class="pick-group">
+        <div class="pick-group-title mono">${escapeHtml(g.cat)}</div>
+        ${g.items
+          .map(
+            (p) => `
+        <button type="button" class="pick-card${p.id === activeMusicId ? " is-active" : ""}${
+              g.cat === "From Alphaeus" ? " pick-mine" : ""
+            }" data-music-id="${escapeHtml(p.id)}" data-embed="${escapeHtml(p.embed)}">
+          <strong>${escapeHtml(p.title)}</strong>
+          <small>${escapeHtml(p.blurb || "")}</small>
+        </button>`
+          )
+          .join("")}
+      </div>`
       )
       .join("");
 
@@ -74,15 +108,15 @@
   function paintWallpapers() {
     const host = $("#wallpaper-grid");
     if (!host) return;
-    const current = localStorage.getItem(WP_KEY) || "none";
+    const current = localStorage.getItem(WP_KEY) || DEFAULT_WP;
     host.innerHTML = wallpapers
       .map((w) => {
         const active = w.id === current;
         const thumb = w.src
           ? `<img src="${escapeHtml(w.src)}" alt="" loading="lazy" width="320" height="180" />`
-          : `<div class="wp-none">Default</div>`;
+          : `<div class="wp-none">Default dark</div>`;
         const dl = w.download
-          ? `<a class="wp-dl" href="${escapeHtml(w.download)}" download="${escapeHtml(w.id)}.jpg" onclick="event.stopPropagation()">Download 1920×1080</a>`
+          ? `<a class="wp-dl" href="${escapeHtml(w.download)}" download="${escapeHtml(w.id)}.jpg" onclick="event.stopPropagation()">Download HD</a>`
           : "";
         return `
         <button type="button" class="wp-card${active ? " is-active" : ""}" data-wp="${escapeHtml(w.id)}" data-src="${escapeHtml(w.src || "")}">
@@ -119,8 +153,12 @@
   }
 
   function restoreWallpaper() {
-    const id = localStorage.getItem(WP_KEY) || "none";
-    const w = wallpapers.find((x) => x.id === id) || wallpapers.find((x) => x.id === "none");
+    let id = localStorage.getItem(WP_KEY);
+    if (!id) id = DEFAULT_WP;
+    const w =
+      wallpapers.find((x) => x.id === id) ||
+      wallpapers.find((x) => x.id === DEFAULT_WP) ||
+      wallpapers[0];
     if (w) applyWallpaper(w.id, w.src || "");
   }
 

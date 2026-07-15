@@ -1,66 +1,133 @@
 {
+  "profileNote": "Spotify user alphang (Alphaeus Ng) — personal playlists featured first.",
   "youtube": [
     {
-      "id": "hillsong-nonstop",
-      "title": "Hillsong Worship (nonstop)",
-      "blurb": "What A Beautiful Name, Oceans, and more",
-      "embed": "https://www.youtube.com/embed/8YKJVx4qxcs"
+      "id": "cityalight-rise",
+      "title": "CityAlight — Rise with the Sun",
+      "blurb": "Official lyric video",
+      "category": "CityAlight",
+      "embed": "https://www.youtube.com/embed/bY1ph_PYMtg"
     },
     {
-      "id": "hillsong-2026",
-      "title": "Hillsong & worship mix 2026",
-      "blurb": "Long-form praise playlist",
-      "embed": "https://www.youtube.com/embed/YWZyuz7o8cw"
+      "id": "cityalight-ancient",
+      "title": "CityAlight — Ancient of Days (a cappella)",
+      "blurb": "David Wesley arrangement",
+      "category": "CityAlight",
+      "embed": "https://www.youtube.com/embed/7Vbp9LJITf0"
+    },
+    {
+      "id": "hymns-acapella-classic",
+      "title": "Classic a cappella hymns",
+      "blurb": "Abide With Me · It Is Well… (long set)",
+      "category": "Hymns & a cappella",
+      "embed": "https://www.youtube.com/embed/_M98AO-xfho"
+    },
+    {
+      "id": "hymns-3hr",
+      "title": "3 hours a cappella hymns",
+      "blurb": "Quiet nonstop gospel hymns",
+      "category": "Hymns & a cappella",
+      "embed": "https://www.youtube.com/embed/IjUza_xIWxw"
+    },
+    {
+      "id": "hymns-2hr",
+      "title": "Morning a cappella worship",
+      "blurb": "2 hours classic gospel hymns",
+      "category": "Hymns & a cappella",
+      "embed": "https://www.youtube.com/embed/QAgmZmPvAOM"
+    },
+    {
+      "id": "anthem-goodness",
+      "title": "Goodness of God (a cappella)",
+      "blurb": "Anthem Lights",
+      "category": "Hymns & a cappella",
+      "embed": "https://www.youtube.com/embed/zOzuB1Lytd8"
+    },
+    {
+      "id": "amazing-grace",
+      "title": "Amazing Grace (My Chains Are Gone)",
+      "blurb": "Chris Tomlin · lyric",
+      "category": "Hymns & a cappella",
+      "embed": "https://www.youtube.com/embed/Jbe7OruLk8I"
+    },
+    {
+      "id": "hillsong-nonstop",
+      "title": "Hillsong Worship (nonstop mix)",
+      "blurb": "Contemporary congregational",
+      "category": "Contemporary",
+      "embed": "https://www.youtube.com/embed/8YKJVx4qxcs"
     },
     {
       "id": "hillsong-united-tour",
       "title": "Hillsong UNITED — People Tour",
-      "blurb": "Live from Madison Square Garden",
+      "blurb": "Live MSG set",
+      "category": "Contemporary",
       "embed": "https://www.youtube.com/embed/XOTGMgj4w5s"
     },
     {
       "id": "young-free",
       "title": "Hillsong Young & Free (live)",
-      "blurb": "III live conference set",
+      "blurb": "III conference",
+      "category": "Contemporary",
       "embed": "https://www.youtube.com/embed/qTAcq-Z_l9A"
-    },
-    {
-      "id": "hillsong-full",
-      "title": "Hillsong collection (long)",
-      "blurb": "Extended worship album mix",
-      "embed": "https://www.youtube.com/embed/Z8CYnADzeOI"
-    },
-    {
-      "id": "gospel-hits-mix",
-      "title": "Praise & worship hits",
-      "blurb": "Broad Christian playlist mix",
-      "embed": "https://www.youtube.com/embed/rb3xn-n7zrQ"
     }
   ],
   "spotify": [
     {
-      "id": "top-worship-2026",
-      "title": "Top Christian Worship 2026",
-      "blurb": "Bible study → Sunday morning energy",
-      "embed": "https://open.spotify.com/embed/playlist/61xuizm8At6DCwGHJZTmB7"
+      "id": "alph-hope",
+      "title": "4K2 — Songs of Hope",
+      "blurb": "Alphaeus Ng · personal",
+      "category": "From Alphaeus",
+      "embed": "https://open.spotify.com/embed/playlist/5MjAS0gw7aBdwRILN5Qu5l?utm_source=generator"
+    },
+    {
+      "id": "alph-despair",
+      "title": "4K1 — Songs of Despair",
+      "blurb": "Alphaeus Ng · personal",
+      "category": "From Alphaeus",
+      "embed": "https://open.spotify.com/embed/playlist/5dKnfBhoP6seCewnkmKCHL?utm_source=generator"
+    },
+    {
+      "id": "alph-catchy",
+      "title": "Super Catchy!",
+      "blurb": "Alphaeus Ng · personal",
+      "category": "From Alphaeus",
+      "embed": "https://open.spotify.com/embed/playlist/3Gjr6Ei4jg9yRBKOCtczGU?utm_source=generator"
+    },
+    {
+      "id": "cityalight-mix",
+      "title": "CityAlight Mix",
+      "blurb": "Yet Not I · Only a Holy God · …",
+      "category": "CityAlight",
+      "embed": "https://open.spotify.com/embed/playlist/37i9dQZF1EIW6tK5cUVwyi?utm_source=generator"
+    },
+    {
+      "id": "cityalight-artist",
+      "title": "CityAlight (artist radio)",
+      "blurb": "Full CityAlight catalogue",
+      "category": "CityAlight",
+      "embed": "https://open.spotify.com/embed/artist/4UNta2jPQJ844nyw1bsyPg?utm_source=generator"
+    },
+    {
+      "id": "acapella-hymns",
+      "title": "Acapella Hymns",
+      "blurb": "Day by Day · It Is Well · …",
+      "category": "Hymns & a cappella",
+      "embed": "https://open.spotify.com/embed/playlist/0kBsVMtxwrAMI2RTmNzZsP?utm_source=generator"
+    },
+    {
+      "id": "acapella-worship",
+      "title": "Acapella Christian Hymns & Worship",
+      "blurb": "Holy Holy Holy · In Christ Alone · …",
+      "category": "Hymns & a cappella",
+      "embed": "https://open.spotify.com/embed/playlist/7En4KuGxJOCqWbxZMeIr8G?utm_source=generator"
     },
     {
       "id": "top-100-worship",
       "title": "Top 100 Christian Worship",
-      "blurb": "Tomlin, Redman, Shane & Shane…",
-      "embed": "https://open.spotify.com/embed/playlist/3WtvUIOk6s5AuPDjsho9Tr"
-    },
-    {
-      "id": "contemporary",
-      "title": "Contemporary Christian & Worship",
-      "blurb": "Modern praise network mix",
-      "embed": "https://open.spotify.com/embed/playlist/3YpOVoBjsAHnk1ig33Frt5"
-    },
-    {
-      "id": "chill-worship",
-      "title": "Chill Worship · quiet time",
-      "blurb": "Acoustic calm for study & prayer",
-      "embed": "https://open.spotify.com/embed/playlist/7j2xvPgoW2JVwt7ZiZQTUA"
+      "blurb": "Broad contemporary set",
+      "category": "Contemporary",
+      "embed": "https://open.spotify.com/embed/playlist/3WtvUIOk6s5AuPDjsho9Tr?utm_source=generator"
     }
   ]
 }
