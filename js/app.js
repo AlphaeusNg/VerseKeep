@@ -251,28 +251,10 @@
     return out;
   }
 
-  async function selectTheme(id) {
-    if (state.selecting) return;
-    state.selecting = true;
-    state.themeId = id;
-    const theme = currentTheme();
-    if (!theme) {
-      state.selecting = false;
-      return;
-    }
+  async function beginQueue(queue, label) {
     $("#play-panel").hidden = false;
-    $("#theme-label").textContent = `${theme.emoji} ${theme.title}`;
+    $("#theme-label").textContent = label;
     $("#stage").innerHTML = `<p class="hint">Loading verses${state.liveBible ? " (live text)…" : "…"}</p>`;
-    paintThemes();
-
-    stats.themePlays[id] = (stats.themePlays[id] || 0) + 1;
-    stats.lastTheme = id;
-    saveStats(stats);
-    paintStatsBar();
-
-    let queue = shuffle(
-      theme.verses.map((v) => ({ ...v, themeId: theme.id, localText: v.text }))
-    );
     queue = await hydrateQueueFromLive(queue);
     state.queue = queue;
     state.index = 0;
@@ -286,11 +268,85 @@
       ? `${first.liveTranslation} · ${first.liveSource || "live"}`
       : "local JSON";
     const lbl = $("#live-bible-label");
-    if (lbl) lbl.textContent = `(${state.liveMeta})`;
+    if (lbl && state.liveBible) lbl.textContent = `(${state.liveMeta})`;
 
     startRound();
     $("#play-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    state.selecting = false;
+  }
+
+  async function selectTheme(id) {
+    if (state.selecting) return;
+    state.selecting = true;
+    state.themeId = id;
+    const theme = currentTheme();
+    if (!theme) {
+      state.selecting = false;
+      return;
+    }
+    paintThemes();
+
+    stats.themePlays[id] = (stats.themePlays[id] || 0) + 1;
+    stats.lastTheme = id;
+    saveStats(stats);
+    paintStatsBar();
+
+    // Prefer verses never answered correctly, then least-practiced
+    const ranked = theme.verses
+      .map((v) => ({ ...v, themeId: theme.id, localText: v.text, hits: stats.verseHits[v.ref] || 0 }))
+      .sort((a, b) => a.hits - b.hits || Math.random() - 0.5);
+    // Mix: 60% weak-first order, then light shuffle of chunks
+    let queue = ranked;
+    if (ranked.length > 3) {
+      const weak = ranked.filter((v) => v.hits === 0);
+      const rest = ranked.filter((v) => v.hits > 0);
+      queue = [...shuffle(weak.length ? weak : ranked.slice(0, 2)), ...shuffle(rest.length ? rest : ranked.slice(2))];
+      // de-dupe while preserving order
+      const seen = new Set();
+      queue = queue.filter((v) => {
+        if (seen.has(v.ref)) return false;
+        seen.add(v.ref);
+        return true;
+      });
+      // ensure full coverage
+      for (const v of ranked) {
+        if (!seen.has(v.ref)) queue.push(v);
+      }
+    }
+
+    try {
+      await beginQueue(queue, `${theme.emoji} ${theme.title}`);
+    } finally {
+      state.selecting = false;
+    }
+  }
+
+  /** Cross-theme drill of never-answered verses (or lowest hits). */
+  async function practiceWeak() {
+    if (!state.data?.themes || state.selecting) return;
+    state.selecting = true;
+    const all = state.data.themes.flatMap((t) =>
+      t.verses.map((v) => ({
+        ...v,
+        themeId: t.id,
+        localText: v.text,
+        hits: stats.verseHits[v.ref] || 0,
+        themeTitle: t.title,
+      }))
+    );
+    let pool = all.filter((v) => v.hits === 0);
+    if (pool.length < 4) {
+      pool = all.slice().sort((a, b) => a.hits - b.hits).slice(0, Math.min(12, all.length));
+    } else {
+      pool = shuffle(pool).slice(0, Math.min(12, pool.length));
+    }
+    state.themeId = pool[0]?.themeId || null;
+    paintThemes();
+    try {
+      await beginQueue(pool, "🎯 Weak verses drill");
+      setMode("blank");
+    } finally {
+      state.selecting = false;
+    }
   }
 
   function setMode(mode) {
@@ -382,18 +438,37 @@
       ? `<span class="live-tag mono">${escapeHtml(v.liveTranslation)} · ${escapeHtml(v.liveSource || "live")}</span>`
       : `<span class="live-tag mono">bundled</span>`;
     $("#stage").innerHTML = `
-      <div class="study-box">
+      <div class="study-box" id="study-box">
         <div class="ref">${escapeHtml(v.ref)} ${src}</div>
-        <p>${escapeHtml(v.text)}</p>
+        <p id="study-text">${escapeHtml(v.text)}</p>
       </div>
       <div class="actions study-actions">
+        <button type="button" class="btn ghost" id="btn-hide-text" aria-pressed="false">Hide text (flashcard)</button>
         <button type="button" class="btn ghost" id="btn-speak">Read aloud</button>
         <button type="button" class="btn ghost" id="btn-speak-stop">Stop voice</button>
       </div>
-      <p class="hint study-hint">Read it yourself or use speech. Switch mode to test — or hit Next. <kbd>C</kbd> copies · <kbd>L</kbd> listens.</p>`;
+      <p class="hint study-hint">Read it yourself or use speech. Hide text to self-test. <kbd>C</kbd> copies · <kbd>L</kbd> listens · <kbd>H</kbd> hide.</p>`;
     $("#btn-check").hidden = true;
     $("#btn-speak")?.addEventListener("click", readAloud);
     $("#btn-speak-stop")?.addEventListener("click", stopSpeech);
+    $("#btn-hide-text")?.addEventListener("click", toggleStudyHide);
+  }
+
+  function toggleStudyHide() {
+    const text = $("#study-text");
+    const btn = $("#btn-hide-text");
+    if (!text || !btn) return;
+    const hidden = text.classList.toggle("is-obscured");
+    btn.setAttribute("aria-pressed", hidden ? "true" : "false");
+    btn.textContent = hidden ? "Reveal text" : "Hide text (flashcard)";
+    if (hidden) {
+      text.setAttribute("aria-hidden", "true");
+      text.dataset.full = text.textContent;
+      text.textContent = "···· ··· ····· ···· ······· ····";
+    } else {
+      text.removeAttribute("aria-hidden");
+      if (text.dataset.full) text.textContent = text.dataset.full;
+    }
   }
 
   function pickBlankIndices(n, count) {
@@ -793,8 +868,14 @@
       saveStats(stats);
       paintStatsBar();
       paintThemes();
-      showFeedback(true, "Progress reset.");
+      const resume = $("#resume-hint");
+      if (resume) {
+        resume.hidden = false;
+        resume.textContent = "Progress reset on this device.";
+      }
     });
+
+    $("#btn-practice-weak")?.addEventListener("click", () => practiceWeak());
 
     const trSelect = $("#tr-select");
     if (trSelect && window.VERSEKEEP_BIBLE) {
@@ -925,6 +1006,11 @@
         readAloud();
         return;
       }
+      if (!typing && (e.key === "h" || e.key === "H") && state.mode === "study") {
+        e.preventDefault();
+        toggleStudyHide();
+        return;
+      }
       if (!typing && e.key === "Enter" && !$("#btn-check")?.hidden) {
         e.preventDefault();
         checkAnswer();
@@ -935,7 +1021,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.16.3";
+    if (ver) ver.textContent = "v2026.07.16.4";
 
     // Resume last theme if present
     if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {
