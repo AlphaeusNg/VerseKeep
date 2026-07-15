@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VerseKeep — Scripture memory by theme</title>
+  <meta name="description" content="Christian verse memory games by theme: trust, God's character, sin, gospel, marriage, apologetics. Store the Word in your heart." />
+  <meta name="theme-color" content="#0A0F1C" />
+  <meta name="author" content="Alphaeus Ng" />
+  <link rel="canonical" href="https://alphaeusng.github.io/VerseKeep/" />
+  <meta property="og:title" content="VerseKeep" />
+  <meta property="og:description" content="Memorize Scripture by theme — free browser games." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://alphaeusng.github.io/VerseKeep/" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230A0F1C'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='28'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="skip" href="#themes">Skip to themes</a>
+
+  <header class="topbar">
+    <a class="brand" href="./" title="VerseKeep home">
+      <span class="brand-mark" aria-hidden="true">VK</span>
+      <span>
+        <strong>VerseKeep</strong>
+        <small>store the Word</small>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="#themes">Themes</a>
+      <a href="https://alphaeusng.github.io/pages/seeking-biblical-truth/" target="_blank" rel="noopener">Biblical Truth ↗</a>
+      <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener">AlpArcade ↗</a>
+      <a href="https://alphaeusng.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Christian · Scripture memory</p>
+      <h1>Keep the Word where it belongs.</h1>
+      <p>
+        Pick a theme — trust, character of God, the reality of sin, the gospel, cherishing your wife, apologetics —
+        then study, fill blanks, type from memory, or rebuild the verse word by word.
+        Free in the browser. Built to serve, not to distract.
+      </p>
+    </section>
+
+    <p id="load-error" class="panel" hidden style="border-color: rgba(224,122,122,.4); color: #f0b4b4"></p>
+
+    <section class="panel" id="themes">
+      <h2>Themes</h2>
+      <p class="hint">Choose what you want hidden in your heart today.</p>
+      <div class="theme-grid" id="theme-grid"></div>
+    </section>
+
+    <section class="panel" id="play-panel" hidden>
+      <div class="hud" aria-live="polite">
+        <span id="theme-label">Theme</span>
+        <span id="hud-mode">Study</span>
+        <span id="hud-progress">Verse <strong>0 / 0</strong></span>
+        <span id="hud-score">Score <strong>0</strong></span>
+        <span id="hud-streak">Streak <strong>0</strong></span>
+      </div>
+
+      <h2>Practice</h2>
+      <p class="hint">Modes get harder — start with Study, then test yourself.</p>
+
+      <div class="mode-row" role="tablist" aria-label="Practice mode">
+        <button type="button" class="chip is-active" data-mode="study">Study</button>
+        <button type="button" class="chip" data-mode="blank">Fill blanks</button>
+        <button type="button" class="chip" data-mode="type">Type it</button>
+        <button type="button" class="chip" data-mode="order">Order words</button>
+        <button type="button" class="chip" data-mode="quiz">Which verse?</button>
+      </div>
+
+      <div id="stage"></div>
+      <div id="feedback" class="feedback" hidden></div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="btn-check">Check</button>
+        <button type="button" class="btn ghost" id="btn-reveal">Reveal</button>
+        <button type="button" class="btn" id="btn-next">Next verse</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Also from Alphaeus</h2>
+      <p class="hint" style="margin-bottom:0">
+        Dig deeper in the
+        <a href="https://alphaeusng.github.io/pages/seeking-biblical-truth/">Seeking Biblical Truth</a> vault ·
+        unwind at <a href="https://alphaeusng.github.io/AlpArcade/">AlpArcade</a> ·
+        <a href="https://alphaeusng.github.io/">portfolio</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      © <span id="year"></span> Alphaeus Ng · VerseKeep ·
+      <a href="https://github.com/AlphaeusNg/VerseKeep">Source</a>
+      · Scripture for formation, not score-chasing.
+    </p>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>

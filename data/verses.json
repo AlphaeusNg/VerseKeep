@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "translationNote": "English Standard Version (ESV) style wording for study; verify in your preferred Bible.",
+  "themes": [
+    {
+      "id": "trusting-god",
+      "title": "Trusting in God",
+      "emoji": "🛡️",
+      "blurb": "Rest, refuge, and faith when the path is unclear.",
+      "verses": [
+        {
+          "ref": "Proverbs 3:5–6",
+          "text": "Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths."
+        },
+        {
+          "ref": "Psalm 56:3",
+          "text": "When I am afraid, I put my trust in you."
+        },
+        {
+          "ref": "Isaiah 26:3",
+          "text": "You keep him in perfect peace whose mind is stayed on you, because he trusts in you."
+        },
+        {
+          "ref": "Psalm 46:1",
+          "text": "God is our refuge and strength, a very present help in trouble."
+        },
+        {
+          "ref": "Jeremiah 17:7",
+          "text": "Blessed is the man who trusts in the Lord, whose trust is the Lord."
+        }
+      ]
+    },
+    {
+      "id": "gods-character",
+      "title": "God's Character",
+      "emoji": "✨",
+      "blurb": "Who God is — holy, loving, faithful, and true.",
+      "verses": [
+        {
+          "ref": "Exodus 34:6",
+          "text": "The Lord, the Lord, a God merciful and gracious, slow to anger, and abounding in steadfast love and faithfulness."
+        },
+        {
+          "ref": "1 John 4:8",
+          "text": "Anyone who does not love does not know God, because God is love."
+        },
+        {
+          "ref": "Isaiah 6:3",
+          "text": "Holy, holy, holy is the Lord of hosts; the whole earth is full of his glory!"
+        },
+        {
+          "ref": "Numbers 23:19",
+          "text": "God is not man, that he should lie, or a son of man, that he should change his mind."
+        },
+        {
+          "ref": "Psalm 145:8–9",
+          "text": "The Lord is gracious and merciful, slow to anger and abounding in steadfast love. The Lord is good to all, and his mercy is over all that he has made."
+        }
+      ]
+    },
+    {
+      "id": "reality-of-sin",
+      "title": "Reality of Sin",
+      "emoji": "⚖️",
+      "blurb": "Honest about the fall, the heart, and our need of grace.",
+      "verses": [
+        {
+          "ref": "Romans 3:23",
+          "text": "For all have sinned and fall short of the glory of God."
+        },
+        {
+          "ref": "Romans 6:23",
+          "text": "For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord."
+        },
+        {
+          "ref": "1 John 1:8",
+          "text": "If we say we have no sin, we deceive ourselves, and the truth is not in us."
+        },
+        {
+          "ref": "Isaiah 53:6",
+          "text": "All we like sheep have gone astray; we have turned—every one—to his own way; and the Lord has laid on him the iniquity of us all."
+        },
+        {
+          "ref": "Jeremiah 17:9",
+          "text": "The heart is deceitful above all things, and desperately sick; who can understand it?"
+        }
+      ]
+    },
+    {
+      "id": "gospel",
+      "title": "The Gospel",
+      "emoji": "✝️",
+      "blurb": "Christ crucified and risen — the good news for sinners.",
+      "verses": [
+        {
+          "ref": "John 3:16",
+          "text": "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life."
+        },
+        {
+          "ref": "Romans 5:8",
+          "text": "But God shows his love for us in that while we were still sinners, Christ died for us."
+        },
+        {
+          "ref": "Ephesians 2:8–9",
+          "text": "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast."
+        },
+        {
+          "ref": "2 Corinthians 5:21",
+          "text": "For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God."
+        },
+        {
+          "ref": "1 Corinthians 15:3–4",
+          "text": "Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures."
+        }
+      ]
+    },
+    {
+      "id": "cherish-wife",
+      "title": "Nourish & Cherish Your Wife",
+      "emoji": "💍",
+      "blurb": "Covenant love that mirrors Christ and the church.",
+      "verses": [
+        {
+          "ref": "Ephesians 5:25",
+          "text": "Husbands, love your wives, as Christ loved the church and gave himself up for her."
+        },
+        {
+          "ref": "Ephesians 5:28–29",
+          "text": "In the same way husbands should love their wives as their own bodies. He who loves his wife loves himself. For no one ever hated his own flesh, but nourishes and cherishes it, just as Christ does the church."
+        },
+        {
+          "ref": "1 Peter 3:7",
+          "text": "Likewise, husbands, live with your wives in an understanding way, showing honor to the woman as the weaker vessel, since they are heirs with you of the grace of life, so that your prayers may not be hindered."
+        },
+        {
+          "ref": "Colossians 3:19",
+          "text": "Husbands, love your wives, and do not be harsh with them."
+        },
+        {
+          "ref": "Proverbs 18:22",
+          "text": "He who finds a wife finds a good thing and obtains favor from the Lord."
+        }
+      ]
+    },
+    {
+      "id": "apologetics",
+      "title": "Apologetic Anchors",
+      "emoji": "🧭",
+      "blurb": "Key texts for reason, witness, and defending the faith with gentleness.",
+      "verses": [
+        {
+          "ref": "1 Peter 3:15",
+          "text": "But in your hearts honor Christ the Lord as holy, always being prepared to make a defense to anyone who asks you for a reason for the hope that is in you; yet do it with gentleness and respect."
+        },
+        {
+          "ref": "2 Timothy 3:16–17",
+          "text": "All Scripture is breathed out by God and profitable for teaching, for reproof, for correction, and for training in righteousness, that the man of God may be complete, equipped for every good work."
+        },
+        {
+          "ref": "John 14:6",
+          "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\""
+        },
+        {
+          "ref": "Acts 17:11",
+          "text": "Now these Jews were more noble than those in Thessalonica; they received the word with all eagerness, examining the Scriptures daily to see if these things were so."
+        },
+        {
+          "ref": "Colossians 2:8",
+          "text": "See to it that no one takes you captive by philosophy and empty deceit, according to human tradition, according to the elemental spirits of the world, and not according to Christ."
+        }
+      ]
+    },
+    {
+      "id": "prayer-word",
+      "title": "Prayer & the Word",
+      "emoji": "📖",
+      "blurb": "Living by every word and drawing near in prayer.",
+      "verses": [
+        {
+          "ref": "Psalm 119:11",
+          "text": "I have stored up your word in my heart, that I might not sin against you."
+        },
+        {
+          "ref": "Psalm 119:105",
+          "text": "Your word is a lamp to my feet and a light to my path."
+        },
+        {
+          "ref": "Philippians 4:6–7",
+          "text": "Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God. And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus."
+        },
+        {
+          "ref": "Hebrews 4:12",
+          "text": "For the word of God is living and active, sharper than any two-edged sword, piercing to the division of soul and of spirit, of joints and of marrow, and discerning the thoughts and intentions of the heart."
+        },
+        {
+          "ref": "Matthew 4:4",
+          "text": "Man shall not live by bread alone, but by every word that comes from the mouth of God."
+        }
+      ]
+    }
+  ]
+}
