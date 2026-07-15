@@ -15,6 +15,8 @@
     answered: false,
     blanks: [],
     orderPicked: [],
+    liveBible: true,
+    liveMeta: null,
   };
 
   const MODE_LABELS = {
@@ -74,18 +76,49 @@
     });
   }
 
-  function selectTheme(id) {
+  async function hydrateQueueFromLive(queue) {
+    if (!state.liveBible || !window.VerseKeepBible?.resolveVerse) return queue;
+    const out = [];
+    for (const v of queue) {
+      try {
+        const live = await window.VerseKeepBible.resolveVerse(v.ref, v.text);
+        out.push({
+          ...v,
+          text: live.text || v.text,
+          liveSource: live.source,
+          liveTranslation: live.translation,
+        });
+      } catch {
+        out.push(v);
+      }
+    }
+    return out;
+  }
+
+  async function selectTheme(id) {
     state.themeId = id;
     const theme = currentTheme();
     if (!theme) return;
-    state.queue = shuffle(theme.verses.map((v) => ({ ...v, themeId: theme.id })));
+    $("#play-panel").hidden = false;
+    $("#theme-label").textContent = `${theme.emoji} ${theme.title}`;
+    $("#stage").innerHTML = `<p class="hint">Loading verses${state.liveBible ? " (live text)…" : "…"}</p>`;
+    paintThemes();
+
+    let queue = shuffle(theme.verses.map((v) => ({ ...v, themeId: theme.id, localText: v.text })));
+    queue = await hydrateQueueFromLive(queue);
+    state.queue = queue;
     state.index = 0;
     state.score = 0;
     state.streak = 0;
     state.answered = false;
-    paintThemes();
-    $("#play-panel").hidden = false;
-    $("#theme-label").textContent = `${theme.emoji} ${theme.title}`;
+
+    const first = queue[0];
+    state.liveMeta = first?.liveTranslation
+      ? `${first.liveTranslation} · ${first.liveSource || "live"}`
+      : "local JSON";
+    const lbl = $("#live-bible-label");
+    if (lbl) lbl.textContent = `(${state.liveMeta})`;
+
     startRound();
     $("#play-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -151,9 +184,12 @@
   }
 
   function renderStudy(v) {
+    const src = v.liveTranslation
+      ? `<span class="live-tag mono">${escapeHtml(v.liveTranslation)} · ${escapeHtml(v.liveSource || "live")}</span>`
+      : `<span class="live-tag mono">bundled</span>`;
     $("#stage").innerHTML = `
       <div class="study-box">
-        <div class="ref">${escapeHtml(v.ref)}</div>
+        <div class="ref">${escapeHtml(v.ref)} ${src}</div>
         <p>${escapeHtml(v.text)}</p>
       </div>
       <p class="hint" style="margin-top:0.75rem;color:var(--dim);font-size:0.88rem">Read it aloud. When ready, switch mode to test yourself — or hit Next.</p>`;
@@ -381,7 +417,7 @@
       $("#load-error").textContent = `Could not load verses: ${err.message}`;
     }
 
-    $$(".mode-row .chip").forEach((chip) => {
+    $$(".mode-row .chip[data-mode]").forEach((chip) => {
       chip.addEventListener("click", () => setMode(chip.dataset.mode));
     });
     $("#btn-check")?.addEventListener("click", checkAnswer);
@@ -391,6 +427,23 @@
       if (!v) return;
       showFeedback(true, `${v.ref}: ${v.text}`);
     });
+
+    const liveToggle = $("#live-bible");
+    if (liveToggle) {
+      const pref = window.VERSEKEEP_BIBLE?.preferred || "web";
+      liveToggle.checked = pref !== "local";
+      state.liveBible = liveToggle.checked;
+      liveToggle.addEventListener("change", () => {
+        state.liveBible = liveToggle.checked;
+        if (window.VERSEKEEP_BIBLE) {
+          window.VERSEKEEP_BIBLE.preferred = liveToggle.checked ? "web" : "local";
+        }
+        const lbl = $("#live-bible-label");
+        if (lbl) {
+          lbl.textContent = liveToggle.checked ? "(bible-api WEB · live)" : "(bundled JSON only)";
+        }
+      });
+    }
 
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());

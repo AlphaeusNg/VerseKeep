@@ -31,6 +31,8 @@
     </a>
     <nav class="top-nav" aria-label="Primary">
       <a href="#themes">Themes</a>
+      <a href="#worship">Worship</a>
+      <a href="#wallpapers">Wallpapers</a>
       <a href="https://alphaeusng.github.io/pages/seeking-biblical-truth/" target="_blank" rel="noopener">Biblical Truth ↗</a>
       <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener">AlpArcade ↗</a>
       <a href="https://alphaeusng.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
@@ -44,15 +46,54 @@
       <p>
         Pick a theme — trust, character of God, the reality of sin, the gospel, cherishing your wife, apologetics —
         then study, fill blanks, type from memory, or rebuild the verse word by word.
-        Free in the browser. Built to serve, not to distract.
+        Optional worship music, live verse text, and calm wallpapers while you train.
       </p>
     </section>
 
     <p id="load-error" class="panel" hidden style="border-color: rgba(224,122,122,.4); color: #f0b4b4"></p>
+    <p id="ambient-error" class="panel" hidden style="border-color: rgba(224,122,122,.4); color: #f0b4b4"></p>
+
+    <section class="panel ambient-panel" id="worship">
+      <h2>Worship music</h2>
+      <p class="hint">Easy pick · YouTube or Spotify embeds (needs a free account for some Spotify playlists). Stop anytime.</p>
+      <div class="mode-row" role="tablist" aria-label="Music source">
+        <button type="button" class="chip is-active" data-music-tab="youtube">YouTube</button>
+        <button type="button" class="chip" data-music-tab="spotify">Spotify</button>
+        <button type="button" class="btn ghost" id="music-stop">Stop player</button>
+      </div>
+      <div class="ambient-split">
+        <div class="pick-list" id="music-list"></div>
+        <div class="music-player">
+          <p id="music-empty" class="hint" style="margin:0">Choose a station on the left.</p>
+          <iframe
+            id="music-frame"
+            title="Worship player"
+            hidden
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel ambient-panel" id="wallpapers">
+      <h2>Wallpaper · 1920×1080</h2>
+      <p class="hint">Tap to set the page background. Download for your desktop. Christian-themed HD stills.</p>
+      <div class="wallpaper-grid" id="wallpaper-grid"></div>
+    </section>
 
     <section class="panel" id="themes">
-      <h2>Themes</h2>
-      <p class="hint">Choose what you want hidden in your heart today.</p>
+      <div class="panel-head-row">
+        <div>
+          <h2>Themes</h2>
+          <p class="hint">Choose what you want hidden in your heart today.</p>
+        </div>
+        <label class="live-bible-toggle">
+          <input type="checkbox" id="live-bible" checked />
+          <span>Live verse text <small id="live-bible-label">(bible-api WEB)</small></span>
+        </label>
+      </div>
       <div class="theme-grid" id="theme-grid"></div>
     </section>
 
@@ -105,6 +146,9 @@
     </p>
   </footer>
 
+  <script src="js/bible-config.js" defer></script>
+  <script src="js/bible-live.js" defer></script>
+  <script src="js/ambient.js" defer></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

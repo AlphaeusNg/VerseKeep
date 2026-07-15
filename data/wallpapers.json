@@ -1,0 +1,39 @@
+{
+  "wallpapers": [
+    {
+      "id": "dawn-hills",
+      "title": "Dawn over the hills",
+      "blurb": "Quiet morning light — 1920×1080",
+      "src": "assets/wallpapers/dawn-hills.jpg",
+      "download": "assets/wallpapers/dawn-hills.jpg"
+    },
+    {
+      "id": "open-bible",
+      "title": "Open Word",
+      "blurb": "Study desk, soft window light — 1920×1080",
+      "src": "assets/wallpapers/open-bible.jpg",
+      "download": "assets/wallpapers/open-bible.jpg"
+    },
+    {
+      "id": "starry-lake",
+      "title": "Heavens declare",
+      "blurb": "Night sky over still water — 1920×1080",
+      "src": "assets/wallpapers/starry-lake.jpg",
+      "download": "assets/wallpapers/starry-lake.jpg"
+    },
+    {
+      "id": "stained-light",
+      "title": "Stained light",
+      "blurb": "Gold & sapphire glow — 1920×1080",
+      "src": "assets/wallpapers/stained-light.jpg",
+      "download": "assets/wallpapers/stained-light.jpg"
+    },
+    {
+      "id": "none",
+      "title": "Default (no image)",
+      "blurb": "Clean dark theme only",
+      "src": "",
+      "download": ""
+    }
+  ]
+}

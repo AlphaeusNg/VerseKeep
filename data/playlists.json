@@ -1,0 +1,66 @@
+{
+  "youtube": [
+    {
+      "id": "hillsong-nonstop",
+      "title": "Hillsong Worship (nonstop)",
+      "blurb": "What A Beautiful Name, Oceans, and more",
+      "embed": "https://www.youtube.com/embed/8YKJVx4qxcs"
+    },
+    {
+      "id": "hillsong-2026",
+      "title": "Hillsong & worship mix 2026",
+      "blurb": "Long-form praise playlist",
+      "embed": "https://www.youtube.com/embed/YWZyuz7o8cw"
+    },
+    {
+      "id": "hillsong-united-tour",
+      "title": "Hillsong UNITED — People Tour",
+      "blurb": "Live from Madison Square Garden",
+      "embed": "https://www.youtube.com/embed/XOTGMgj4w5s"
+    },
+    {
+      "id": "young-free",
+      "title": "Hillsong Young & Free (live)",
+      "blurb": "III live conference set",
+      "embed": "https://www.youtube.com/embed/qTAcq-Z_l9A"
+    },
+    {
+      "id": "hillsong-full",
+      "title": "Hillsong collection (long)",
+      "blurb": "Extended worship album mix",
+      "embed": "https://www.youtube.com/embed/Z8CYnADzeOI"
+    },
+    {
+      "id": "gospel-hits-mix",
+      "title": "Praise & worship hits",
+      "blurb": "Broad Christian playlist mix",
+      "embed": "https://www.youtube.com/embed/rb3xn-n7zrQ"
+    }
+  ],
+  "spotify": [
+    {
+      "id": "top-worship-2026",
+      "title": "Top Christian Worship 2026",
+      "blurb": "Bible study → Sunday morning energy",
+      "embed": "https://open.spotify.com/embed/playlist/61xuizm8At6DCwGHJZTmB7"
+    },
+    {
+      "id": "top-100-worship",
+      "title": "Top 100 Christian Worship",
+      "blurb": "Tomlin, Redman, Shane & Shane…",
+      "embed": "https://open.spotify.com/embed/playlist/3WtvUIOk6s5AuPDjsho9Tr"
+    },
+    {
+      "id": "contemporary",
+      "title": "Contemporary Christian & Worship",
+      "blurb": "Modern praise network mix",
+      "embed": "https://open.spotify.com/embed/playlist/3YpOVoBjsAHnk1ig33Frt5"
+    },
+    {
+      "id": "chill-worship",
+      "title": "Chill Worship · quiet time",
+      "blurb": "Acoustic calm for study & prayer",
+      "embed": "https://open.spotify.com/embed/playlist/7j2xvPgoW2JVwt7ZiZQTUA"
+    }
+  ]
+}
