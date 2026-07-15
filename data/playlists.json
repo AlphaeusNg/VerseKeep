@@ -74,6 +74,20 @@
   ],
   "spotify": [
     {
+      "id": "alph-gods-encouragement",
+      "title": "God's encouragement",
+      "blurb": "Alphaeus · go-to encouragement & worship",
+      "category": "From Alphaeus",
+      "embed": "https://open.spotify.com/embed/playlist/0qKlX3MZWEHZgR17jNfI3e?utm_source=generator"
+    },
+    {
+      "id": "alph-ssbc-winter24",
+      "title": "SSBC Winter'24: Delighting in the Spirit",
+      "blurb": "Singapore Student Bible Conference · twice a year",
+      "category": "From Alphaeus",
+      "embed": "https://open.spotify.com/embed/playlist/7rAN4koGCFwrHkmPcuvfMO?utm_source=generator"
+    },
+    {
       "id": "alph-hope",
       "title": "4K2 — Songs of Hope",
       "blurb": "Alphaeus Ng · personal",
