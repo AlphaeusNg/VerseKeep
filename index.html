@@ -47,6 +47,8 @@
         Memorise by theme. Play worship from Alphaeus’s playlists, CityAlight, hymns, and a cappella.
         Live verse text and calm wallpapers while you train.
       </p>
+      <p id="resume-hint" class="resume-hint" hidden></p>
+      <div class="stats-bar mono" id="stats-bar" aria-label="Your progress"></div>
     </section>
 
     <p id="load-error" class="panel" hidden style="border-color: rgba(224,122,122,.45); color: #f0b4b4"></p>
@@ -56,7 +58,7 @@
       <div class="panel-head-row">
         <div>
           <h2>Themes</h2>
-          <p class="hint">Choose what you want hidden in your heart today.</p>
+          <p class="hint">Choose what you want hidden in your heart today. Progress is saved on this device.</p>
         </div>
         <label class="live-bible-toggle">
           <input type="checkbox" id="live-bible" checked />
@@ -76,14 +78,17 @@
       </div>
 
       <h2>Practice</h2>
-      <p class="hint">Modes get harder — start with Study, then test yourself.</p>
+      <p class="hint">
+        Modes get harder — start with Study, then test yourself.
+        <span class="kbd-row">Shortcuts: <kbd>1</kbd>–<kbd>5</kbd> modes · <kbd>N</kbd>/<kbd>B</kbd> next/back · <kbd>R</kbd> reveal · <kbd>C</kbd> copy · <kbd>S</kbd> shuffle</span>
+      </p>
 
       <div class="mode-row" role="tablist" aria-label="Practice mode">
-        <button type="button" class="chip is-active" data-mode="study">Study</button>
-        <button type="button" class="chip" data-mode="blank">Fill blanks</button>
-        <button type="button" class="chip" data-mode="type">Type it</button>
-        <button type="button" class="chip" data-mode="order">Order words</button>
-        <button type="button" class="chip" data-mode="quiz">Which verse?</button>
+        <button type="button" class="chip is-active" data-mode="study" role="tab" aria-selected="true">Study</button>
+        <button type="button" class="chip" data-mode="blank" role="tab" aria-selected="false">Fill blanks</button>
+        <button type="button" class="chip" data-mode="type" role="tab" aria-selected="false">Type it</button>
+        <button type="button" class="chip" data-mode="order" role="tab" aria-selected="false">Order words</button>
+        <button type="button" class="chip" data-mode="quiz" role="tab" aria-selected="false">Which verse?</button>
       </div>
 
       <div id="stage"></div>
@@ -92,8 +97,15 @@
       <div class="actions">
         <button type="button" class="btn primary" id="btn-check">Check</button>
         <button type="button" class="btn ghost" id="btn-reveal">Reveal</button>
+        <button type="button" class="btn ghost" id="btn-prev" title="Previous verse (P)">← Prev</button>
         <button type="button" class="btn" id="btn-next">Next verse</button>
+        <button type="button" class="btn ghost" id="btn-shuffle" title="Shuffle queue (S)">Shuffle</button>
+        <button type="button" class="btn ghost" id="btn-copy" title="Copy verse (C)">Copy</button>
       </div>
+      <label class="auto-advance">
+        <input type="checkbox" id="auto-advance" />
+        <span>Auto-advance after a correct answer</span>
+      </label>
     </section>
 
     <section class="panel ambient-panel" id="worship">
@@ -155,6 +167,7 @@
     <p>
       © <span id="year"></span> Alphaeus Ng · VerseKeep ·
       <a href="https://github.com/AlphaeusNg/VerseKeep">Source</a>
+      · <span id="site-version" class="site-version">v—</span>
       · Scripture for formation, not score-chasing.
     </p>
   </footer>

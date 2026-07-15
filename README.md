@@ -6,7 +6,7 @@ Christian **Scripture memory** games in the browser — by theme.
 **Portfolio:** https://alphaeusng.github.io/  
 **Related:** [Seeking Biblical Truth](https://alphaeusng.github.io/pages/seeking-biblical-truth/) · [AlpArcade](https://alphaeusng.github.io/AlpArcade/)
 
-## Themes (starter set)
+## Themes
 
 - Trusting in God  
 - God's character  
@@ -15,16 +15,21 @@ Christian **Scripture memory** games in the browser — by theme.
 - Nourish & cherish your wife  
 - Apologetic anchors  
 - Prayer & the Word  
+- Strength in trials  
+- Identity in Christ  
 
-Edit / extend verses in `data/verses.json`.
+Edit / extend verses in `data/verses.json`. Progress (mastery, streaks, accuracy) is stored in `localStorage` on this device.
 
 ## Modes
 
 1. **Study** — read the verse  
 2. **Fill blanks** — missing words  
-3. **Type it** — free recall (fuzzy match)  
+3. **Type it** — free recall (fuzzy match) + first-letter hint  
 4. **Order words** — rebuild sequence  
 5. **Which verse?** — pick the reference  
+
+Keyboard: `1`–`5` modes · `N`/`B` next/back · `R` reveal · `C` copy · `S` shuffle · `Enter` check  
+
 
 ## Worship music
 

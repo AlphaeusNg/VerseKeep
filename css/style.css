@@ -789,3 +789,136 @@ main {
 .music-note a {
   font-weight: 550;
 }
+
+/* Progress & mastery */
+.stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  margin-top: 1rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.stats-bar strong {
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.resume-hint {
+  margin: 0.85rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.linkish {
+  border: none;
+  background: none;
+  color: var(--gold);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.linkish:hover {
+  color: #f0d878;
+}
+
+.theme-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.55rem;
+  font-size: 0.68rem;
+  color: var(--dim);
+}
+
+.theme-mastery {
+  color: var(--gold);
+}
+
+.theme-bar {
+  display: block;
+  height: 3px;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.theme-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #8f7417, var(--gold));
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+
+.kbd-row {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+kbd {
+  display: inline-block;
+  padding: 0.08rem 0.35rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.35);
+  font-family: var(--mono);
+  font-size: 0.72em;
+  color: var(--cream);
+  line-height: 1.3;
+}
+
+.study-hint,
+.kbd-hint,
+.type-hint {
+  margin-top: 0.75rem !important;
+  color: var(--dim) !important;
+  font-size: 0.88rem !important;
+}
+
+.type-letter-hint {
+  margin-top: 0.5rem;
+  letter-spacing: 0.04em;
+  color: var(--gold) !important;
+}
+
+.auto-advance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.choice-num {
+  display: inline-block;
+  min-width: 1.1rem;
+  margin-right: 0.35rem;
+  color: var(--dim);
+  font-size: 0.75rem;
+}
+
+.site-version {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+.type-actions {
+  margin-top: 0.5rem;
+}
