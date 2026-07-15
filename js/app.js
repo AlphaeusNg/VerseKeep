@@ -43,6 +43,7 @@
       bestStreak: 0,
       verseHits: {}, // "ref" -> correct count
       themePlays: {}, // themeId -> times selected
+      favorites: {},
       lastTheme: null,
       totalScore: 0,
     };
@@ -53,7 +54,13 @@
       const raw = localStorage.getItem(STATS_KEY);
       if (!raw) return defaultStats();
       const data = JSON.parse(raw);
-      return { ...defaultStats(), ...data, verseHits: data.verseHits || {}, themePlays: data.themePlays || {} };
+      return {
+        ...defaultStats(),
+        ...data,
+        verseHits: data.verseHits || {},
+        themePlays: data.themePlays || {},
+        favorites: data.favorites || {},
+      };
     } catch {
       return defaultStats();
     }
@@ -128,29 +135,88 @@
     return Math.round((known / theme.verses.length) * 100);
   }
 
+  function themeMatchesFilter(t, q) {
+    if (!q) return true;
+    const hay = `${t.title} ${t.blurb} ${t.id} ${t.verses.map((v) => v.ref).join(" ")}`.toLowerCase();
+    return hay.includes(q);
+  }
+
   function paintThemes() {
     const host = $("#theme-grid");
     if (!host || !state.data) return;
-    host.innerHTML = state.data.themes
+    const q = normalize($("#theme-search")?.value || "").replace(/\s+/g, " ");
+    const list = state.data.themes
+      .filter((t) => themeMatchesFilter(t, q))
+      .slice()
+      .sort((a, b) => {
+        const fa = stats.favorites?.[a.id] ? 1 : 0;
+        const fb = stats.favorites?.[b.id] ? 1 : 0;
+        return fb - fa;
+      });
+    if (!list.length) {
+      host.innerHTML = `<p class="hint">No themes match “${escapeHtml($("#theme-search")?.value || "")}”.</p>`;
+      return;
+    }
+    host.innerHTML = list
       .map((t) => {
         const m = masteryForTheme(t);
         const plays = stats.themePlays[t.id] || 0;
+        const fav = !!(stats.favorites && stats.favorites[t.id]);
         return `
-      <button type="button" class="theme-card${t.id === state.themeId ? " is-active" : ""}" data-theme="${escapeHtml(t.id)}" aria-pressed="${t.id === state.themeId ? "true" : "false"}">
-        <span class="emoji" aria-hidden="true">${t.emoji}</span>
-        <strong>${escapeHtml(t.title)}</strong>
-        <small>${escapeHtml(t.blurb)}</small>
-        <span class="theme-meta mono">
-          <span class="theme-mastery" title="Verses you've answered correctly at least once">${m}% known</span>
-          <span class="theme-count">${t.verses.length} verses${plays ? ` · ×${plays}` : ""}</span>
-        </span>
-        <span class="theme-bar" aria-hidden="true"><span style="width:${m}%"></span></span>
-      </button>`;
+      <div class="theme-card-wrap">
+        <button type="button" class="theme-card${t.id === state.themeId ? " is-active" : ""}${fav ? " is-fav" : ""}" data-theme="${escapeHtml(t.id)}" aria-pressed="${t.id === state.themeId ? "true" : "false"}">
+          <span class="emoji" aria-hidden="true">${t.emoji}</span>
+          <strong>${escapeHtml(t.title)}</strong>
+          <small>${escapeHtml(t.blurb)}</small>
+          <span class="theme-meta mono">
+            <span class="theme-mastery" title="Verses you've answered correctly at least once">${m}% known</span>
+            <span class="theme-count">${t.verses.length} verses${plays ? ` · ×${plays}` : ""}</span>
+          </span>
+          <span class="theme-bar" aria-hidden="true"><span style="width:${m}%"></span></span>
+        </button>
+        <button type="button" class="fav-btn${fav ? " is-on" : ""}" data-fav="${escapeHtml(t.id)}" title="${fav ? "Unfavorite" : "Favorite"}" aria-label="${fav ? "Unfavorite" : "Favorite"} ${escapeHtml(t.title)}">${fav ? "★" : "☆"}</button>
+      </div>`;
       })
       .join("");
     host.querySelectorAll("[data-theme]").forEach((btn) => {
       btn.addEventListener("click", () => selectTheme(btn.dataset.theme));
     });
+    host.querySelectorAll("[data-fav]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleFavorite(btn.dataset.fav);
+      });
+    });
+  }
+
+  function toggleFavorite(id) {
+    if (!stats.favorites) stats.favorites = {};
+    if (stats.favorites[id]) delete stats.favorites[id];
+    else stats.favorites[id] = true;
+    saveStats(stats);
+    paintThemes();
+  }
+
+  function stopSpeech() {
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function readAloud() {
+    const v = currentVerse();
+    if (!v || !window.speechSynthesis) {
+      showFeedback(false, "Speech not available in this browser.");
+      return;
+    }
+    stopSpeech();
+    const u = new SpeechSynthesisUtterance(`${v.ref}. ${v.text}`);
+    u.rate = 0.92;
+    u.pitch = 1;
+    window.speechSynthesis.speak(u);
+    showFeedback(true, "Reading aloud…");
   }
 
   function paintStatsBar() {
@@ -320,8 +386,14 @@
         <div class="ref">${escapeHtml(v.ref)} ${src}</div>
         <p>${escapeHtml(v.text)}</p>
       </div>
-      <p class="hint study-hint">Read it aloud. Switch mode to test yourself — or hit Next. <kbd>C</kbd> copies the verse.</p>`;
+      <div class="actions study-actions">
+        <button type="button" class="btn ghost" id="btn-speak">Read aloud</button>
+        <button type="button" class="btn ghost" id="btn-speak-stop">Stop voice</button>
+      </div>
+      <p class="hint study-hint">Read it yourself or use speech. Switch mode to test — or hit Next. <kbd>C</kbd> copies · <kbd>L</kbd> listens.</p>`;
     $("#btn-check").hidden = true;
+    $("#btn-speak")?.addEventListener("click", readAloud);
+    $("#btn-speak-stop")?.addEventListener("click", stopSpeech);
   }
 
   function pickBlankIndices(n, count) {
@@ -714,6 +786,35 @@
       if (!v) return;
       showFeedback(true, `${v.ref}: ${v.text}`);
     });
+    $("#theme-search")?.addEventListener("input", () => paintThemes());
+    $("#btn-reset-stats")?.addEventListener("click", () => {
+      if (!confirm("Reset all VerseKeep progress on this device? (favorites, mastery, streaks)")) return;
+      stats = defaultStats();
+      saveStats(stats);
+      paintStatsBar();
+      paintThemes();
+      showFeedback(true, "Progress reset.");
+    });
+
+    const trSelect = $("#tr-select");
+    if (trSelect && window.VERSEKEEP_BIBLE) {
+      const savedTr = loadPrefs().translation || window.VERSEKEEP_BIBLE.bibleApiTranslation || "web";
+      trSelect.value = savedTr;
+      window.VERSEKEEP_BIBLE.bibleApiTranslation = savedTr;
+      trSelect.addEventListener("change", async () => {
+        window.VERSEKEEP_BIBLE.bibleApiTranslation = trSelect.value;
+        savePrefs({ translation: trSelect.value });
+        const lbl = $("#live-bible-label");
+        if (lbl && state.liveBible) lbl.textContent = `(bible-api ${trSelect.value.toUpperCase()})`;
+        if (state.themeId && state.liveBible && state.queue.length) {
+          $("#stage").innerHTML = `<p class="hint">Fetching ${trSelect.value.toUpperCase()}…</p>`;
+          state.queue = await hydrateQueueFromLive(
+            state.queue.map((v) => ({ ...v, text: v.localText || v.text }))
+          );
+          startRound();
+        }
+      });
+    }
 
     const autoToggle = $("#auto-advance");
     const prefs = loadPrefs();
@@ -819,6 +920,11 @@
         shuffleQueue();
         return;
       }
+      if (!typing && (e.key === "l" || e.key === "L")) {
+        e.preventDefault();
+        readAloud();
+        return;
+      }
       if (!typing && e.key === "Enter" && !$("#btn-check")?.hidden) {
         e.preventDefault();
         checkAnswer();
@@ -829,7 +935,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.16.2";
+    if (ver) ver.textContent = "v2026.07.16.3";
 
     // Resume last theme if present
     if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {

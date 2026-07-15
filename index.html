@@ -60,10 +60,25 @@
           <h2>Themes</h2>
           <p class="hint">Choose what you want hidden in your heart today. Progress is saved on this device.</p>
         </div>
-        <label class="live-bible-toggle">
-          <input type="checkbox" id="live-bible" checked />
-          <span>Live verse text <small id="live-bible-label">(bible-api WEB)</small></span>
-        </label>
+        <div class="theme-tools">
+          <label class="live-bible-toggle">
+            <input type="checkbox" id="live-bible" checked />
+            <span>Live verse text <small id="live-bible-label">(bible-api WEB)</small></span>
+          </label>
+          <label class="tr-select-label">
+            <span class="sr-only">Translation</span>
+            <select id="tr-select" class="tr-select" title="bible-api translation">
+              <option value="web">WEB</option>
+              <option value="kjv">KJV</option>
+              <option value="asv">ASV</option>
+              <option value="bbe">BBE</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="theme-filter-row">
+        <input type="search" id="theme-search" class="theme-search" placeholder="Filter themes…" autocomplete="off" />
+        <button type="button" class="btn ghost" id="btn-reset-stats" title="Clear mastery and stats on this device">Reset progress</button>
       </div>
       <div class="theme-grid" id="theme-grid"></div>
     </section>

@@ -922,3 +922,96 @@ kbd {
 .type-actions {
   margin-top: 0.5rem;
 }
+
+.theme-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.65rem 1rem;
+}
+
+.theme-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.85rem 0 1rem;
+  align-items: center;
+}
+
+.theme-search {
+  flex: 1;
+  min-width: 10rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.theme-search:focus {
+  outline: none;
+  border-color: var(--gold-line);
+}
+
+.tr-select {
+  border-radius: 0.55rem;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.theme-card-wrap {
+  position: relative;
+}
+
+.theme-card-wrap .theme-card {
+  width: 100%;
+  padding-right: 2.2rem;
+}
+
+.theme-card.is-fav {
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+.fav-btn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--dim);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fav-btn.is-on,
+.fav-btn:hover {
+  color: var(--gold);
+  border-color: var(--gold-line);
+}
+
+.study-actions {
+  margin-top: 0.65rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
