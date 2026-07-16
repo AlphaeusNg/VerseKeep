@@ -1,7 +1,6 @@
 /**
  * Worship music + wallpapers for VerseKeep.
- * Player sits inline in the Music section; when you scroll away it docks
- * to the bottom of the screen (same iframe — no reload).
+ * Player stays inline in the Music section (no sticky dock).
  */
 (function () {
   "use strict";
@@ -92,25 +91,6 @@
     });
   }
 
-  function updateDockState() {
-    const s = $("#music-player-shell");
-    const sl = $("#music-player-slot");
-    if (!s || !playing) return;
-
-    const rect = sl?.getBoundingClientRect();
-    const slotVisible =
-      sl &&
-      rect &&
-      rect.bottom > 64 &&
-      rect.top < (window.innerHeight || 0) - 64;
-
-    const shouldDock = !slotVisible;
-    s.classList.toggle("is-docked", shouldDock);
-    sl?.classList.toggle("is-player-docked", shouldDock);
-    const pin = $("#music-dock-pin");
-    if (pin) pin.hidden = !shouldDock;
-  }
-
   function selectMusic(id, embed, title) {
     if (!embed) return;
     const frame = $("#music-frame");
@@ -122,7 +102,6 @@
 
     if (currentEmbed === embed && playing) {
       paintMusicList();
-      updateDockState();
       return;
     }
 
@@ -146,7 +125,6 @@
       /* ignore */
     }
     paintMusicList();
-    updateDockState();
   }
 
   function stopMusic() {
@@ -157,11 +135,7 @@
       frame.removeAttribute("src");
       frame.src = "about:blank";
     }
-    if (shell) {
-      shell.hidden = true;
-      shell.classList.remove("is-docked");
-    }
-    $("#music-player-slot")?.classList.remove("is-player-docked");
+    if (shell) shell.hidden = true;
     if (empty) empty.hidden = false;
     activeMusicId = null;
     currentEmbed = "";
@@ -249,26 +223,12 @@
     }
   }
 
-  function watchVisibility() {
-    const sl = $("#music-player-slot");
-    if (sl && "IntersectionObserver" in window) {
-      new IntersectionObserver(() => updateDockState(), {
-        root: null,
-        threshold: [0, 0.05, 0.2, 0.5, 1],
-        rootMargin: "-48px 0px -48px 0px",
-      }).observe(sl);
-    }
-    window.addEventListener("scroll", updateDockState, { passive: true });
-    window.addEventListener("resize", updateDockState);
-  }
-
   function bindUi() {
     $$("[data-music-tab]").forEach((btn) => {
       btn.addEventListener("click", () => {
         musicTab = btn.dataset.musicTab;
         paintMusicTabs();
         paintMusicList();
-        // list only — never touch the iframe
       });
     });
 
@@ -290,7 +250,6 @@
       restoreWallpaper();
       restoreMusic();
       bindUi();
-      watchVisibility();
     } catch (err) {
       console.warn("[ambient]", err);
       const el = $("#ambient-error");

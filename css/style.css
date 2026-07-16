@@ -596,7 +596,7 @@ main {
   line-height: 1.35;
 }
 
-/* Inline player in Music section; docks when scrolled away */
+/* Inline player in Music section only */
 .music-player-slot {
   min-height: 3rem;
 }
@@ -639,33 +639,12 @@ main {
   white-space: nowrap;
 }
 
-.music-dock-pin {
-  font-size: 0.65rem;
-  color: var(--dim);
-  flex-shrink: 0;
-}
-
 .music-player-frame-wrap iframe {
   display: block;
   width: 100%;
   height: 152px;
   border: 0;
   background: #000;
-}
-
-.music-player-shell.is-docked {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 60;
-  width: min(400px, calc(100vw - 1.5rem));
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
-  background: rgba(10, 14, 12, 0.96);
-  backdrop-filter: blur(12px);
-}
-
-.music-player-slot.is-player-docked {
-  min-height: 0;
 }
 
 .wallpaper-grid {
