@@ -50,6 +50,7 @@
       </p>
       <p id="resume-hint" class="resume-hint" hidden></p>
       <div class="stats-bar mono" id="stats-bar" aria-label="Your progress"></div>
+      <div id="wp-hero-loved" class="wp-hero-loved" hidden></div>
     </section>
 
     <p id="load-error" class="panel" hidden style="border-color: rgba(224,122,122,.45); color: #f0b4b4"></p>
@@ -163,9 +164,24 @@
     </section>
 
     <section class="panel ambient-panel" id="wallpapers">
-      <h2>Wallpaper · 1920×1080</h2>
-      <p class="hint">Tap to set the sanctuary background. Download HD for your desktop.</p>
+      <div class="panel-head-row">
+        <div>
+          <h2>Wallpaper · daily light</h2>
+          <p class="hint">
+            Fresh suggestions each day from the web (calm creation photos). Heart your favourites —
+            the most-loved wallpaper stays featured for everyone who visits.
+          </p>
+        </div>
+        <div class="wp-tools">
+          <button type="button" class="btn ghost" id="wp-use-daily">Use today’s</button>
+          <button type="button" class="btn primary" id="wp-new-suggestions">New suggestions</button>
+        </div>
+      </div>
+      <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
       <div class="wallpaper-grid" id="wallpaper-grid"></div>
+      <p class="hint wp-credit">
+        Daily photos via Unsplash CDN · bundled classics always available offline · hearts sync when the counter service is reachable.
+      </p>
     </section>
 
     <section class="panel">
@@ -191,6 +207,7 @@
   <script src="js/bible-config.js" defer></script>
   <script src="js/bible-live.js" defer></script>
   <script src="js/ambient.js" defer></script>
+  <script src="js/wallpapers.js" defer></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

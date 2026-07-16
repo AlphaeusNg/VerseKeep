@@ -46,9 +46,12 @@ Curated **YouTube** and **Spotify** embeds in the Worship section — tap a stat
 
 Optional: set `esvApiKey` and `preferred: "esv"` in `js/bible-config.js` if you add a proxy.
 
-## Wallpapers (1920×1080)
+## Wallpapers
 
-Christian-themed HD backgrounds under `assets/wallpapers/`. Tap to apply; **Download 1920×1080** for desktop use.
+- **Daily suggestions** — six calm creation photos each day (Unsplash CDN; no API key), plus **New suggestions** to reshuffle.
+- **Classics** — bundled HD images under `assets/wallpapers/` (work offline).
+- **Hearts** — ♥ a wallpaper; counts try to sync globally (counter API, best-effort). The **most loved** wallpaper is featured in the hero and wallpaper section.
+- First visit / “Use today’s” follows the daily wallpaper; picking one locks your choice until you change it.
 
 ## Stack
 

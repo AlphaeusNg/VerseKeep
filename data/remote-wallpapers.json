@@ -1,0 +1,215 @@
+{
+  "note": "Curated calm / creation-themed Unsplash photos for daily suggestions (no API key). URLs built client-side.",
+  "pool": [
+    {
+      "id": "rw-mountain-light",
+      "unsplash": "1506905925346-21bda4d32df4",
+      "title": "Mountain light",
+      "blurb": "Hills in soft dawn"
+    },
+    {
+      "id": "rw-still-lake",
+      "unsplash": "1439066615861-d1af74d74000",
+      "title": "Still waters",
+      "blurb": "Lake and quiet sky"
+    },
+    {
+      "id": "rw-open-sky",
+      "unsplash": "1470071459604-3b5ec3a7fe05",
+      "title": "Open sky",
+      "blurb": "Clouds over green hills"
+    },
+    {
+      "id": "rw-forest-path",
+      "unsplash": "1441974231531-c6227db76b6e",
+      "title": "Forest path",
+      "blurb": "Sun through trees"
+    },
+    {
+      "id": "rw-golden-field",
+      "unsplash": "1500382017468-9049fed747ef",
+      "title": "Golden field",
+      "blurb": "Warm evening grain"
+    },
+    {
+      "id": "rw-night-stars",
+      "unsplash": "1419242902214-272b3f66ee7a",
+      "title": "Night host",
+      "blurb": "Stars over the land"
+    },
+    {
+      "id": "rw-ocean-horizon",
+      "unsplash": "1505142468610-359e7d316be0",
+      "title": "Horizon hope",
+      "blurb": "Sea meeting sky"
+    },
+    {
+      "id": "rw-misty-hills",
+      "unsplash": "1464822759023-fed622ff2c3b",
+      "title": "Misty peaks",
+      "blurb": "Clouded mountains"
+    },
+    {
+      "id": "rw-soft-sunrise",
+      "unsplash": "1495616811223-4d98c6e9c869",
+      "title": "Soft sunrise",
+      "blurb": "New mercies at dawn"
+    },
+    {
+      "id": "rw-quiet-book",
+      "unsplash": "1456513087080-7b3def8777b7",
+      "title": "Open pages",
+      "blurb": "Study in warm light"
+    },
+    {
+      "id": "rw-candle-desk",
+      "unsplash": "1481627834876-b7833e8f5570",
+      "title": "Desk light",
+      "blurb": "Books and quiet"
+    },
+    {
+      "id": "rw-lavender",
+      "unsplash": "1499002238440-d264edd596ec",
+      "title": "Lavender rest",
+      "blurb": "Purple fields"
+    },
+    {
+      "id": "rw-waterfall",
+      "unsplash": "1432405972618-c0462ff46c8d",
+      "title": "Living water",
+      "blurb": "Falls in the wild"
+    },
+    {
+      "id": "rw-wheat",
+      "unsplash": "1464226184884-fa280b87c399",
+      "title": "Harvest gold",
+      "blurb": "Ready fields"
+    },
+    {
+      "id": "rw-chapel-hill",
+      "unsplash": "1478146896981-b80fe463b330",
+      "title": "Hill chapel",
+      "blurb": "Quiet place of prayer"
+    },
+    {
+      "id": "rw-stained-glow",
+      "unsplash": "1438032005730-c779502df39b",
+      "title": "Stained glow",
+      "blurb": "Light through glass"
+    },
+    {
+      "id": "rw-desert-road",
+      "unsplash": "1469854523086-cc02fe5d8800",
+      "title": "Wilderness road",
+      "blurb": "Journey under wide sky"
+    },
+    {
+      "id": "rw-snow-peak",
+      "unsplash": "1519904981063-b0cf448d479e",
+      "title": "High places",
+      "blurb": "Snow and ridge"
+    },
+    {
+      "id": "rw-meadow",
+      "unsplash": "1472214103451-9374bd1c798e",
+      "title": "Green pasture",
+      "blurb": "Meadow and sky"
+    },
+    {
+      "id": "rw-autumn-path",
+      "unsplash": "1507041957456-9c397ce39c97",
+      "title": "Autumn walk",
+      "blurb": "Gold leaves underfoot"
+    },
+    {
+      "id": "rw-blue-hour",
+      "unsplash": "1419242902214-272b3f66ee7a",
+      "title": "Blue hour",
+      "blurb": "Evening stillness"
+    },
+    {
+      "id": "rw-cross-light",
+      "unsplash": "1507692049790-fbc3e6c5e59c",
+      "title": "Cross at dusk",
+      "blurb": "Silhouette and sky"
+    },
+    {
+      "id": "rw-bible-flowers",
+      "unsplash": "1490730141103-6cac27aaab94",
+      "title": "Morning quiet",
+      "blurb": "Soft window light"
+    },
+    {
+      "id": "rw-cliff-sea",
+      "unsplash": "1507525428034-b723cf961d3e",
+      "title": "Cliff & sea",
+      "blurb": "Coastal breeze"
+    },
+    {
+      "id": "rw-valley",
+      "unsplash": "1469474968028-56623f02e42e",
+      "title": "Valley light",
+      "blurb": "Sunbeams on hills"
+    },
+    {
+      "id": "rw-fog-trees",
+      "unsplash": "1448375240586-882707db888b",
+      "title": "Fog & firs",
+      "blurb": "Mist in the woods"
+    },
+    {
+      "id": "rw-warm-desk",
+      "unsplash": "1481627834876-b7833e8f5570",
+      "title": "Study table",
+      "blurb": "Lamp and pages"
+    },
+    {
+      "id": "rw-wildflowers",
+      "unsplash": "1465146633011-14f8e0781093",
+      "title": "Wildflowers",
+      "blurb": "Field in bloom"
+    },
+    {
+      "id": "rw-calm-bay",
+      "unsplash": "1505142468610-359e7d316be0",
+      "title": "Calm bay",
+      "blurb": "Gentle water"
+    },
+    {
+      "id": "rw-stone-path",
+      "unsplash": "1470071459604-3b5ec3a7fe05",
+      "title": "Hill path",
+      "blurb": "Step by step"
+    },
+    {
+      "id": "rw-purple-dusk",
+      "unsplash": "1507400492013-162706c8c05e",
+      "title": "Purple dusk",
+      "blurb": "Sky after sundown"
+    },
+    {
+      "id": "rw-olive-grove",
+      "unsplash": "1464226184884-fa280b87c399",
+      "title": "Sunlit grove",
+      "blurb": "Trees in gold light"
+    },
+    {
+      "id": "rw-quiet-lake2",
+      "unsplash": "1501785888041-af3ef285b470",
+      "title": "Mirror lake",
+      "blurb": "Reflection of hills"
+    },
+    {
+      "id": "rw-candle-prayer",
+      "unsplash": "1519681393784-d120267933ba",
+      "title": "Mountain night",
+      "blurb": "Stars over peaks"
+    },
+    {
+      "id": "rw-garden",
+      "unsplash": "1416879595882-3373a0480b5b",
+      "title": "Garden rest",
+      "blurb": "Green and calm"
+    }
+  ]
+}

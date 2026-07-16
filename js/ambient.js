@@ -1,6 +1,7 @@
 /**
- * Worship music + wallpapers for VerseKeep.
- * Player stays inline in the Music section (no sticky dock).
+ * Worship music for VerseKeep.
+ * Player stays inline in the Music section.
+ * Wallpapers live in js/wallpapers.js.
  */
 (function () {
   "use strict";
@@ -8,12 +9,9 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
-  const WP_KEY = "versekeep-wallpaper";
   const MUSIC_KEY = "versekeep-music";
-  const DEFAULT_WP = "dawn-hills";
 
   let playlists = { youtube: [], spotify: [] };
-  let wallpapers = [];
   let musicTab = "spotify";
   let activeMusicId = null;
   let currentEmbed = "";
@@ -148,63 +146,6 @@
     paintMusicList();
   }
 
-  function paintWallpapers() {
-    const host = $("#wallpaper-grid");
-    if (!host) return;
-    const current = localStorage.getItem(WP_KEY) || DEFAULT_WP;
-    host.innerHTML = wallpapers
-      .map((w) => {
-        const active = w.id === current;
-        const thumb = w.src
-          ? `<img src="${escapeHtml(w.src)}" alt="" loading="lazy" width="320" height="180" />`
-          : `<div class="wp-none">Default dark</div>`;
-        const dl = w.download
-          ? `<a class="wp-dl" href="${escapeHtml(w.download)}" download="${escapeHtml(w.id)}.jpg" onclick="event.stopPropagation()">Download HD</a>`
-          : "";
-        return `
-        <button type="button" class="wp-card${active ? " is-active" : ""}" data-wp="${escapeHtml(w.id)}" data-src="${escapeHtml(w.src || "")}">
-          <div class="wp-thumb">${thumb}</div>
-          <div class="wp-meta">
-            <strong>${escapeHtml(w.title)}</strong>
-            <small>${escapeHtml(w.blurb || "")}</small>
-            ${dl}
-          </div>
-        </button>`;
-      })
-      .join("");
-
-    host.querySelectorAll("[data-wp]").forEach((btn) => {
-      btn.addEventListener("click", () => applyWallpaper(btn.dataset.wp, btn.dataset.src || ""));
-    });
-  }
-
-  function applyWallpaper(id, src) {
-    const root = document.documentElement;
-    if (src) {
-      root.style.setProperty("--wallpaper", `url("${src}")`);
-      document.body.classList.add("has-wallpaper");
-    } else {
-      root.style.removeProperty("--wallpaper");
-      document.body.classList.remove("has-wallpaper");
-    }
-    try {
-      localStorage.setItem(WP_KEY, id);
-    } catch {
-      /* ignore */
-    }
-    paintWallpapers();
-  }
-
-  function restoreWallpaper() {
-    let id = localStorage.getItem(WP_KEY);
-    if (!id) id = DEFAULT_WP;
-    const w =
-      wallpapers.find((x) => x.id === id) ||
-      wallpapers.find((x) => x.id === DEFAULT_WP) ||
-      wallpapers[0];
-    if (w) applyWallpaper(w.id, w.src || "");
-  }
-
   function restoreMusic() {
     try {
       const raw = localStorage.getItem(MUSIC_KEY);
@@ -238,16 +179,9 @@
 
   async function boot() {
     try {
-      const [pl, wp] = await Promise.all([
-        loadJson("data/playlists.json"),
-        loadJson("data/wallpapers.json"),
-      ]);
-      playlists = pl;
-      wallpapers = wp.wallpapers || [];
+      playlists = await loadJson("data/playlists.json");
       paintMusicTabs();
       paintMusicList();
-      paintWallpapers();
-      restoreWallpaper();
       restoreMusic();
       bindUi();
     } catch (err) {
@@ -255,7 +189,7 @@
       const el = $("#ambient-error");
       if (el) {
         el.hidden = false;
-        el.textContent = `Could not load music/wallpapers: ${err.message}`;
+        el.textContent = `Could not load music: ${err.message}`;
       }
     }
   }

@@ -1021,7 +1021,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.16.5";
+    if (ver) ver.textContent = "v2026.07.16.6";
 
     // Resume last theme if present
     if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {
