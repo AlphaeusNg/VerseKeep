@@ -282,7 +282,7 @@
     s.classList.add("is-popup");
     s.classList.remove("is-home", "is-minimized");
     s.style.position = "fixed";
-    s.style.zIndex = "80";
+    s.style.zIndex = "100"; /* above edge tab while floating */
     s.style.width = "min(340px, calc(100vw - 1.5rem))";
     s.style.maxWidth = "calc(100vw - 1rem)";
     if (floatPos && Number.isFinite(floatPos.left)) {
@@ -302,19 +302,34 @@
     }
     const sl = slot();
     if (sl) sl.style.minHeight = "";
+    const t = tab();
+    if (t) {
+      t.classList.remove("is-player-mini");
+      t.style.zIndex = "";
+    }
     setChrome(true);
     if (!soft) persistUi();
   }
 
+  /** Minimize → board hides; side ♪ tab is the mini player at the front. */
   function placePlayerMini() {
+    setDockOpen(false, { persist: false });
     const s = ensureShellOnBody();
     if (s) {
       s.hidden = true;
       s.classList.add("is-minimized", "is-popup");
-      s.classList.remove("is-home");
+      s.classList.remove("is-home", "is-dragging");
+      s.style.zIndex = "";
     }
     playerMode = "mini";
     setChrome(false);
+    const t = tab();
+    if (t) {
+      t.classList.add("is-player-mini");
+      t.style.zIndex = "110";
+      t.style.left = "";
+      t.style.pointerEvents = "auto";
+    }
     updateLabels();
   }
 
@@ -483,6 +498,7 @@
         /* ignore */
       }
       s.classList.add("is-dragging");
+      s.style.zIndex = "200";
     });
     bar.addEventListener("pointermove", (e) => {
       if (!drag || e.pointerId !== drag.id) return;
@@ -492,6 +508,7 @@
       s.style.top = `${pos.top}px`;
       s.style.right = "auto";
       s.style.bottom = "auto";
+      s.style.zIndex = "200";
       s.classList.add("is-dragged");
       s.classList.toggle("is-snap-near", pos.left < SNAP_LEFT && dockOpen);
     });
@@ -593,9 +610,12 @@
     tab()?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const opening = !dockOpen;
-      setDockOpen(opening);
-      if (opening && playing && playerMode === "mini") setPlayerMode("home");
+      // Minimized → expand floating board in front
+      if (playing && playerMode === "mini") {
+        setPlayerMode("float");
+        return;
+      }
+      setDockOpen(!dockOpen);
     });
     $("#music-dock-close")?.addEventListener("click", (e) => {
       e.preventDefault();

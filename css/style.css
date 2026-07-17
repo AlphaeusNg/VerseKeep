@@ -600,7 +600,7 @@ main {
   position: fixed;
   left: 0;
   top: 50%;
-  z-index: 90;
+  z-index: 70; /* normal; float shell 100, mini-on-tab 110, dragging 200 */
   transform: translateY(-50%);
   display: inline-flex;
   flex-direction: row;
@@ -895,7 +895,7 @@ main {
   width: min(340px, calc(100vw - 1.5rem));
   max-width: calc(100vw - 0.75rem);
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
-  z-index: 80;
+  z-index: 50;
 }
 
 .music-player-shell[hidden] {
@@ -905,16 +905,19 @@ main {
 .music-player-shell.is-home {
   box-shadow: none;
   background: rgba(8, 12, 10, 0.55);
+  z-index: 58;
 }
 
 .music-player-shell.is-popup {
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
   border-color: rgba(212, 175, 55, 0.55);
+  z-index: 100; /* above edge tab (70) while floating */
 }
 
 .music-player-shell.is-dragging {
-  opacity: 0.96;
+  opacity: 0.98;
   cursor: grabbing;
+  z-index: 200 !important; /* while dragging — on top of side tab */
 }
 
 .music-player-shell.is-snap-near {
@@ -979,9 +982,13 @@ main {
   color: var(--gold);
 }
 
+/* Minimized player lives on this tab — bring it to the front */
 .music-dock-tab.is-player-mini {
+  z-index: 110 !important;
   border-color: var(--gold);
   color: var(--gold);
+  background: rgba(14, 18, 14, 0.98);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.4), 6px 0 28px rgba(0, 0, 0, 0.5);
 }
 
 
