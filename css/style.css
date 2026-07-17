@@ -983,7 +983,7 @@ main {
 
 .wp-meta {
   padding: 0.55rem 0.7rem 0.7rem;
-  padding-right: 2.6rem;
+  padding-right: 4.5rem;
 }
 
 .wp-meta strong {
@@ -999,17 +999,55 @@ main {
   font-size: 0.75rem;
 }
 
-.wp-dl {
+/* Always opens in a new tab (classic + daily) — no download attribute */
+.wp-open-hd {
   display: inline-block;
   margin-top: 0.4rem;
   font-size: 0.72rem;
   color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.wp-open-hd:hover {
+  border-bottom-color: rgba(212, 175, 55, 0.55);
+  color: #f0d878;
+}
+
+/* Download + heart cluster (bottom-right of card) */
+.wp-side-actions {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  z-index: 2;
+}
+
+.wp-dl-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--gold);
+  font-size: 0.78rem;
+  text-decoration: none;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.wp-dl-mini:hover {
+  border-color: var(--gold-line);
+  background: rgba(212, 175, 55, 0.12);
+  color: #f0d878;
 }
 
 .wp-heart {
-  position: absolute;
-  right: 0.4rem;
-  bottom: 0.45rem;
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
@@ -1021,7 +1059,6 @@ main {
   font: inherit;
   font-size: 0.75rem;
   cursor: pointer;
-  z-index: 2;
 }
 
 .wp-heart:hover,

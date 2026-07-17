@@ -48,8 +48,15 @@
     return h >>> 0;
   }
 
-  function unsplashUrl(photoId) {
-    return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&w=1920&h=1080&q=80`;
+  function unsplashUrl(photoId, { w = 1920, h = 1080, q = 80 } = {}) {
+    return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&w=${w}&h=${h}&q=${q}`;
+  }
+
+  /** Full-res-ish URL for Open HD / download (same for classic + daily). */
+  function hdUrl(w) {
+    if (!w) return "";
+    if (w.unsplash) return unsplashUrl(w.unsplash, { w: 2400, h: 1350, q: 90 });
+    return w.download || w.src || "";
   }
 
   function picsumUrl(seed) {
@@ -138,12 +145,13 @@
     const src = photo
       ? unsplashUrl(photo)
       : picsumUrl(`versekeep-${day}-${item.id}-${index}`);
+    const download = photo ? unsplashUrl(photo, { w: 2400, h: 1350, q: 90 }) : src;
     return {
       id: item.id,
       title: item.title || "Daily light",
       blurb: item.blurb || "Today’s suggestion",
       src,
-      download: src,
+      download,
       kind: "daily",
       unsplash: photo,
     };
@@ -328,8 +336,14 @@
     const thumb = w.src
       ? `<img src="${escapeHtml(w.src)}" alt="" loading="lazy" width="320" height="180" referrerpolicy="no-referrer" />`
       : `<div class="wp-none">Default dark</div>`;
-    const dl = w.download
-      ? `<a class="wp-dl" href="${escapeHtml(w.download)}" target="_blank" rel="noopener" download="${escapeHtml(w.id)}.jpg">Open HD</a>`
+    const open = hdUrl(w);
+    // Open HD: always open in a new tab (no download attr — same for classic + daily)
+    const openHd = open
+      ? `<a class="wp-open-hd" href="${escapeHtml(open)}" target="_blank" rel="noopener noreferrer" title="Open HD in a new tab">Open HD</a>`
+      : "";
+    // Mini download beside heart (same-origin classics download; remotes open/save as browser allows)
+    const dlMini = open
+      ? `<a class="wp-dl-mini" href="${escapeHtml(open)}" download="${escapeHtml(w.id || "wallpaper")}.jpg" target="_blank" rel="noopener noreferrer" title="Download HD" aria-label="Download HD wallpaper">⬇</a>`
       : "";
     const badge =
       showDailyBadge || w.kind === "daily"
@@ -345,13 +359,16 @@
           <div class="wp-meta">
             <strong>${escapeHtml(w.title)}</strong>
             <small>${escapeHtml(w.blurb || "")}</small>
-            ${dl}
+            ${openHd}
           </div>
         </button>
-        <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
-          <span class="wp-heart-icon" aria-hidden="true">${hearted ? "♥" : "♡"}</span>
-          <span class="wp-heart-count mono">${count}</span>
-        </button>
+        <div class="wp-side-actions">
+          ${dlMini}
+          <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
+            <span class="wp-heart-icon" aria-hidden="true">${hearted ? "♥" : "♡"}</span>
+            <span class="wp-heart-count mono">${count}</span>
+          </button>
+        </div>
       </article>`;
   }
 
@@ -461,11 +478,14 @@
 
     host.querySelectorAll("[data-apply]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        // don't fire when clicking download link
-        if (e.target.closest("a")) return;
+        // don't apply when using Open HD / download controls
+        if (e.target.closest("a, .wp-side-actions")) return;
         const w = findWallpaper(btn.dataset.apply);
         if (w) applyWallpaper(w, { mode: "manual" });
       });
+    });
+    host.querySelectorAll(".wp-open-hd, .wp-dl-mini").forEach((a) => {
+      a.addEventListener("click", (e) => e.stopPropagation());
     });
     host.querySelectorAll("[data-heart]").forEach((btn) => {
       btn.addEventListener("click", (e) => {

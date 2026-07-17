@@ -1,215 +1,185 @@
 {
-  "note": "Curated calm / creation-themed Unsplash photos for daily suggestions (no API key). URLs built client-side.",
+  "note": "Curated Christian / faith-rooted wallpapers (Unsplash CDN, no API key). Prefer church, cross, stained glass, open Word, prayer, creation with worship framing.",
   "pool": [
     {
-      "id": "rw-mountain-light",
-      "unsplash": "1506905925346-21bda4d32df4",
-      "title": "Mountain light",
-      "blurb": "Hills in soft dawn"
+      "id": "rw-open-word",
+      "unsplash": "1504052430486-c2d9c9ff00e5",
+      "title": "Open Word",
+      "blurb": "Scripture in quiet light"
     },
     {
-      "id": "rw-still-lake",
-      "unsplash": "1439066615861-d1af74d74000",
-      "title": "Still waters",
-      "blurb": "Lake and quiet sky"
-    },
-    {
-      "id": "rw-open-sky",
-      "unsplash": "1470071459604-3b5ec3a7fe05",
-      "title": "Open sky",
-      "blurb": "Clouds over green hills"
-    },
-    {
-      "id": "rw-forest-path",
-      "unsplash": "1441974231531-c6227db76b6e",
-      "title": "Forest path",
-      "blurb": "Sun through trees"
-    },
-    {
-      "id": "rw-golden-field",
-      "unsplash": "1500382017468-9049fed747ef",
-      "title": "Golden field",
-      "blurb": "Warm evening grain"
-    },
-    {
-      "id": "rw-night-stars",
-      "unsplash": "1419242902214-272b3f66ee7a",
-      "title": "Night host",
-      "blurb": "Stars over the land"
-    },
-    {
-      "id": "rw-ocean-horizon",
-      "unsplash": "1505142468610-359e7d316be0",
-      "title": "Horizon hope",
-      "blurb": "Sea meeting sky"
-    },
-    {
-      "id": "rw-misty-hills",
-      "unsplash": "1464822759023-fed622ff2c3b",
-      "title": "Misty peaks",
-      "blurb": "Clouded mountains"
-    },
-    {
-      "id": "rw-soft-sunrise",
-      "unsplash": "1495616811223-4d98c6e9c869",
-      "title": "Soft sunrise",
-      "blurb": "New mercies at dawn"
-    },
-    {
-      "id": "rw-quiet-book",
+      "id": "rw-study-pages",
       "unsplash": "1456513087080-7b3def8777b7",
-      "title": "Open pages",
-      "blurb": "Study in warm light"
+      "title": "Pages of life",
+      "blurb": "Study in warm room light"
     },
     {
-      "id": "rw-candle-desk",
+      "id": "rw-lamp-bible",
       "unsplash": "1481627834876-b7833e8f5570",
-      "title": "Desk light",
-      "blurb": "Books and quiet"
+      "title": "Lamp for my feet",
+      "blurb": "Books and a quiet desk"
     },
     {
-      "id": "rw-lavender",
-      "unsplash": "1499002238440-d264edd596ec",
-      "title": "Lavender rest",
-      "blurb": "Purple fields"
+      "id": "rw-morning-word",
+      "unsplash": "1490730141103-6cac27aaab94",
+      "title": "New mercies",
+      "blurb": "Morning quiet with the Word"
     },
     {
-      "id": "rw-waterfall",
-      "unsplash": "1432405972618-c0462ff46c8d",
-      "title": "Living water",
-      "blurb": "Falls in the wild"
+      "id": "rw-cross-dusk",
+      "unsplash": "1507692049790-fbc3e6c5e59c",
+      "title": "Cross at dusk",
+      "blurb": "Silhouette against the sky"
     },
     {
-      "id": "rw-wheat",
-      "unsplash": "1464226184884-fa280b87c399",
-      "title": "Harvest gold",
-      "blurb": "Ready fields"
+      "id": "rw-cross-glass",
+      "unsplash": "1519892300163-cbac0fb54b55",
+      "title": "Lifted cross",
+      "blurb": "Cross in sacred space"
     },
     {
-      "id": "rw-chapel-hill",
+      "id": "rw-stained-sanctuary",
+      "unsplash": "1438032005730-c779502df39b",
+      "title": "Stained light",
+      "blurb": "Glass colour in the nave"
+    },
+    {
+      "id": "rw-stained-windows",
       "unsplash": "1478146896981-b80fe463b330",
-      "title": "Hill chapel",
+      "title": "Chapel windows",
       "blurb": "Quiet place of prayer"
     },
     {
-      "id": "rw-stained-glow",
-      "unsplash": "1438032005730-c779502df39b",
-      "title": "Stained glow",
-      "blurb": "Light through glass"
+      "id": "rw-church-aisle",
+      "unsplash": "1438031188742-9bb4e0a0c0b1",
+      "title": "Toward the altar",
+      "blurb": "Aisle into holy light"
     },
     {
-      "id": "rw-desert-road",
+      "id": "rw-steeple-sky",
+      "unsplash": "1464822759023-fed622ff2c3b",
+      "title": "High places",
+      "blurb": "Peaks that call the heart up"
+    },
+    {
+      "id": "rw-heavens-declare",
+      "unsplash": "1419242902214-272b3f66ee7a",
+      "title": "Heavens declare",
+      "blurb": "Night host over the earth"
+    },
+    {
+      "id": "rw-still-waters",
+      "unsplash": "1439066615861-d1af74d74000",
+      "title": "Still waters",
+      "blurb": "He leads me beside quiet water"
+    },
+    {
+      "id": "rw-green-pasture",
+      "unsplash": "1472214103451-9374bd1c798e",
+      "title": "Green pastures",
+      "blurb": "Meadow rest under open sky"
+    },
+    {
+      "id": "rw-living-water",
+      "unsplash": "1432405972618-c0462ff46c8d",
+      "title": "Living water",
+      "blurb": "Falls in the wilderness"
+    },
+    {
+      "id": "rw-creation-dawn",
+      "unsplash": "1495616811223-4d98c6e9c869",
+      "title": "Morning by morning",
+      "blurb": "New mercies at sunrise"
+    },
+    {
+      "id": "rw-mountain-glory",
+      "unsplash": "1506905925346-21bda4d32df4",
+      "title": "His hills",
+      "blurb": "Dawn on the mountains"
+    },
+    {
+      "id": "rw-valley-light",
+      "unsplash": "1469474968028-56623f02e42e",
+      "title": "Valley light",
+      "blurb": "Sunbeams through the hills"
+    },
+    {
+      "id": "rw-path-of-life",
+      "unsplash": "1441974231531-c6227db76b6e",
+      "title": "Path of life",
+      "blurb": "Forest way in the light"
+    },
+    {
+      "id": "rw-sea-hope",
+      "unsplash": "1505142468610-359e7d316be0",
+      "title": "Hope on the horizon",
+      "blurb": "Sea meeting faithful sky"
+    },
+    {
+      "id": "rw-harvest",
+      "unsplash": "1500382017468-9049fed747ef",
+      "title": "Fields white",
+      "blurb": "Harvest gold at evening"
+    },
+    {
+      "id": "rw-prayer-hands",
+      "unsplash": "1511632765486-a01980e01a18",
+      "title": "Gathered in prayer",
+      "blurb": "Hands lifted together"
+    },
+    {
+      "id": "rw-communion-table",
+      "unsplash": "1507003211169-0a1dd7228f2d",
+      "title": "Table of the Lord",
+      "blurb": "Bread, cup, and quiet"
+    },
+    {
+      "id": "rw-candle-vigil",
+      "unsplash": "1519681393784-d120267933ba",
+      "title": "Keep watch",
+      "blurb": "Stars over creation"
+    },
+    {
+      "id": "rw-olive-light",
+      "unsplash": "1464226184884-fa280b87c399",
+      "title": "Olive country",
+      "blurb": "Sunlit trees of the land"
+    },
+    {
+      "id": "rw-desert-journey",
       "unsplash": "1469854523086-cc02fe5d8800",
       "title": "Wilderness road",
       "blurb": "Journey under wide sky"
     },
     {
-      "id": "rw-snow-peak",
+      "id": "rw-snow-refuge",
       "unsplash": "1519904981063-b0cf448d479e",
-      "title": "High places",
-      "blurb": "Snow and ridge"
+      "title": "Refuge on high",
+      "blurb": "Snow ridge and sky"
     },
     {
-      "id": "rw-meadow",
-      "unsplash": "1472214103451-9374bd1c798e",
-      "title": "Green pasture",
-      "blurb": "Meadow and sky"
-    },
-    {
-      "id": "rw-autumn-path",
-      "unsplash": "1507041957456-9c397ce39c97",
-      "title": "Autumn walk",
-      "blurb": "Gold leaves underfoot"
-    },
-    {
-      "id": "rw-blue-hour",
-      "unsplash": "1419242902214-272b3f66ee7a",
-      "title": "Blue hour",
-      "blurb": "Evening stillness"
-    },
-    {
-      "id": "rw-cross-light",
-      "unsplash": "1507692049790-fbc3e6c5e59c",
-      "title": "Cross at dusk",
-      "blurb": "Silhouette and sky"
-    },
-    {
-      "id": "rw-bible-flowers",
-      "unsplash": "1490730141103-6cac27aaab94",
-      "title": "Morning quiet",
-      "blurb": "Soft window light"
-    },
-    {
-      "id": "rw-cliff-sea",
-      "unsplash": "1507525428034-b723cf961d3e",
-      "title": "Cliff & sea",
-      "blurb": "Coastal breeze"
-    },
-    {
-      "id": "rw-valley",
-      "unsplash": "1469474968028-56623f02e42e",
-      "title": "Valley light",
-      "blurb": "Sunbeams on hills"
-    },
-    {
-      "id": "rw-fog-trees",
+      "id": "rw-fog-fir",
       "unsplash": "1448375240586-882707db888b",
-      "title": "Fog & firs",
-      "blurb": "Mist in the woods"
+      "title": "Stillness in mist",
+      "blurb": "Firs in quiet fog"
     },
     {
-      "id": "rw-warm-desk",
-      "unsplash": "1481627834876-b7833e8f5570",
-      "title": "Study table",
-      "blurb": "Lamp and pages"
-    },
-    {
-      "id": "rw-wildflowers",
+      "id": "rw-wildflower-praise",
       "unsplash": "1465146633011-14f8e0781093",
-      "title": "Wildflowers",
-      "blurb": "Field in bloom"
+      "title": "Consider the lilies",
+      "blurb": "Field flowers in bloom"
     },
     {
-      "id": "rw-calm-bay",
-      "unsplash": "1505142468610-359e7d316be0",
-      "title": "Calm bay",
-      "blurb": "Gentle water"
-    },
-    {
-      "id": "rw-stone-path",
-      "unsplash": "1470071459604-3b5ec3a7fe05",
-      "title": "Hill path",
-      "blurb": "Step by step"
-    },
-    {
-      "id": "rw-purple-dusk",
-      "unsplash": "1507400492013-162706c8c05e",
-      "title": "Purple dusk",
-      "blurb": "Sky after sundown"
-    },
-    {
-      "id": "rw-olive-grove",
-      "unsplash": "1464226184884-fa280b87c399",
-      "title": "Sunlit grove",
-      "blurb": "Trees in gold light"
-    },
-    {
-      "id": "rw-quiet-lake2",
+      "id": "rw-mirror-lake",
       "unsplash": "1501785888041-af3ef285b470",
-      "title": "Mirror lake",
-      "blurb": "Reflection of hills"
+      "title": "As in a mirror",
+      "blurb": "Lake reflecting the sky"
     },
     {
-      "id": "rw-candle-prayer",
-      "unsplash": "1519681393784-d120267933ba",
-      "title": "Mountain night",
-      "blurb": "Stars over peaks"
-    },
-    {
-      "id": "rw-garden",
-      "unsplash": "1416879595882-3373a0480b5b",
-      "title": "Garden rest",
-      "blurb": "Green and calm"
+      "id": "rw-purple-rest",
+      "unsplash": "1499002238440-d264edd596ec",
+      "title": "Sabbath fields",
+      "blurb": "Lavender rest at dusk"
     }
   ]
 }
