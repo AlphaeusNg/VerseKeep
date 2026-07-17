@@ -311,15 +311,15 @@
     },
     {
       "id": "lofi-baptism",
-      "title": "Baptism of Jesus",
-      "blurb": "Lo-fi · Jesus baptized in dawn river",
+      "title": "Baptism waters",
+      "blurb": "Lo-fi · misted figure in dawn baptism waters",
       "theme": "baptism",
-      "themeTitle": "Baptism of Jesus",
+      "themeTitle": "Baptism waters",
       "style": "lofi",
       "tags": [
         "Lo-fi",
         "Baptism",
-        "Jesus"
+        "Jordan"
       ],
       "tone": "water",
       "src": "assets/wallpapers/lofi-baptism.jpg",
@@ -327,15 +327,15 @@
     },
     {
       "id": "min-baptism",
-      "title": "Baptism of Jesus",
-      "blurb": "Minimal · Jesus baptized in quiet waters",
+      "title": "Baptism waters",
+      "blurb": "Minimal · quiet silhouette in the river",
       "theme": "baptism",
-      "themeTitle": "Baptism of Jesus",
+      "themeTitle": "Baptism waters",
       "style": "minimal",
       "tags": [
         "Minimal",
         "Baptism",
-        "Jesus"
+        "Jordan"
       ],
       "tone": "minimal",
       "src": "assets/wallpapers/min-baptism.jpg",
@@ -343,15 +343,15 @@
     },
     {
       "id": "masc-baptism",
-      "title": "Baptism of Jesus",
-      "blurb": "Masculine · Jesus baptized at bronze dawn",
+      "title": "Baptism waters",
+      "blurb": "Masculine · distant figure in bronze mist",
       "theme": "baptism",
-      "themeTitle": "Baptism of Jesus",
+      "themeTitle": "Baptism waters",
       "style": "masculine",
       "tags": [
         "Masculine",
         "Baptism",
-        "Jesus"
+        "Jordan"
       ],
       "tone": "masculine",
       "src": "assets/wallpapers/masc-baptism.jpg",
