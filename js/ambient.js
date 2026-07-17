@@ -249,10 +249,9 @@
     const sl = slot();
     if (!s) return;
     playerMode = "home";
-    s.classList.remove("is-popup", "is-minimized", "is-dragged");
+    s.classList.remove("is-popup", "is-minimized", "is-dragged", "is-dragging", "is-snap-near");
     s.classList.add("is-home");
     s.hidden = !playing;
-    clearShellPos(s);
     const t = tab();
     if (t) {
       t.classList.remove("is-player-mini");
@@ -262,21 +261,28 @@
       setChrome(false);
       return;
     }
-    const rect = sl.getBoundingClientRect();
-    const slotOnScreen =
-      dockOpen && rect.width > 8 && rect.bottom > 0 && rect.top < (window.innerHeight || 0);
-    if (slotOnScreen) {
-      s.style.position = "fixed";
-      s.style.left = `${Math.max(0, rect.left)}px`;
-      s.style.top = `${Math.max(0, rect.top)}px`;
-      s.style.width = `${rect.width}px`;
-      s.style.zIndex = "58";
-      sl.style.minHeight = `${Math.max(s.offsetHeight || 180, 168)}px`;
-      setChrome(false);
-    } else {
+    // Slot lives in a fixed dock — only pin while open (stable during page scroll)
+    if (!dockOpen) {
       placePlayerFloat({ soft: true });
       return;
     }
+    const rect = sl.getBoundingClientRect();
+    if (rect.width < 8) {
+      placePlayerFloat({ soft: true });
+      return;
+    }
+    s.style.position = "fixed";
+    s.style.transform = "none";
+    s.style.left = `${Math.round(rect.left)}px`;
+    s.style.top = `${Math.round(rect.top)}px`;
+    s.style.right = "auto";
+    s.style.bottom = "auto";
+    s.style.width = `${Math.round(rect.width)}px`;
+    s.style.maxWidth = "";
+    s.style.zIndex = "58";
+    const h = Math.max(s.offsetHeight || 180, 168);
+    if (sl.style.minHeight !== `${h}px`) sl.style.minHeight = `${h}px`;
+    setChrome(false);
   }
 
   function placePlayerFloat({ soft = false } = {}) {
@@ -285,8 +291,10 @@
     playerMode = "float";
     s.hidden = false;
     s.classList.add("is-popup");
-    s.classList.remove("is-home", "is-minimized");
+    s.classList.remove("is-home", "is-minimized", "is-dragging", "is-snap-near");
+    // Viewport-fixed: never track document scroll
     s.style.position = "fixed";
+    s.style.transform = "none";
     s.style.zIndex = "100"; /* above edge tab while floating */
     s.style.width = "min(340px, calc(100vw - 1.5rem))";
     s.style.maxWidth = "calc(100vw - 1rem)";
@@ -657,15 +665,9 @@
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && dockOpen) setDockOpen(false);
     });
-    window.addEventListener(
-      "scroll",
-      () => {
-        if (playerMode === "home" && playing) placePlayerHome();
-      },
-      { passive: true }
-    );
+    // No scroll re-pin: dock + player shell are position:fixed to the viewport.
     window.addEventListener("resize", () => {
-      if (playerMode === "home" && playing) placePlayerHome();
+      if (playerMode === "home" && playing && dockOpen) placePlayerHome();
       else if (playerMode === "float" && floatPos) {
         const s = shell();
         floatPos = clamp(floatPos.left, floatPos.top, s);
@@ -674,7 +676,12 @@
           s.style.top = `${floatPos.top}px`;
         }
       }
-      setDockOpen(dockOpen, { persist: false });
+      const sc = scrim();
+      if (sc) {
+        const narrow = window.matchMedia("(max-width: 820px)").matches;
+        sc.hidden = !(dockOpen && narrow);
+        sc.setAttribute("aria-hidden", sc.hidden ? "true" : "false");
+      }
     });
   }
 
