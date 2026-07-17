@@ -130,8 +130,8 @@
       <h2>Music · sides of the same heart</h2>
       <p class="music-note">
         Autoplay on visit (last station, or <strong>God’s encouragement</strong>).
-        Player starts <strong>here</strong>; when you scroll away it becomes a
-        <strong>draggable bottom-right popup</strong> (– minimizes to a tab, × returns it here without jumping the page).
+        Same as AlpArcade: player starts <strong>in this section</strong>; after you visit Music and scroll away it
+        floats bottom-right (drag · – mini tab · × back here, no page jump).
         Spotify: <a href="https://open.spotify.com/playlist/0qKlX3MZWEHZgR17jNfI3e" target="_blank" rel="noopener">God’s encouragement</a>,
         <a href="https://open.spotify.com/playlist/7rAN4koGCFwrHkmPcuvfMO" target="_blank" rel="noopener">SSBC Winter’24</a>,
         Hope · Despair · Catchy, then CityAlight, hymns &amp; a cappella.
@@ -140,6 +140,8 @@
         <button type="button" class="chip is-active" data-music-tab="spotify">Spotify</button>
         <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
       </div>
+      <!-- Picks first (like AA), then player home in this section -->
+      <div class="pick-list" id="music-list"></div>
       <div id="music-player-slot" class="music-player-slot">
         <p id="music-empty" class="music-empty-inline">Starting music…</p>
         <div class="music-player-shell" id="music-player-shell" hidden>
@@ -160,7 +162,6 @@
           </div>
         </div>
       </div>
-      <div class="pick-list" id="music-list"></div>
     </section>
 
     <section class="panel ambient-panel" id="wallpapers">

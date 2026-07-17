@@ -24,6 +24,8 @@
   let gestureHooked = false;
   /** User closed the popup → stay inline until section is seen then left again */
   let preferInline = false;
+  /** Only auto-float after the Music section has been on-screen at least once (matches AA UX) */
+  let seenMusicSection = false;
   let docked = false;
   let minimized = false;
   let drag = null; // { ox, oy, id }
@@ -247,9 +249,10 @@
 
   function minimizePopup() {
     if (!playing) return;
-    // If still inline, treat as dock-then-minimize so user gets a tab
+    // Same as AA: if still inline, float first then collapse to tab
     if (!docked) {
       preferInline = false;
+      seenMusicSection = true; // allow floating mini-tab even if Music never scrolled into view
       minimized = false;
       mountPopup();
     }
@@ -265,6 +268,7 @@
   function expandFromTab() {
     minimized = false;
     preferInline = false;
+    seenMusicSection = true;
     hideMiniTab();
     const s = shell();
     if (s) {
@@ -293,22 +297,21 @@
 
     const visible = slotVisible();
     if (visible) {
-      // Music section is on screen → player lives there; allow future auto-dock again
+      // Music section is on screen → player lives there (same as AA)
+      seenMusicSection = true;
       preferInline = false;
       if (docked || minimized) mountInline();
       return;
     }
 
-    // Section off-screen
-    if (preferInline) {
-      // User closed popup — keep in Music box (off-screen) until they visit Music again
+    // Off-screen: stay in the Music box until user has visited Music (or closed popup)
+    if (preferInline || !seenMusicSection) {
       if (docked || minimized) mountInline();
       return;
     }
 
     if (!docked) mountPopup();
     else if (minimized) {
-      // keep tab visible while scrolled away
       if (s) {
         s.hidden = true;
         s.classList.add("is-minimized");
@@ -318,7 +321,7 @@
   }
 
   function closePopupToMusic() {
-    // Return player to Music box without scrolling the page
+    // Return player to Music box without scrolling the page (same as AA)
     preferInline = true;
     popupPos = null;
     mountInline();
@@ -409,7 +412,7 @@
       /* ignore */
     }
     paintMusicList();
-    // Prefer showing in Music section first
+    // Start in the Music box (like AA); only float after Music has been seen then left
     if (!docked && !minimized) mountInline();
     updateDockState();
   }

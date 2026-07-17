@@ -644,13 +644,13 @@ main {
 }
 
 .ambient-panel .pick-list {
-  max-height: 28rem;
-  margin-top: 0.85rem;
+  max-height: 22rem;
+  margin-top: 0.65rem;
 }
 
-/* Inline home for the player inside Music section */
+/* Inline home for the player inside Music section (after picks, like AA) */
 .music-player-slot {
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
   min-height: 2rem;
 }
 
