@@ -43,11 +43,18 @@ body {
   background-attachment: fixed;
 }
 
+/* Image URL is set via --wallpaper AND body inline styles (see wallpapers.js).
+   Relative classic paths must be absolutized in JS — CSS var url() resolves
+   against css/style.css, which breaks assets/wallpapers/*.jpg. */
 body.has-wallpaper {
-  background:
+  background-color: var(--bg-deep);
+  background-image:
     linear-gradient(180deg, rgba(12, 16, 14, 0.72) 0%, rgba(12, 16, 14, 0.86) 100%),
-    var(--wallpaper) center / cover no-repeat fixed,
-    var(--bg-deep);
+    var(--wallpaper);
+  background-size: auto, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: scroll, fixed;
 }
 
 a {

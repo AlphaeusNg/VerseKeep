@@ -221,27 +221,61 @@
     return allKnownWallpapers().find((w) => w.id === id) || catalog[id] || null;
   }
 
+  /**
+   * CSS custom properties resolve url() against the stylesheet (css/style.css),
+   * not the page — so relative classic paths like assets/wallpapers/x.jpg 404.
+   * Always absolutize before putting into --wallpaper.
+   */
+  function resolveAssetUrl(src) {
+    if (!src) return "";
+    const s = String(src).trim();
+    if (!s) return "";
+    if (/^(https?:|data:|blob:)/i.test(s)) return s;
+    try {
+      return new URL(s, location.href).href;
+    } catch {
+      return s;
+    }
+  }
+
   function applyVisual(src) {
     const root = document.documentElement;
-    if (src) {
-      root.style.setProperty("--wallpaper", `url("${src}")`);
+    const abs = resolveAssetUrl(src);
+    if (abs) {
+      // Quote-safe for CSS url("…")
+      const safe = abs.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      root.style.setProperty("--wallpaper", `url("${safe}")`);
       document.body.classList.add("has-wallpaper");
+      // Also set on body as a belt-and-suspenders for stubborn mobile browsers
+      document.body.style.backgroundImage = `linear-gradient(180deg, rgba(12, 16, 14, 0.72) 0%, rgba(12, 16, 14, 0.86) 100%), url("${safe}")`;
+      document.body.style.backgroundSize = "auto, cover";
+      document.body.style.backgroundPosition = "center, center";
+      document.body.style.backgroundRepeat = "no-repeat, no-repeat";
+      document.body.style.backgroundAttachment = "scroll, fixed";
+      document.body.style.backgroundColor = "var(--bg-deep)";
     } else {
       root.style.removeProperty("--wallpaper");
       document.body.classList.remove("has-wallpaper");
+      document.body.style.backgroundImage = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundPosition = "";
+      document.body.style.backgroundRepeat = "";
+      document.body.style.backgroundAttachment = "";
+      document.body.style.backgroundColor = "";
     }
   }
 
   function applyWallpaper(w, { mode = "manual", persist = true } = {}) {
     if (!w) return;
     applying = true;
-    applyVisual(w.src || "");
-    rememberCatalog(w);
+    const src = w.src || "";
+    applyVisual(src);
+    rememberCatalog({ ...w, src, download: w.download || src });
     if (persist) {
       savePref({
         mode,
         id: w.id,
-        src: w.src || "",
+        src,
         title: w.title || w.id,
         day: dayKey(),
         at: Date.now(),
