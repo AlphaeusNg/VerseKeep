@@ -4,253 +4,948 @@
       "id": "dawn-hills",
       "title": "Dawn over the hills",
       "blurb": "Quiet morning light on the ridgeline",
-      "tags": ["Creation", "Morning"],
+      "tags": [
+        "Creation",
+        "Morning"
+      ],
       "tone": "creation",
       "src": "assets/wallpapers/dawn-hills.jpg",
-      "download": "assets/wallpapers/dawn-hills.jpg"
+      "download": "assets/wallpapers/dawn-hills.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "classic"
     },
     {
       "id": "open-bible",
       "title": "Open Word",
       "blurb": "Study desk, soft window light",
-      "tags": ["Word", "Study"],
+      "tags": [
+        "Word",
+        "Study"
+      ],
       "tone": "study",
       "src": "assets/wallpapers/open-bible.jpg",
-      "download": "assets/wallpapers/open-bible.jpg"
+      "download": "assets/wallpapers/open-bible.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "classic"
     },
     {
       "id": "starry-lake",
       "title": "Heavens declare",
       "blurb": "Night sky over still water",
-      "tags": ["Cosmos", "Wonder"],
+      "tags": [
+        "Cosmos",
+        "Wonder"
+      ],
       "tone": "cosmos",
       "src": "assets/wallpapers/starry-lake.jpg",
-      "download": "assets/wallpapers/starry-lake.jpg"
+      "download": "assets/wallpapers/starry-lake.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "classic"
     },
     {
       "id": "stained-light",
       "title": "Stained light",
       "blurb": "Gold & sapphire sanctuary glow",
-      "tags": ["Sanctuary", "Worship"],
+      "tags": [
+        "Sanctuary",
+        "Worship"
+      ],
       "tone": "worship",
       "src": "assets/wallpapers/stained-light.jpg",
-      "download": "assets/wallpapers/stained-light.jpg"
+      "download": "assets/wallpapers/stained-light.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "classic"
     },
     {
       "id": "win-nt-vibes",
       "title": "NT vibes",
       "blurb": "From your PC · New Testament mood board",
-      "tags": ["Yours", "NT"],
+      "tags": [
+        "Yours",
+        "NT"
+      ],
       "tone": "personal",
       "src": "assets/wallpapers/win-nt-vibes.jpg",
-      "download": "assets/wallpapers/win-nt-vibes.jpg"
+      "download": "assets/wallpapers/win-nt-vibes.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "win-ot-vibes",
       "title": "OT vibes",
       "blurb": "From your PC · Old Testament mood board",
-      "tags": ["Yours", "OT"],
+      "tags": [
+        "Yours",
+        "OT"
+      ],
       "tone": "personal",
       "src": "assets/wallpapers/win-ot-vibes.jpg",
-      "download": "assets/wallpapers/win-ot-vibes.jpg"
+      "download": "assets/wallpapers/win-ot-vibes.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "win-current-desktop",
       "title": "My desktop",
       "blurb": "What was on your Windows desktop",
-      "tags": ["Yours", "Desktop"],
+      "tags": [
+        "Yours",
+        "Desktop"
+      ],
       "tone": "personal",
       "src": "assets/wallpapers/win-current-desktop.jpg",
-      "download": "assets/wallpapers/win-current-desktop.jpg"
+      "download": "assets/wallpapers/win-current-desktop.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "win-awe-inspiring",
       "title": "Awe-inspiring",
       "blurb": "Your cosmic panorama from Life\\Wallpaper",
-      "tags": ["Yours", "Cosmos"],
+      "tags": [
+        "Yours",
+        "Cosmos"
+      ],
       "tone": "cosmos",
       "src": "assets/wallpapers/win-awe-inspiring.jpg",
-      "download": "assets/wallpapers/win-awe-inspiring.jpg"
+      "download": "assets/wallpapers/win-awe-inspiring.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "win-soft-pages",
       "title": "Soft pages",
       "blurb": "From your Windows wallpaper folder",
-      "tags": ["Yours", "Quiet"],
+      "tags": [
+        "Yours",
+        "Quiet"
+      ],
       "tone": "personal",
       "src": "assets/wallpapers/win-soft-pages.jpg",
-      "download": "assets/wallpapers/win-soft-pages.jpg"
+      "download": "assets/wallpapers/win-soft-pages.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "win-still-desk",
       "title": "Still desk",
       "blurb": "From your Windows wallpaper folder",
-      "tags": ["Yours", "Study"],
+      "tags": [
+        "Yours",
+        "Study"
+      ],
       "tone": "study",
       "src": "assets/wallpapers/win-still-desk.jpg",
-      "download": "assets/wallpapers/win-still-desk.jpg"
+      "download": "assets/wallpapers/win-still-desk.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "win-gentle-bloom",
       "title": "Gentle bloom",
       "blurb": "From your Windows wallpaper folder",
-      "tags": ["Yours", "Peace"],
+      "tags": [
+        "Yours",
+        "Peace"
+      ],
       "tone": "personal",
       "src": "assets/wallpapers/win-gentle-bloom.jpg",
-      "download": "assets/wallpapers/win-gentle-bloom.jpg"
-    },
-    {
-      "id": "lofi-cross-hills",
-      "title": "Lofi hills & cross",
-      "blurb": "Soft evening faith on the hills",
-      "tags": ["Cross", "Lo-fi"],
-      "tone": "gospel",
-      "src": "assets/wallpapers/lofi-cross-hills.jpg",
-      "download": "assets/wallpapers/lofi-cross-hills.jpg"
+      "download": "assets/wallpapers/win-gentle-bloom.jpg",
+      "theme": "",
+      "themeTitle": "",
+      "style": "personal"
     },
     {
       "id": "lofi-good-shepherd",
       "title": "Good Shepherd",
-      "blurb": "Sheep at rest · crook & olive tree",
-      "tags": ["Shepherd", "Psalm 23"],
+      "blurb": "Lo-fi · Sheep at rest · crook & olive",
+      "theme": "good-shepherd",
+      "themeTitle": "Good Shepherd",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Shepherd",
+        "Psalm 23"
+      ],
       "tone": "peace",
       "src": "assets/wallpapers/lofi-good-shepherd.jpg",
       "download": "assets/wallpapers/lofi-good-shepherd.jpg"
     },
     {
+      "id": "min-good-shepherd",
+      "title": "Good Shepherd",
+      "blurb": "Minimal · Sheep at rest · crook & olive",
+      "theme": "good-shepherd",
+      "themeTitle": "Good Shepherd",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Shepherd",
+        "Psalm 23"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-good-shepherd.jpg",
+      "download": "assets/wallpapers/min-good-shepherd.jpg"
+    },
+    {
+      "id": "masc-good-shepherd",
+      "title": "Good Shepherd",
+      "blurb": "Masculine · Sheep at rest · crook & olive",
+      "theme": "good-shepherd",
+      "themeTitle": "Good Shepherd",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Shepherd",
+        "Psalm 23"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-good-shepherd.jpg",
+      "download": "assets/wallpapers/masc-good-shepherd.jpg"
+    },
+    {
       "id": "lofi-lords-supper",
       "title": "Lord’s Supper",
-      "blurb": "Bread & cup in candlelight",
-      "tags": ["Communion", "Table"],
+      "blurb": "Lo-fi · Bread & cup in candlelight",
+      "theme": "lords-supper",
+      "themeTitle": "Lord’s Supper",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Communion",
+        "Table"
+      ],
       "tone": "gospel",
       "src": "assets/wallpapers/lofi-lords-supper.jpg",
       "download": "assets/wallpapers/lofi-lords-supper.jpg"
     },
     {
+      "id": "min-lords-supper",
+      "title": "Lord’s Supper",
+      "blurb": "Minimal · Bread & cup in candlelight",
+      "theme": "lords-supper",
+      "themeTitle": "Lord’s Supper",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Communion",
+        "Table"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-lords-supper.jpg",
+      "download": "assets/wallpapers/min-lords-supper.jpg"
+    },
+    {
+      "id": "masc-lords-supper",
+      "title": "Lord’s Supper",
+      "blurb": "Masculine · Bread & cup in candlelight",
+      "theme": "lords-supper",
+      "themeTitle": "Lord’s Supper",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Communion",
+        "Table"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-lords-supper.jpg",
+      "download": "assets/wallpapers/masc-lords-supper.jpg"
+    },
+    {
       "id": "lofi-cosmic-awe",
       "title": "Heavens declare",
-      "blurb": "Starfield · cross on the ridge",
-      "tags": ["Cosmos", "Psalm 19"],
+      "blurb": "Lo-fi · Starfield · cross on the ridge",
+      "theme": "cosmic-awe",
+      "themeTitle": "Heavens declare",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Cosmos",
+        "Psalm 19"
+      ],
       "tone": "cosmos",
       "src": "assets/wallpapers/lofi-cosmic-awe.jpg",
       "download": "assets/wallpapers/lofi-cosmic-awe.jpg"
     },
     {
+      "id": "min-cosmic-awe",
+      "title": "Heavens declare",
+      "blurb": "Minimal · Starfield · cross on the ridge",
+      "theme": "cosmic-awe",
+      "themeTitle": "Heavens declare",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Cosmos",
+        "Psalm 19"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-cosmic-awe.jpg",
+      "download": "assets/wallpapers/min-cosmic-awe.jpg"
+    },
+    {
+      "id": "masc-cosmic-awe",
+      "title": "Heavens declare",
+      "blurb": "Masculine · Starfield · cross on the ridge",
+      "theme": "cosmic-awe",
+      "themeTitle": "Heavens declare",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Cosmos",
+        "Psalm 19"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-cosmic-awe.jpg",
+      "download": "assets/wallpapers/masc-cosmic-awe.jpg"
+    },
+    {
       "id": "lofi-baptism",
       "title": "Baptism waters",
-      "blurb": "Dawn river · dove feathers",
-      "tags": ["Baptism", "New life"],
+      "blurb": "Lo-fi · Dawn river · dove feathers",
+      "theme": "baptism",
+      "themeTitle": "Baptism waters",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Baptism",
+        "New life"
+      ],
       "tone": "water",
       "src": "assets/wallpapers/lofi-baptism.jpg",
       "download": "assets/wallpapers/lofi-baptism.jpg"
     },
     {
+      "id": "min-baptism",
+      "title": "Baptism waters",
+      "blurb": "Minimal · Dawn river · dove feathers",
+      "theme": "baptism",
+      "themeTitle": "Baptism waters",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Baptism",
+        "New life"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-baptism.jpg",
+      "download": "assets/wallpapers/min-baptism.jpg"
+    },
+    {
+      "id": "masc-baptism",
+      "title": "Baptism waters",
+      "blurb": "Masculine · Dawn river · dove feathers",
+      "theme": "baptism",
+      "themeTitle": "Baptism waters",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Baptism",
+        "New life"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-baptism.jpg",
+      "download": "assets/wallpapers/masc-baptism.jpg"
+    },
+    {
       "id": "lofi-holy-spirit",
       "title": "Holy Spirit",
-      "blurb": "Light, flame & dove at the window",
-      "tags": ["Spirit", "Pentecost"],
+      "blurb": "Lo-fi · Light, flame & dove",
+      "theme": "holy-spirit",
+      "themeTitle": "Holy Spirit",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Spirit",
+        "Pentecost"
+      ],
       "tone": "spirit",
       "src": "assets/wallpapers/lofi-holy-spirit.jpg",
       "download": "assets/wallpapers/lofi-holy-spirit.jpg"
     },
     {
+      "id": "min-holy-spirit",
+      "title": "Holy Spirit",
+      "blurb": "Minimal · Light, flame & dove",
+      "theme": "holy-spirit",
+      "themeTitle": "Holy Spirit",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Spirit",
+        "Pentecost"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-holy-spirit.jpg",
+      "download": "assets/wallpapers/min-holy-spirit.jpg"
+    },
+    {
+      "id": "masc-holy-spirit",
+      "title": "Holy Spirit",
+      "blurb": "Masculine · Light, flame & dove",
+      "theme": "holy-spirit",
+      "themeTitle": "Holy Spirit",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Spirit",
+        "Pentecost"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-holy-spirit.jpg",
+      "download": "assets/wallpapers/masc-holy-spirit.jpg"
+    },
+    {
       "id": "lofi-empty-tomb",
       "title": "Empty tomb",
-      "blurb": "Rolled stone · resurrection dawn",
-      "tags": ["Easter", "Hope"],
+      "blurb": "Lo-fi · Rolled stone · resurrection dawn",
+      "theme": "empty-tomb",
+      "themeTitle": "Empty tomb",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Easter",
+        "Hope"
+      ],
       "tone": "gospel",
       "src": "assets/wallpapers/lofi-empty-tomb.jpg",
       "download": "assets/wallpapers/lofi-empty-tomb.jpg"
     },
     {
+      "id": "min-empty-tomb",
+      "title": "Empty tomb",
+      "blurb": "Minimal · Rolled stone · resurrection dawn",
+      "theme": "empty-tomb",
+      "themeTitle": "Empty tomb",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Easter",
+        "Hope"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-empty-tomb.jpg",
+      "download": "assets/wallpapers/min-empty-tomb.jpg"
+    },
+    {
+      "id": "masc-empty-tomb",
+      "title": "Empty tomb",
+      "blurb": "Masculine · Rolled stone · resurrection dawn",
+      "theme": "empty-tomb",
+      "themeTitle": "Empty tomb",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Easter",
+        "Hope"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-empty-tomb.jpg",
+      "download": "assets/wallpapers/masc-empty-tomb.jpg"
+    },
+    {
       "id": "lofi-quiet-prayer",
       "title": "Quiet prayer",
-      "blurb": "Window seat · rain & candle",
-      "tags": ["Prayer", "Stillness"],
+      "blurb": "Lo-fi · Window seat · rain & candle",
+      "theme": "quiet-prayer",
+      "themeTitle": "Quiet prayer",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Prayer",
+        "Stillness"
+      ],
       "tone": "peace",
       "src": "assets/wallpapers/lofi-quiet-prayer.jpg",
       "download": "assets/wallpapers/lofi-quiet-prayer.jpg"
     },
     {
+      "id": "min-quiet-prayer",
+      "title": "Quiet prayer",
+      "blurb": "Minimal · Window seat · rain & candle",
+      "theme": "quiet-prayer",
+      "themeTitle": "Quiet prayer",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Prayer",
+        "Stillness"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-quiet-prayer.jpg",
+      "download": "assets/wallpapers/min-quiet-prayer.jpg"
+    },
+    {
+      "id": "masc-quiet-prayer",
+      "title": "Quiet prayer",
+      "blurb": "Masculine · Window seat · rain & candle",
+      "theme": "quiet-prayer",
+      "themeTitle": "Quiet prayer",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Prayer",
+        "Stillness"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-quiet-prayer.jpg",
+      "download": "assets/wallpapers/masc-quiet-prayer.jpg"
+    },
+    {
       "id": "lofi-open-word",
       "title": "Open Word study",
-      "blurb": "Bible, tea & rainy night desk",
-      "tags": ["Word", "Study night"],
+      "blurb": "Lo-fi · Bible, tea & rainy night desk",
+      "theme": "open-word",
+      "themeTitle": "Open Word study",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Word",
+        "Study"
+      ],
       "tone": "study",
       "src": "assets/wallpapers/lofi-open-word.jpg",
       "download": "assets/wallpapers/lofi-open-word.jpg"
     },
     {
+      "id": "min-open-word",
+      "title": "Open Word study",
+      "blurb": "Minimal · Bible, tea & rainy night desk",
+      "theme": "open-word",
+      "themeTitle": "Open Word study",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Word",
+        "Study"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-open-word.jpg",
+      "download": "assets/wallpapers/min-open-word.jpg"
+    },
+    {
+      "id": "masc-open-word",
+      "title": "Open Word study",
+      "blurb": "Masculine · Bible, tea & rainy night desk",
+      "theme": "open-word",
+      "themeTitle": "Open Word study",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Word",
+        "Study"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-open-word.jpg",
+      "download": "assets/wallpapers/masc-open-word.jpg"
+    },
+    {
       "id": "lofi-rainbow-covenant",
       "title": "Rainbow covenant",
-      "blurb": "Ark after the rain · hope",
-      "tags": ["Covenant", "Genesis"],
+      "blurb": "Lo-fi · Ark after the rain · hope",
+      "theme": "rainbow-covenant",
+      "themeTitle": "Rainbow covenant",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Covenant",
+        "Genesis"
+      ],
       "tone": "creation",
       "src": "assets/wallpapers/lofi-rainbow-covenant.jpg",
       "download": "assets/wallpapers/lofi-rainbow-covenant.jpg"
     },
     {
+      "id": "min-rainbow-covenant",
+      "title": "Rainbow covenant",
+      "blurb": "Minimal · Ark after the rain · hope",
+      "theme": "rainbow-covenant",
+      "themeTitle": "Rainbow covenant",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Covenant",
+        "Genesis"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-rainbow-covenant.jpg",
+      "download": "assets/wallpapers/min-rainbow-covenant.jpg"
+    },
+    {
+      "id": "masc-rainbow-covenant",
+      "title": "Rainbow covenant",
+      "blurb": "Masculine · Ark after the rain · hope",
+      "theme": "rainbow-covenant",
+      "themeTitle": "Rainbow covenant",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Covenant",
+        "Genesis"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-rainbow-covenant.jpg",
+      "download": "assets/wallpapers/masc-rainbow-covenant.jpg"
+    },
+    {
       "id": "lofi-gethsemane",
       "title": "Gethsemane",
-      "blurb": "Moonlit olive grove path",
-      "tags": ["Passion", "Watch"],
+      "blurb": "Lo-fi · Moonlit olive grove path",
+      "theme": "gethsemane",
+      "themeTitle": "Gethsemane",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Passion",
+        "Watch"
+      ],
       "tone": "night",
       "src": "assets/wallpapers/lofi-gethsemane.jpg",
       "download": "assets/wallpapers/lofi-gethsemane.jpg"
     },
     {
+      "id": "min-gethsemane",
+      "title": "Gethsemane",
+      "blurb": "Minimal · Moonlit olive grove path",
+      "theme": "gethsemane",
+      "themeTitle": "Gethsemane",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Passion",
+        "Watch"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-gethsemane.jpg",
+      "download": "assets/wallpapers/min-gethsemane.jpg"
+    },
+    {
+      "id": "masc-gethsemane",
+      "title": "Gethsemane",
+      "blurb": "Masculine · Moonlit olive grove path",
+      "theme": "gethsemane",
+      "themeTitle": "Gethsemane",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Passion",
+        "Watch"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-gethsemane.jpg",
+      "download": "assets/wallpapers/masc-gethsemane.jpg"
+    },
+    {
       "id": "lofi-fishers",
       "title": "Fishers of men",
-      "blurb": "Boat & nets at sunrise",
-      "tags": ["Calling", "Galilee"],
+      "blurb": "Lo-fi · Boat & nets at sunrise",
+      "theme": "fishers",
+      "themeTitle": "Fishers of men",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Calling",
+        "Galilee"
+      ],
       "tone": "water",
       "src": "assets/wallpapers/lofi-fishers.jpg",
       "download": "assets/wallpapers/lofi-fishers.jpg"
     },
     {
+      "id": "min-fishers",
+      "title": "Fishers of men",
+      "blurb": "Minimal · Boat & nets at sunrise",
+      "theme": "fishers",
+      "themeTitle": "Fishers of men",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Calling",
+        "Galilee"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-fishers.jpg",
+      "download": "assets/wallpapers/min-fishers.jpg"
+    },
+    {
+      "id": "masc-fishers",
+      "title": "Fishers of men",
+      "blurb": "Masculine · Boat & nets at sunrise",
+      "theme": "fishers",
+      "themeTitle": "Fishers of men",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Calling",
+        "Galilee"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-fishers.jpg",
+      "download": "assets/wallpapers/masc-fishers.jpg"
+    },
+    {
       "id": "lofi-lamp-light",
       "title": "Light of the world",
-      "blurb": "Oil lamp over a night village",
-      "tags": ["Light", "Witness"],
+      "blurb": "Lo-fi · Oil lamp over a night village",
+      "theme": "lamp-light",
+      "themeTitle": "Light of the world",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Light",
+        "Witness"
+      ],
       "tone": "worship",
       "src": "assets/wallpapers/lofi-lamp-light.jpg",
       "download": "assets/wallpapers/lofi-lamp-light.jpg"
     },
     {
+      "id": "min-lamp-light",
+      "title": "Light of the world",
+      "blurb": "Minimal · Oil lamp over a night village",
+      "theme": "lamp-light",
+      "themeTitle": "Light of the world",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Light",
+        "Witness"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-lamp-light.jpg",
+      "download": "assets/wallpapers/min-lamp-light.jpg"
+    },
+    {
+      "id": "masc-lamp-light",
+      "title": "Light of the world",
+      "blurb": "Masculine · Oil lamp over a night village",
+      "theme": "lamp-light",
+      "themeTitle": "Light of the world",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Light",
+        "Witness"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-lamp-light.jpg",
+      "download": "assets/wallpapers/masc-lamp-light.jpg"
+    },
+    {
       "id": "lofi-burning-bush",
       "title": "Burning bush",
-      "blurb": "Desert night · holy fire",
-      "tags": ["Moses", "Holy ground"],
+      "blurb": "Lo-fi · Desert night · holy fire",
+      "theme": "burning-bush",
+      "themeTitle": "Burning bush",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Moses",
+        "Holy ground"
+      ],
       "tone": "spirit",
       "src": "assets/wallpapers/lofi-burning-bush.jpg",
       "download": "assets/wallpapers/lofi-burning-bush.jpg"
     },
     {
+      "id": "min-burning-bush",
+      "title": "Burning bush",
+      "blurb": "Minimal · Desert night · holy fire",
+      "theme": "burning-bush",
+      "themeTitle": "Burning bush",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Moses",
+        "Holy ground"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-burning-bush.jpg",
+      "download": "assets/wallpapers/min-burning-bush.jpg"
+    },
+    {
+      "id": "masc-burning-bush",
+      "title": "Burning bush",
+      "blurb": "Masculine · Desert night · holy fire",
+      "theme": "burning-bush",
+      "themeTitle": "Burning bush",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Moses",
+        "Holy ground"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-burning-bush.jpg",
+      "download": "assets/wallpapers/masc-burning-bush.jpg"
+    },
+    {
       "id": "lofi-new-jerusalem",
       "title": "City of light",
-      "blurb": "Soft new-Jerusalem hope",
-      "tags": ["Hope", "Revelation"],
+      "blurb": "Lo-fi · Soft new-Jerusalem hope",
+      "theme": "new-jerusalem",
+      "themeTitle": "City of light",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Hope",
+        "Revelation"
+      ],
       "tone": "hope",
       "src": "assets/wallpapers/lofi-new-jerusalem.jpg",
       "download": "assets/wallpapers/lofi-new-jerusalem.jpg"
     },
     {
+      "id": "min-new-jerusalem",
+      "title": "City of light",
+      "blurb": "Minimal · Soft new-Jerusalem hope",
+      "theme": "new-jerusalem",
+      "themeTitle": "City of light",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Hope",
+        "Revelation"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-new-jerusalem.jpg",
+      "download": "assets/wallpapers/min-new-jerusalem.jpg"
+    },
+    {
+      "id": "masc-new-jerusalem",
+      "title": "City of light",
+      "blurb": "Masculine · Soft new-Jerusalem hope",
+      "theme": "new-jerusalem",
+      "themeTitle": "City of light",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Hope",
+        "Revelation"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-new-jerusalem.jpg",
+      "download": "assets/wallpapers/masc-new-jerusalem.jpg"
+    },
+    {
       "id": "lofi-loaves-fishes",
       "title": "Loaves & fishes",
-      "blurb": "Galilee hillside picnic",
-      "tags": ["Miracle", "Provision"],
+      "blurb": "Lo-fi · Galilee hillside picnic",
+      "theme": "loaves-fishes",
+      "themeTitle": "Loaves & fishes",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Miracle",
+        "Provision"
+      ],
       "tone": "peace",
       "src": "assets/wallpapers/lofi-loaves-fishes.jpg",
       "download": "assets/wallpapers/lofi-loaves-fishes.jpg"
     },
     {
+      "id": "min-loaves-fishes",
+      "title": "Loaves & fishes",
+      "blurb": "Minimal · Galilee hillside picnic",
+      "theme": "loaves-fishes",
+      "themeTitle": "Loaves & fishes",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Miracle",
+        "Provision"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-loaves-fishes.jpg",
+      "download": "assets/wallpapers/min-loaves-fishes.jpg"
+    },
+    {
+      "id": "masc-loaves-fishes",
+      "title": "Loaves & fishes",
+      "blurb": "Masculine · Galilee hillside picnic",
+      "theme": "loaves-fishes",
+      "themeTitle": "Loaves & fishes",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Miracle",
+        "Provision"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-loaves-fishes.jpg",
+      "download": "assets/wallpapers/masc-loaves-fishes.jpg"
+    },
+    {
+      "id": "lofi-cross-hills",
+      "title": "Hills & cross",
+      "blurb": "Lo-fi · Evening faith on the hills",
+      "theme": "cross-hills",
+      "themeTitle": "Hills & cross",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Cross",
+        "Faith"
+      ],
+      "tone": "gospel",
+      "src": "assets/wallpapers/lofi-cross-hills.jpg",
+      "download": "assets/wallpapers/lofi-cross-hills.jpg"
+    },
+    {
+      "id": "min-cross-hills",
+      "title": "Hills & cross",
+      "blurb": "Minimal · Evening faith on the hills",
+      "theme": "cross-hills",
+      "themeTitle": "Hills & cross",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Cross",
+        "Faith"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-cross-hills.jpg",
+      "download": "assets/wallpapers/min-cross-hills.jpg"
+    },
+    {
+      "id": "masc-cross-hills",
+      "title": "Hills & cross",
+      "blurb": "Masculine · Evening faith on the hills",
+      "theme": "cross-hills",
+      "themeTitle": "Hills & cross",
+      "style": "masculine",
+      "tags": [
+        "Masculine",
+        "Cross",
+        "Faith"
+      ],
+      "tone": "masculine",
+      "src": "assets/wallpapers/masc-cross-hills.jpg",
+      "download": "assets/wallpapers/masc-cross-hills.jpg"
+    },
+    {
       "id": "none",
       "title": "Default (no image)",
       "blurb": "Clean dark theme only",
-      "tags": ["Minimal"],
+      "tags": [
+        "Minimal"
+      ],
       "tone": "minimal",
       "src": "",
-      "download": ""
+      "download": "",
+      "theme": "",
+      "themeTitle": "",
+      "style": "minimal"
     }
   ]
 }

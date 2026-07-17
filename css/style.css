@@ -1180,6 +1180,64 @@ main {
   color: var(--gold);
 }
 
+/* Theme sets: same scene in lo-fi / minimal / masculine */
+.wp-theme-sets {
+  display: grid;
+  gap: 1.15rem;
+  margin-top: 0.35rem;
+}
+
+.wp-theme-set {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: rgba(8, 12, 10, 0.35);
+  padding: 0.7rem 0.75rem 0.85rem;
+}
+
+.wp-theme-set-head {
+  margin-bottom: 0.55rem;
+  padding: 0 0.15rem;
+}
+
+.wp-theme-set-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cream);
+  letter-spacing: 0.01em;
+}
+
+.wp-theme-set-blurb {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.wp-theme-set-styles {
+  margin: 0.3rem 0 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+}
+
+.wp-theme-set-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 720px) {
+  .wp-theme-set-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 980px) {
+  .wp-theme-set-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .wallpaper-grid {
   display: grid;
   gap: 0.75rem;
@@ -1343,9 +1401,15 @@ main {
 }
 
 .wp-badge-minimal {
-  background: rgba(0, 0, 0, 0.5);
-  color: var(--dim);
-  border-color: var(--line);
+  background: rgba(230, 228, 220, 0.92);
+  color: #2a2824;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.wp-badge-masculine {
+  background: rgba(55, 48, 42, 0.95);
+  color: #e8dcc8;
+  border-color: rgba(180, 140, 90, 0.45);
 }
 
 .wp-none {

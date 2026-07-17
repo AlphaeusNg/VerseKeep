@@ -138,6 +138,9 @@
       download: w.download || w.src || "",
       tags: normalizeTags(w.tags || w.tag),
       tone: w.tone || "",
+      theme: w.theme || "",
+      themeTitle: w.themeTitle || "",
+      style: w.style || "",
     };
     try {
       localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
@@ -179,6 +182,9 @@
       download: w.download || w.src || "",
       tags: normalizeTags(w.tags || w.tag),
       tone: w.tone || "",
+      theme: w.theme || "",
+      themeTitle: w.themeTitle || "",
+      style: w.style || "",
     };
   }
 
@@ -569,15 +575,65 @@
     });
   }
 
+  const STYLE_ORDER = { lofi: 0, minimal: 1, masculine: 2 };
+
+  function themedSetsHtml(list) {
+    const withTheme = list.filter((w) => w.theme);
+    if (!withTheme.length) return "";
+    const byTheme = new Map();
+    withTheme.forEach((w) => {
+      const key = w.theme;
+      if (!byTheme.has(key)) byTheme.set(key, []);
+      byTheme.get(key).push(w);
+    });
+    // Preserve first-seen theme order from catalog
+    const order = [];
+    withTheme.forEach((w) => {
+      if (!order.includes(w.theme)) order.push(w.theme);
+    });
+
+    return `
+      <div class="wp-section-label mono">Faith scenes · lo-fi · minimal · masculine</div>
+      <div class="wp-theme-sets" id="wp-theme-sets">
+        ${order
+          .map((themeKey) => {
+            const items = (byTheme.get(themeKey) || []).slice().sort((a, b) => {
+              const sa = STYLE_ORDER[a.style] ?? 9;
+              const sb = STYLE_ORDER[b.style] ?? 9;
+              return sa - sb;
+            });
+            const title = items[0]?.themeTitle || items[0]?.title || themeKey;
+            const blurb = items.find((i) => i.style === "lofi")?.blurb?.replace(/^Lo-fi ·\s*/i, "") || "";
+            return `
+          <section class="wp-theme-set" data-theme="${escapeHtml(themeKey)}">
+            <header class="wp-theme-set-head">
+              <h3 class="wp-theme-set-title">${escapeHtml(title)}</h3>
+              ${blurb ? `<p class="wp-theme-set-blurb">${escapeHtml(blurb)}</p>` : ""}
+              <p class="wp-theme-set-styles mono">Lo-fi · Minimal · Masculine</p>
+            </header>
+            <div class="wallpaper-grid-inner wp-theme-set-grid">
+              ${items.map((w) => cardHtml(w)).join("")}
+            </div>
+          </section>`;
+          })
+          .join("")}
+      </div>`;
+  }
+
   function paintGrid() {
     const host = $("#wallpaper-grid");
     if (!host) return;
     const classicList = classics.filter((w) => w.id !== "none");
     const none = classics.find((w) => w.id === "none");
     const fromPc = classicList.filter((w) => String(w.id || "").startsWith("win-"));
-    const lofi = classicList.filter((w) => String(w.id || "").startsWith("lofi-"));
+    const themed = classicList.filter((w) => w.theme);
     const sanctuary = classicList.filter(
-      (w) => !String(w.id || "").startsWith("win-") && !String(w.id || "").startsWith("lofi-")
+      (w) =>
+        !String(w.id || "").startsWith("win-") &&
+        !w.theme &&
+        !String(w.id || "").startsWith("lofi-") &&
+        !String(w.id || "").startsWith("min-") &&
+        !String(w.id || "").startsWith("masc-")
     );
 
     const section = (label, list, gridId) =>
@@ -595,7 +651,7 @@
         ${daily.map((w) => cardHtml(w, { showDailyBadge: true })).join("") || `<p class="hint">Could not load daily images — classics still work.</p>`}
       </div>
       ${section("From your PC", fromPc, "wp-pc-grid")}
-      ${section("Christian lo-fi", lofi, "wp-lofi-grid")}
+      ${themedSetsHtml(themed)}
       ${section("Sanctuary classics", sanctuary, "wp-classic-grid")}
       ${
         none
