@@ -1,6 +1,11 @@
 /**
- * VerseKeep music — left-edge dock (open/close tab).
- * Single iframe stays mounted; closing the panel does not stop audio.
+ * VerseKeep music — dock / float / tab (matches AlpArcade).
+ * - Side tab packs the player (music keeps playing)
+ * - Drag panel out → free floating popup
+ * - Drag near left edge → snaps to left dock
+ * - Minimize (–) → side tab
+ * - Close (×) → stop audio and pack to tab
+ * Iframe never reparented.
  */
 (function () {
   "use strict";
@@ -9,10 +14,11 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
   const MUSIC_KEY = "versekeep-music";
-  const DOCK_KEY = "versekeep-music-dock-open";
+  const UI_KEY = "versekeep-music-ui-v2";
   const DEFAULT_SPOTIFY_ID = "alph-gods-encouragement";
   const DEFAULT_EMBED =
     "https://open.spotify.com/embed/playlist/0qKlX3MZWEHZgR17jNfI3e?utm_source=generator";
+  const SNAP_X = 72;
 
   let playlists = { youtube: [], spotify: [] };
   let musicTab = "spotify";
@@ -21,7 +27,10 @@
   let currentLabel = "Playing…";
   let playing = false;
   let gestureHooked = false;
-  let dockOpen = false;
+  /** @type {'tab'|'dock'|'float'} */
+  let mode = "tab";
+  let floatPos = null;
+  let drag = null;
 
   function escapeHtml(s) {
     return String(s)
@@ -54,7 +63,7 @@
     return res.json();
   }
 
-  function dock() {
+  function dockEl() {
     return $("#worship");
   }
   function panel() {
@@ -134,58 +143,143 @@
 
   function updateLabels() {
     const lab = $("#music-player-label");
-    if (lab) lab.textContent = currentLabel;
+    if (lab) lab.textContent = playing ? currentLabel : "Stopped";
     const tabText = $("#music-dock-tab-text");
     if (tabText) {
-      const short =
-        currentLabel && currentLabel !== "Playing…"
-          ? currentLabel.length > 14
-            ? currentLabel.slice(0, 12) + "…"
-            : currentLabel
-          : "Music";
-      tabText.textContent = short;
+      if (!playing) tabText.textContent = "Music";
+      else {
+        tabText.textContent =
+          currentLabel.length > 14 ? currentLabel.slice(0, 12) + "…" : currentLabel || "Music";
+      }
     }
     const t = tab();
     if (t) {
-      t.title = dockOpen ? "Close music" : `Open music · ${currentLabel || "Music"}`;
-      t.setAttribute(
-        "aria-label",
-        dockOpen ? "Close music panel" : `Open music panel · ${currentLabel || "Music"}`
+      const tip =
+        mode === "tab"
+          ? playing
+            ? `Open music · ${currentLabel}`
+            : "Open music"
+          : mode === "float"
+            ? "Dock music to the left"
+            : "Minimize music to side tab";
+      t.title = tip;
+      t.setAttribute("aria-expanded", mode !== "tab" ? "true" : "false");
+      t.setAttribute("aria-label", tip);
+    }
+    const d = dockEl();
+    if (d) d.dataset.playing = playing ? "1" : "0";
+  }
+
+  function persistUi() {
+    try {
+      localStorage.setItem(
+        UI_KEY,
+        JSON.stringify({
+          mode,
+          float: floatPos,
+          playing,
+          id: activeMusicId,
+          embed: currentEmbed,
+          label: currentLabel,
+          tab: musicTab,
+        })
       );
+    } catch {
+      /* ignore */
     }
   }
 
-  function applyDock(open, { persist = true } = {}) {
-    dockOpen = !!open;
-    const d = dock();
-    const t = tab();
+  function clearPanelInlinePos(p) {
+    if (!p) return;
+    p.style.left = "";
+    p.style.top = "";
+    p.style.right = "";
+    p.style.bottom = "";
+    p.style.width = "";
+    p.style.maxHeight = "";
+    p.style.transform = "";
+  }
+
+  function setMode(next, { persist = true } = {}) {
+    mode = next;
+    const d = dockEl();
+    const p = panel();
     const sc = scrim();
-    if (d) d.classList.toggle("is-open", dockOpen);
-    if (t) t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
+    if (!d || !p) return;
+
+    d.classList.remove("is-tab", "is-dock", "is-float", "is-open", "is-dragging", "is-snap-near");
+    d.classList.add(`is-${mode}`);
+    if (mode === "dock" || mode === "float") d.classList.add("is-open");
+
+    if (mode === "float" && floatPos) {
+      p.style.left = `${floatPos.left}px`;
+      p.style.top = `${floatPos.top}px`;
+      p.style.right = "auto";
+      p.style.bottom = "auto";
+      p.style.transform = "none";
+    } else {
+      clearPanelInlinePos(p);
+    }
+
     if (sc) {
       const narrow = window.matchMedia("(max-width: 820px)").matches;
-      sc.hidden = !(dockOpen && narrow);
+      sc.hidden = !(mode === "dock" && narrow);
     }
+
     updateLabels();
-    if (persist) {
-      try {
-        localStorage.setItem(DOCK_KEY, dockOpen ? "1" : "0");
-      } catch {
-        /* ignore */
-      }
-    }
+    if (persist) persistUi();
   }
 
-  function toggleDock() {
-    applyDock(!dockOpen);
+  function minimizeToTab() {
+    setMode("tab");
   }
 
   function openDock() {
-    applyDock(true);
+    setMode("dock");
   }
 
-  function closeDock() {
-    applyDock(false);
+  function stopMusic() {
+    playing = false;
+    const f = frame();
+    if (f) {
+      try {
+        f.src = "about:blank";
+      } catch {
+        f.removeAttribute("src");
+      }
+    }
+    currentEmbed = "";
+    const s = shell();
+    if (s) s.hidden = true;
+    const e = empty();
+    if (e) {
+      e.hidden = false;
+      e.textContent = "Music stopped · pick a station to play";
+    }
+    updateLabels();
+    try {
+      const raw = localStorage.getItem(MUSIC_KEY);
+      const prev = raw ? JSON.parse(raw) : {};
+      localStorage.setItem(
+        MUSIC_KEY,
+        JSON.stringify({
+          ...prev,
+          tab: musicTab,
+          id: activeMusicId || prev.id,
+          embed: prev.embed || "",
+          title: currentLabel || prev.title,
+          stopped: true,
+        })
+      );
+    } catch {
+      /* ignore */
+    }
+    persistUi();
+  }
+
+  function closeAndStop() {
+    stopMusic();
+    setMode("tab");
   }
 
   function selectMusic(id, embed, title, { forceReload = false } = {}) {
@@ -201,6 +295,7 @@
     if (currentEmbed === embed && playing && !forceReload) {
       paintMusicList();
       s.hidden = false;
+      if (e) e.hidden = true;
       return;
     }
 
@@ -216,12 +311,83 @@
     try {
       localStorage.setItem(
         MUSIC_KEY,
-        JSON.stringify({ tab: musicTab, id, embed, title: currentLabel })
+        JSON.stringify({
+          tab: musicTab,
+          id,
+          embed,
+          title: currentLabel,
+          stopped: false,
+        })
       );
     } catch {
       /* ignore */
     }
     paintMusicList();
+    persistUi();
+    if (mode === "tab") openDock();
+  }
+
+  function clampFloat(left, top, el) {
+    const w = el?.offsetWidth || 320;
+    const h = el?.offsetHeight || 360;
+    const maxL = Math.max(8, (window.innerWidth || 0) - w - 8);
+    const maxT = Math.max(8, (window.innerHeight || 0) - Math.min(h, window.innerHeight * 0.9) - 8);
+    return {
+      left: Math.min(Math.max(8, left), maxL),
+      top: Math.min(Math.max(8, top), maxT),
+    };
+  }
+
+  function bindDrag() {
+    const p = panel();
+    const head = $("#music-dock-drag") || p?.querySelector(".music-dock-head");
+    if (!p || !head || head.dataset.dragBound) return;
+    head.dataset.dragBound = "1";
+
+    head.addEventListener("pointerdown", (e) => {
+      if (e.button != null && e.button !== 0) return;
+      if (e.target.closest("button, a, input, select, textarea, iframe")) return;
+      e.preventDefault();
+      const rect = p.getBoundingClientRect();
+      if (mode === "dock" || mode === "tab") {
+        floatPos = { left: rect.left, top: rect.top };
+        setMode("float", { persist: false });
+      }
+      drag = {
+        ox: e.clientX - rect.left,
+        oy: e.clientY - rect.top,
+        id: e.pointerId,
+      };
+      head.setPointerCapture?.(e.pointerId);
+      dockEl()?.classList.add("is-dragging");
+    });
+
+    head.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const pos = clampFloat(e.clientX - drag.ox, e.clientY - drag.oy, p);
+      floatPos = pos;
+      p.style.left = `${pos.left}px`;
+      p.style.top = `${pos.top}px`;
+      p.style.right = "auto";
+      p.style.bottom = "auto";
+      p.style.transform = "none";
+      dockEl()?.classList.toggle("is-snap-near", pos.left < SNAP_X);
+    });
+
+    const end = (e) => {
+      if (!drag || (e && e.pointerId !== drag.id)) return;
+      const near = floatPos && floatPos.left < SNAP_X;
+      drag = null;
+      dockEl()?.classList.remove("is-dragging", "is-snap-near");
+      if (near) {
+        floatPos = null;
+        setMode("dock");
+      } else {
+        setMode("float");
+      }
+    };
+    head.addEventListener("pointerup", end);
+    head.addEventListener("pointercancel", end);
   }
 
   function nudgeAutoplayOnGesture() {
@@ -246,6 +412,12 @@
         const data = JSON.parse(raw);
         if (data.tab) musicTab = data.tab;
         paintMusicTabs();
+        if (data.stopped) {
+          activeMusicId = data.id || null;
+          currentLabel = data.title || "Playing…";
+          updateLabels();
+          return;
+        }
         if (data.embed) {
           selectMusic(data.id || "restored", data.embed, data.title || "");
           nudgeAutoplayOnGesture();
@@ -269,17 +441,23 @@
     nudgeAutoplayOnGesture();
   }
 
-  function restoreDockState() {
-    let open = false;
+  function restoreUi() {
     try {
-      const v = localStorage.getItem(DOCK_KEY);
-      if (v === "1") open = true;
-      else if (v === "0") open = false;
-      else open = window.matchMedia("(min-width: 1100px)").matches;
+      const raw = localStorage.getItem(UI_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.float && typeof data.float.left === "number") floatPos = data.float;
+        if (data.mode === "float" || data.mode === "dock" || data.mode === "tab") {
+          setMode(data.mode, { persist: false });
+          return;
+        }
+      }
     } catch {
-      open = false;
+      /* ignore */
     }
-    applyDock(open, { persist: false });
+    setMode(window.matchMedia("(min-width: 1100px)").matches ? "dock" : "tab", {
+      persist: false,
+    });
   }
 
   function bindUi() {
@@ -293,17 +471,26 @@
 
     tab()?.addEventListener("click", (e) => {
       e.preventDefault();
-      toggleDock();
+      if (mode === "tab" || mode === "float") openDock();
+      else minimizeToTab();
+    });
+    $("#music-dock-min")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      minimizeToTab();
     });
     $("#music-dock-close")?.addEventListener("click", (e) => {
       e.preventDefault();
-      closeDock();
+      e.stopPropagation();
+      closeAndStop();
     });
-    scrim()?.addEventListener("click", () => closeDock());
+    scrim()?.addEventListener("click", () => minimizeToTab());
 
     $("#nav-music")?.addEventListener("click", (e) => {
       e.preventDefault();
-      toggleDock();
+      if (mode === "tab") openDock();
+      else if (mode === "dock") minimizeToTab();
+      else openDock();
     });
 
     if (location.hash === "#worship") openDock();
@@ -312,16 +499,28 @@
     });
 
     window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && dockOpen) closeDock();
+      if (e.key === "Escape" && (mode === "dock" || mode === "float")) minimizeToTab();
     });
 
     window.addEventListener("resize", () => {
-      applyDock(dockOpen, { persist: false });
+      if (mode === "float" && floatPos) {
+        const p = panel();
+        floatPos = clampFloat(floatPos.left, floatPos.top, p);
+        if (p) {
+          p.style.left = `${floatPos.left}px`;
+          p.style.top = `${floatPos.top}px`;
+        }
+        persistUi();
+      } else if (mode === "dock") {
+        setMode("dock", { persist: false });
+      }
     });
+
+    bindDrag();
   }
 
   async function boot() {
-    restoreDockState();
+    restoreUi();
     autoStartMusic();
     bindUi();
 
@@ -332,7 +531,7 @@
       if (!activeMusicId || activeMusicId === DEFAULT_SPOTIFY_ID) {
         const list = playlists.spotify || [];
         const pick = list.find((p) => p.id === DEFAULT_SPOTIFY_ID) || list[0];
-        if (pick?.embed && pick.embed !== currentEmbed) {
+        if (pick?.embed && pick.embed !== currentEmbed && playing) {
           selectMusic(pick.id, pick.embed, pick.title);
         } else {
           paintMusicList();

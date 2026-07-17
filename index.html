@@ -29,17 +29,22 @@
       <span class="music-dock-tab-text" id="music-dock-tab-text">Music</span>
     </button>
     <div class="music-dock-panel" id="music-dock-panel" role="dialog" aria-label="Music player" aria-modal="false">
-      <div class="music-dock-head">
-        <div>
+      <div class="music-dock-head" id="music-dock-drag" title="Drag to float · drop on left edge to dock">
+        <span class="music-dock-grip" aria-hidden="true">⋮⋮</span>
+        <div class="music-dock-head-copy">
           <p class="eyebrow music-dock-eyebrow">Worship</p>
           <h2 class="music-dock-title">Music</h2>
         </div>
-        <button type="button" class="music-dock-close" id="music-dock-close" title="Close music panel" aria-label="Close music panel">×</button>
+        <div class="music-dock-actions">
+          <button type="button" class="music-dock-min" id="music-dock-min" title="Minimize to side tab (keeps playing)" aria-label="Minimize to side tab">–</button>
+          <button type="button" class="music-dock-close" id="music-dock-close" title="Stop music and close" aria-label="Stop music and close">×</button>
+        </div>
       </div>
       <p class="music-note music-dock-note">
-        Left dock · pick a station · audio keeps playing when closed.
+        Drag free · drop left to dock · – tab · × stops audio.
         Autoplay uses last station or <strong>God’s encouragement</strong>.
       </p>
+      <div class="music-dock-snap-hint mono" aria-hidden="true">↩ Dock left</div>
       <div class="mode-row music-dock-tabs" role="tablist" aria-label="Music source">
         <button type="button" class="chip is-active" data-music-tab="spotify">Spotify</button>
         <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
