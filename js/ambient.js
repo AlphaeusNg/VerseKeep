@@ -1,8 +1,9 @@
 /**
  * Worship music for VerseKeep.
- * - Starts default/last station ASAP on load
- * - Floating mini-player (bottom-right popup) — not stuck in the Music section
- * - Station picks stay in #worship; no separate Stop buttons (use the embed controls)
+ * - Starts in the Music section
+ * - When that section scrolls away → bottom-right popup (draggable, closable)
+ * - Close returns the player to the Music box
+ * - No separate Stop buttons (use embed controls)
  */
 (function () {
   "use strict";
@@ -21,6 +22,11 @@
   let currentEmbed = "";
   let playing = false;
   let gestureHooked = false;
+  /** User closed the popup → stay inline until section is seen then left again */
+  let preferInline = false;
+  let docked = false;
+  let drag = null; // { ox, oy, startX, startY }
+  let popupPos = null; // { left, top } when user dragged
 
   function escapeHtml(s) {
     return String(s)
@@ -36,19 +42,14 @@
       const u = new URL(url, location.href);
       u.searchParams.set("utm_source", u.searchParams.get("utm_source") || "generator");
       u.searchParams.set("autoplay", "1");
-      // Compact Spotify chrome is friendlier in a popup
-      if (u.hostname.includes("spotify.com")) {
-        u.searchParams.set("theme", "0");
-      }
+      if (u.hostname.includes("spotify.com")) u.searchParams.set("theme", "0");
       if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
-        u.searchParams.set("autoplay", "1");
         u.searchParams.set("playsinline", "1");
         if (!u.searchParams.has("rel")) u.searchParams.set("rel", "0");
       }
       return u.toString();
     } catch {
-      const join = url.includes("?") ? "&" : "?";
-      return `${url}${join}autoplay=1`;
+      return url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
     }
   }
 
@@ -56,6 +57,22 @@
     const res = await fetch(path, { cache: "no-store" });
     if (!res.ok) throw new Error(`${path}: ${res.status}`);
     return res.json();
+  }
+
+  function shell() {
+    return $("#music-player-shell");
+  }
+  function slot() {
+    return $("#music-player-slot");
+  }
+  function frame() {
+    return $("#music-frame");
+  }
+  function empty() {
+    return $("#music-empty");
+  }
+  function closeBtn() {
+    return $("#music-player-close");
   }
 
   function paintMusicTabs() {
@@ -127,46 +144,161 @@
     return host;
   }
 
-  function mountShellInPopup() {
-    const shell = $("#music-player-shell");
-    if (!shell) return;
+  function clearPopupPos(s) {
+    if (!s) return;
+    s.style.left = "";
+    s.style.top = "";
+    s.style.right = "";
+    s.style.bottom = "";
+    s.classList.remove("is-dragged");
+  }
+
+  function applyPopupPos(s) {
+    if (!s || !popupPos) return;
+    s.style.left = `${popupPos.left}px`;
+    s.style.top = `${popupPos.top}px`;
+    s.style.right = "auto";
+    s.style.bottom = "auto";
+    s.classList.add("is-dragged");
+  }
+
+  function mountInline() {
+    const s = shell();
+    const sl = slot();
+    if (!s || !sl) return;
+    if (s.parentElement !== sl) sl.appendChild(s);
+    s.classList.remove("is-popup", "is-docked");
+    clearPopupPos(s);
+    docked = false;
+    const btn = closeBtn();
+    if (btn) btn.hidden = true;
+    sl.classList.remove("is-player-docked");
+  }
+
+  function mountPopup() {
+    const s = shell();
+    if (!s) return;
     const host = ensurePopupHost();
-    if (shell.parentElement !== host) {
-      host.appendChild(shell);
+    if (s.parentElement !== host) host.appendChild(s);
+    s.classList.add("is-popup", "is-docked");
+    docked = true;
+    const btn = closeBtn();
+    if (btn) btn.hidden = false;
+    slot()?.classList.add("is-player-docked");
+    if (popupPos) applyPopupPos(s);
+    else clearPopupPos(s);
+  }
+
+  function slotVisible() {
+    const sl = slot();
+    if (!sl) return false;
+    const rect = sl.getBoundingClientRect();
+    const vh = window.innerHeight || 0;
+    // Consider "in view" if any meaningful part is on screen
+    return rect.bottom > 64 && rect.top < vh - 48;
+  }
+
+  function updateDockState() {
+    const s = shell();
+    if (!s || !playing) return;
+
+    const visible = slotVisible();
+    if (visible) {
+      // Music section is on screen → player lives there; allow future auto-dock again
+      preferInline = false;
+      if (docked) mountInline();
+      return;
     }
-    shell.classList.add("is-popup");
-    shell.classList.add("is-docked");
+
+    // Section off-screen
+    if (preferInline) {
+      // User closed popup — keep in Music box (off-screen) until they visit Music again
+      if (docked) mountInline();
+      return;
+    }
+
+    if (!docked) mountPopup();
+  }
+
+  function closePopupToMusic() {
+    preferInline = true;
+    popupPos = null;
+    mountInline();
+    // Scroll music into view so the return is obvious
+    $("#worship")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function bindDrag() {
+    const s = shell();
+    const bar = $("#music-player-bar") || s?.querySelector(".music-player-bar");
+    if (!s || !bar || bar.dataset.dragBound) return;
+    bar.dataset.dragBound = "1";
+
+    bar.addEventListener("pointerdown", (e) => {
+      if (!docked) return;
+      if (e.target.closest("button, a, iframe")) return;
+      e.preventDefault();
+      const rect = s.getBoundingClientRect();
+      drag = {
+        ox: e.clientX - rect.left,
+        oy: e.clientY - rect.top,
+        id: e.pointerId,
+      };
+      bar.setPointerCapture?.(e.pointerId);
+      s.classList.add("is-dragging");
+    });
+
+    bar.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const w = s.offsetWidth;
+      const h = s.offsetHeight;
+      let left = e.clientX - drag.ox;
+      let top = e.clientY - drag.oy;
+      const maxL = Math.max(0, (window.innerWidth || 0) - w - 4);
+      const maxT = Math.max(0, (window.innerHeight || 0) - h - 4);
+      left = Math.min(maxL, Math.max(4, left));
+      top = Math.min(maxT, Math.max(4, top));
+      popupPos = { left, top };
+      applyPopupPos(s);
+    });
+
+    const endDrag = (e) => {
+      if (!drag || (e && e.pointerId !== drag.id)) return;
+      drag = null;
+      s.classList.remove("is-dragging");
+    };
+    bar.addEventListener("pointerup", endDrag);
+    bar.addEventListener("pointercancel", endDrag);
   }
 
   function selectMusic(id, embed, title, { forceReload = false } = {}) {
     if (!embed) return;
-    const frame = $("#music-frame");
-    const shell = $("#music-player-shell");
-    const empty = $("#music-empty");
-    if (!frame || !shell) return;
-
-    mountShellInPopup();
+    const f = frame();
+    const s = shell();
+    const e = empty();
+    if (!f || !s) return;
 
     activeMusicId = id;
     const src = withAutoplay(embed);
 
     if (currentEmbed === embed && playing && !forceReload) {
       paintMusicList();
-      shell.hidden = false;
+      s.hidden = false;
+      updateDockState();
       return;
     }
 
     currentEmbed = embed;
-    // Force a real navigation so Spotify/YouTube re-evaluate autoplay
-    frame.removeAttribute("src");
-    // next frame so browsers don't coalesce to a no-op
+    f.removeAttribute("src");
     requestAnimationFrame(() => {
-      frame.src = src;
+      f.src = src;
     });
 
     playing = true;
-    shell.hidden = false;
-    if (empty) empty.hidden = true;
+    s.hidden = false;
+    if (e) e.hidden = true;
+    const sl = slot();
+    if (sl) sl.hidden = false;
 
     const lab = $("#music-player-label");
     if (lab) lab.textContent = title || id || "Playing…";
@@ -180,6 +312,9 @@
       /* ignore */
     }
     paintMusicList();
+    // Prefer showing in Music section first
+    if (!docked) mountInline();
+    updateDockState();
   }
 
   function nudgeAutoplayOnGesture() {
@@ -190,7 +325,6 @@
       window.removeEventListener("keydown", once, true);
       window.removeEventListener("touchstart", once, true);
       if (!playing || !currentEmbed) return;
-      // Re-assert autoplay after a user gesture (browser autoplay policy)
       selectMusic(activeMusicId || "nudge", currentEmbed, $("#music-player-label")?.textContent || "", {
         forceReload: true,
       });
@@ -201,7 +335,6 @@
   }
 
   function autoStartMusic() {
-    // Kick the default embed immediately (before JSON if needed) so audio starts ASAP
     try {
       const raw = localStorage.getItem(MUSIC_KEY);
       if (raw) {
@@ -230,7 +363,11 @@
         embed: DEFAULT_EMBED,
       };
     if (pick?.embed) {
-      if (list.length && !list.some((p) => p.id === pick.id) && (playlists.youtube || []).some((p) => p.id === pick.id)) {
+      if (
+        list.length &&
+        !list.some((p) => p.id === pick.id) &&
+        (playlists.youtube || []).some((p) => p.id === pick.id)
+      ) {
         musicTab = "youtube";
         paintMusicTabs();
       }
@@ -247,28 +384,54 @@
         paintMusicList();
       });
     });
+    closeBtn()?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closePopupToMusic();
+    });
+    bindDrag();
+    window.addEventListener("scroll", updateDockState, { passive: true });
+    window.addEventListener("resize", updateDockState);
+    if ("IntersectionObserver" in window && slot()) {
+      new IntersectionObserver(() => updateDockState(), {
+        root: null,
+        threshold: [0, 0.05, 0.2, 0.5, 1],
+        rootMargin: "-40px 0px -40px 0px",
+      }).observe(slot());
+    }
   }
 
   async function boot() {
-    // Start default audio path immediately (don't wait on network for playlists.json)
-    mountShellInPopup();
+    // Ensure shell structure has close control
+    const bar = shell()?.querySelector(".music-player-bar");
+    if (bar && !closeBtn()) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.id = "music-player-close";
+      btn.className = "music-player-close";
+      btn.title = "Return player to Music section";
+      btn.setAttribute("aria-label", "Close popup and return to Music section");
+      btn.hidden = true;
+      btn.textContent = "×";
+      bar.appendChild(btn);
+    }
+    if (bar && !bar.id) bar.id = "music-player-bar";
+
+    mountInline();
     autoStartMusic();
+    bindUi();
 
     try {
       playlists = await loadJson("data/playlists.json");
       paintMusicTabs();
       paintMusicList();
-      // Re-resolve default from full catalog if we started on hard-coded fallback
       if (!activeMusicId || activeMusicId === DEFAULT_SPOTIFY_ID) {
         const list = playlists.spotify || [];
         const pick = list.find((p) => p.id === DEFAULT_SPOTIFY_ID) || list[0];
         if (pick?.embed && pick.embed !== currentEmbed) {
           selectMusic(pick.id, pick.embed, pick.title);
-        } else {
-          paintMusicList();
         }
       }
-      bindUi();
     } catch (err) {
       console.warn("[ambient]", err);
       const el = $("#ambient-error");
@@ -276,9 +439,8 @@
         el.hidden = false;
         el.textContent = `Could not load music list: ${err.message}`;
       }
-      paintMusicList();
-      bindUi();
     }
+    updateDockState();
   }
 
   if (document.readyState === "loading") {
