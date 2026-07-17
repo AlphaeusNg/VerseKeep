@@ -444,15 +444,19 @@
     persistUi();
   }
 
+  /**
+   * Soft bounds only: player may hang mostly off-screen (past the viewport
+   * edge). Keep a grab strip (~48px) visible so it can always be dragged back.
+   */
   function clamp(left, top, el) {
     const w = el?.offsetWidth || 320;
     const h = el?.offsetHeight || 200;
     const vw = window.innerWidth || 800;
     const vh = window.innerHeight || 600;
-    const margin = 4;
+    const keep = 48;
     return {
-      left: Math.min(Math.max(margin, left), Math.max(margin, vw - w - margin)),
-      top: Math.min(Math.max(margin, top), Math.max(margin, vh - h - margin)),
+      left: Math.min(Math.max(-(w - keep), left), vw - keep),
+      top: Math.min(Math.max(-(h - keep), top), vh - keep),
     };
   }
 
