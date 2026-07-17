@@ -129,38 +129,34 @@
     <section class="panel ambient-panel" id="worship">
       <h2>Music · sides of the same heart</h2>
       <p class="music-note">
-        Autoplay on visit (last station, or <strong>God’s encouragement</strong>). Player stays on the
-        <strong>left</strong> and docks bottom-left when you scroll away.
+        Autoplay on visit (last station, or <strong>God’s encouragement</strong>).
+        The player floats as a <strong>small popup bottom-right</strong> — pick a station below.
         Spotify: <a href="https://open.spotify.com/playlist/0qKlX3MZWEHZgR17jNfI3e" target="_blank" rel="noopener">God’s encouragement</a>,
         <a href="https://open.spotify.com/playlist/7rAN4koGCFwrHkmPcuvfMO" target="_blank" rel="noopener">SSBC Winter’24</a>,
-        Hope · Despair · Catchy, then CityAlight, hymns &amp; a cappella. Free Spotify login may be needed.
+        Hope · Despair · Catchy, then CityAlight, hymns &amp; a cappella. Free Spotify login may be needed for full play.
       </p>
       <div class="mode-row" role="tablist" aria-label="Music source">
         <button type="button" class="chip is-active" data-music-tab="spotify">Spotify</button>
         <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
-        <button type="button" class="btn ghost" id="music-stop">Stop</button>
       </div>
-      <div class="ambient-split">
-        <div class="music-player-slot" id="music-player-slot">
-          <p id="music-empty" class="music-empty-inline">Pick a station — try God’s encouragement or SSBC.</p>
-          <div class="music-player-shell" id="music-player-shell" hidden>
-            <div class="music-player-bar">
-              <span class="music-player-label mono" id="music-player-label">Playing…</span>
-              <span class="music-dock-pin mono" id="music-dock-pin" hidden>following you</span>
-              <button type="button" class="btn ghost" id="music-player-stop" style="padding:0.3rem 0.55rem;font-size:0.78rem">Stop</button>
-            </div>
-            <div class="music-player-frame-wrap">
-              <iframe
-                id="music-frame"
-                title="Worship player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen
-                loading="eager"
-              ></iframe>
-            </div>
+      <div class="pick-list" id="music-list"></div>
+      <!-- Floating player host (moved to body by ambient.js); shell starts here for no-JS fallback -->
+      <div id="music-player-slot" class="music-player-slot" hidden>
+        <p id="music-empty" class="music-empty-inline" hidden></p>
+        <div class="music-player-shell is-popup" id="music-player-shell" hidden>
+          <div class="music-player-bar">
+            <span class="music-player-label mono" id="music-player-label">Playing…</span>
+          </div>
+          <div class="music-player-frame-wrap">
+            <iframe
+              id="music-frame"
+              title="Worship player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              loading="eager"
+            ></iframe>
           </div>
         </div>
-        <div class="pick-list" id="music-list"></div>
       </div>
     </section>
 

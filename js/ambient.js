@@ -1,9 +1,8 @@
 /**
  * Worship music for VerseKeep.
- * Auto-starts a default (or last) station on page load.
- * Player sits on the left of the Music section; docks bottom-left when
- * that section scrolls out of view so it stays reachable while practicing.
- * Wallpapers live in js/wallpapers.js.
+ * - Starts default/last station ASAP on load
+ * - Floating mini-player (bottom-right popup) — not stuck in the Music section
+ * - Station picks stay in #worship; no separate Stop buttons (use the embed controls)
  */
 (function () {
   "use strict";
@@ -13,13 +12,15 @@
 
   const MUSIC_KEY = "versekeep-music";
   const DEFAULT_SPOTIFY_ID = "alph-gods-encouragement";
+  const DEFAULT_EMBED =
+    "https://open.spotify.com/embed/playlist/0qKlX3MZWEHZgR17jNfI3e?utm_source=generator";
 
   let playlists = { youtube: [], spotify: [] };
   let musicTab = "spotify";
   let activeMusicId = null;
   let currentEmbed = "";
   let playing = false;
-  let observer = null;
+  let gestureHooked = false;
 
   function escapeHtml(s) {
     return String(s)
@@ -33,15 +34,21 @@
     if (!url) return url;
     try {
       const u = new URL(url, location.href);
+      u.searchParams.set("utm_source", u.searchParams.get("utm_source") || "generator");
       u.searchParams.set("autoplay", "1");
-      // YouTube often needs this pair for autoplay attempts
+      // Compact Spotify chrome is friendlier in a popup
+      if (u.hostname.includes("spotify.com")) {
+        u.searchParams.set("theme", "0");
+      }
       if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
         u.searchParams.set("autoplay", "1");
+        u.searchParams.set("playsinline", "1");
         if (!u.searchParams.has("rel")) u.searchParams.set("rel", "0");
       }
       return u.toString();
     } catch {
-      return url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+      const join = url.includes("?") ? "&" : "?";
+      return `${url}${join}autoplay=1`;
     }
   }
 
@@ -109,64 +116,54 @@
     });
   }
 
-  function updateDockState() {
+  function ensurePopupHost() {
+    let host = $("#music-popup-host");
+    if (host) return host;
+    host = document.createElement("div");
+    host.id = "music-popup-host";
+    host.className = "music-popup-host";
+    host.setAttribute("aria-live", "polite");
+    document.body.appendChild(host);
+    return host;
+  }
+
+  function mountShellInPopup() {
     const shell = $("#music-player-shell");
-    const sl = $("#music-player-slot");
-    if (!shell || !playing) return;
-
-    const rect = sl?.getBoundingClientRect();
-    const slotVisible =
-      sl &&
-      !sl.closest("[hidden]") &&
-      rect &&
-      rect.bottom > 48 &&
-      rect.top < (window.innerHeight || 0) - 48;
-
-    const shouldDock = !slotVisible;
-    shell.classList.toggle("is-docked", shouldDock);
-    sl?.classList.toggle("is-player-docked", shouldDock);
-
-    const pin = $("#music-dock-pin");
-    if (pin) pin.hidden = !shouldDock;
-  }
-
-  function watchVisibility() {
-    const sl = $("#music-player-slot");
-    if (!sl || !("IntersectionObserver" in window)) {
-      window.addEventListener("scroll", updateDockState, { passive: true });
-      window.addEventListener("resize", updateDockState);
-      return;
+    if (!shell) return;
+    const host = ensurePopupHost();
+    if (shell.parentElement !== host) {
+      host.appendChild(shell);
     }
-    observer = new IntersectionObserver(() => updateDockState(), {
-      root: null,
-      threshold: [0, 0.01, 0.1, 0.5, 1],
-      rootMargin: "-40px 0px -40px 0px",
-    });
-    observer.observe(sl);
-    window.addEventListener("scroll", updateDockState, { passive: true });
-    window.addEventListener("resize", updateDockState);
+    shell.classList.add("is-popup");
+    shell.classList.add("is-docked");
   }
 
-  function selectMusic(id, embed, title) {
+  function selectMusic(id, embed, title, { forceReload = false } = {}) {
     if (!embed) return;
     const frame = $("#music-frame");
     const shell = $("#music-player-shell");
     const empty = $("#music-empty");
     if (!frame || !shell) return;
 
+    mountShellInPopup();
+
     activeMusicId = id;
     const src = withAutoplay(embed);
 
-    if (currentEmbed === embed && playing) {
+    if (currentEmbed === embed && playing && !forceReload) {
       paintMusicList();
-      updateDockState();
+      shell.hidden = false;
       return;
     }
 
     currentEmbed = embed;
-    if (frame.getAttribute("src") !== src) {
+    // Force a real navigation so Spotify/YouTube re-evaluate autoplay
+    frame.removeAttribute("src");
+    // next frame so browsers don't coalesce to a no-op
+    requestAnimationFrame(() => {
       frame.src = src;
-    }
+    });
+
     playing = true;
     shell.hidden = false;
     if (empty) empty.hidden = true;
@@ -183,46 +180,37 @@
       /* ignore */
     }
     paintMusicList();
-    updateDockState();
   }
 
-  function stopMusic() {
-    const frame = $("#music-frame");
-    const shell = $("#music-player-shell");
-    const empty = $("#music-empty");
-    if (frame) {
-      frame.removeAttribute("src");
-      frame.src = "about:blank";
-    }
-    if (shell) {
-      shell.hidden = true;
-      shell.classList.remove("is-docked");
-    }
-    $("#music-player-slot")?.classList.remove("is-player-docked");
-    if (empty) empty.hidden = false;
-    activeMusicId = null;
-    currentEmbed = "";
-    playing = false;
-    try {
-      localStorage.removeItem(MUSIC_KEY);
-    } catch {
-      /* ignore */
-    }
-    paintMusicList();
+  function nudgeAutoplayOnGesture() {
+    if (gestureHooked) return;
+    gestureHooked = true;
+    const once = () => {
+      window.removeEventListener("pointerdown", once, true);
+      window.removeEventListener("keydown", once, true);
+      window.removeEventListener("touchstart", once, true);
+      if (!playing || !currentEmbed) return;
+      // Re-assert autoplay after a user gesture (browser autoplay policy)
+      selectMusic(activeMusicId || "nudge", currentEmbed, $("#music-player-label")?.textContent || "", {
+        forceReload: true,
+      });
+    };
+    window.addEventListener("pointerdown", once, { capture: true, passive: true });
+    window.addEventListener("keydown", once, { capture: true });
+    window.addEventListener("touchstart", once, { capture: true, passive: true });
   }
 
   function autoStartMusic() {
+    // Kick the default embed immediately (before JSON if needed) so audio starts ASAP
     try {
       const raw = localStorage.getItem(MUSIC_KEY);
       if (raw) {
         const data = JSON.parse(raw);
         if (data.tab) musicTab = data.tab;
         paintMusicTabs();
-        paintMusicList();
         if (data.embed) {
-          activeMusicId = data.id || null;
-          currentEmbed = "";
-          selectMusic(data.id, data.embed, data.title || "");
+          selectMusic(data.id || "restored", data.embed, data.title || "");
+          nudgeAutoplayOnGesture();
           return;
         }
       }
@@ -230,21 +218,25 @@
       /* ignore */
     }
 
-    // Default: Alphaeus "God's encouragement", else first Spotify entry
     musicTab = "spotify";
     paintMusicTabs();
-    paintMusicList();
     const list = playlists.spotify || [];
     const pick =
-      list.find((p) => p.id === DEFAULT_SPOTIFY_ID) || list[0] || (playlists.youtube || [])[0];
+      list.find((p) => p.id === DEFAULT_SPOTIFY_ID) ||
+      list[0] ||
+      (playlists.youtube || [])[0] || {
+        id: DEFAULT_SPOTIFY_ID,
+        title: "God's encouragement",
+        embed: DEFAULT_EMBED,
+      };
     if (pick?.embed) {
-      if (!list.includes(pick) && (playlists.youtube || []).includes(pick)) {
+      if (list.length && !list.some((p) => p.id === pick.id) && (playlists.youtube || []).some((p) => p.id === pick.id)) {
         musicTab = "youtube";
         paintMusicTabs();
-        paintMusicList();
       }
       selectMusic(pick.id, pick.embed, pick.title);
     }
+    nudgeAutoplayOnGesture();
   }
 
   function bindUi() {
@@ -255,26 +247,37 @@
         paintMusicList();
       });
     });
-
-    $("#music-stop")?.addEventListener("click", stopMusic);
-    $("#music-player-stop")?.addEventListener("click", stopMusic);
   }
 
   async function boot() {
+    // Start default audio path immediately (don't wait on network for playlists.json)
+    mountShellInPopup();
+    autoStartMusic();
+
     try {
       playlists = await loadJson("data/playlists.json");
       paintMusicTabs();
       paintMusicList();
+      // Re-resolve default from full catalog if we started on hard-coded fallback
+      if (!activeMusicId || activeMusicId === DEFAULT_SPOTIFY_ID) {
+        const list = playlists.spotify || [];
+        const pick = list.find((p) => p.id === DEFAULT_SPOTIFY_ID) || list[0];
+        if (pick?.embed && pick.embed !== currentEmbed) {
+          selectMusic(pick.id, pick.embed, pick.title);
+        } else {
+          paintMusicList();
+        }
+      }
       bindUi();
-      watchVisibility();
-      autoStartMusic();
     } catch (err) {
       console.warn("[ambient]", err);
       const el = $("#ambient-error");
       if (el) {
         el.hidden = false;
-        el.textContent = `Could not load music: ${err.message}`;
+        el.textContent = `Could not load music list: ${err.message}`;
       }
+      paintMusicList();
+      bindUi();
     }
   }
 
