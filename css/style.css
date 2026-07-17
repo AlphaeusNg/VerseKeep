@@ -1036,6 +1036,99 @@ main {
   align-items: center;
 }
 
+/* Wallpaper search / filter */
+.wp-search-bar {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.35rem 0 0.85rem;
+  align-items: center;
+}
+
+.wp-search-label {
+  display: block;
+  width: 100%;
+}
+
+.wp-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.55rem 1rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wp-search-input::placeholder {
+  color: var(--dim);
+}
+
+.wp-search-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.wp-search-bar {
+  grid-template-columns: 1fr auto;
+}
+
+.wp-search-clear {
+  white-space: nowrap;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.wp-search-meta {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+.wp-search-chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.wp-chip {
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.wp-chip:hover {
+  border-color: var(--gold-line);
+  color: var(--cream);
+}
+
+.wp-chip.is-on {
+  border-color: rgba(212, 175, 55, 0.65);
+  background: rgba(212, 175, 55, 0.14);
+  color: #f0d878;
+}
+
+.wp-search-empty {
+  grid-column: 1 / -1;
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+}
+
 .wp-featured {
   margin: 0.85rem 0 1rem;
 }
@@ -1223,18 +1316,20 @@ main {
 }
 
 .wp-theme-set-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--wp-theme-cols, 3), minmax(0, 1fr));
 }
 
 @media (max-width: 720px) {
   .wp-theme-set-grid {
     grid-template-columns: 1fr;
   }
-}
 
-@media (min-width: 721px) and (max-width: 980px) {
-  .wp-theme-set-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .wp-search-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .wp-search-clear {
+    justify-self: start;
   }
 }
 

@@ -26,6 +26,7 @@
   let catalog = {}; // id -> { id, title, blurb, src, download }
   let salt = 0;
   let applying = false;
+  let searchQuery = "";
 
   function escapeHtml(s) {
     return String(s)
@@ -577,6 +578,154 @@
 
   const STYLE_ORDER = { lofi: 0, minimal: 1, masculine: 2 };
 
+  /** Search haystack: title, blurb, tags, theme, style, id */
+  function wallpaperSearchText(w) {
+    const parts = [
+      w.id,
+      w.title,
+      w.blurb,
+      w.theme,
+      w.themeTitle,
+      w.style,
+      w.kind,
+      ...(Array.isArray(w.tags) ? w.tags : []),
+    ];
+    return parts
+      .filter(Boolean)
+      .map((x) => String(x).toLowerCase())
+      .join(" ");
+  }
+
+  function parseSearchQuery(raw) {
+    return String(raw || "")
+      .toLowerCase()
+      .trim()
+      .split(/[\s,+/|]+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+
+  function matchesSearch(w, tokens) {
+    if (!tokens.length) return true;
+    const hay = wallpaperSearchText(w);
+    // Every token must match (AND). Allows "baptism minimal" or "jesus"
+    return tokens.every((t) => hay.includes(t));
+  }
+
+  function filterList(list, tokens) {
+    if (!tokens.length) return list;
+    return list.filter((w) => matchesSearch(w, tokens));
+  }
+
+  function updateSearchChrome(matchCount, totalCount, tokens) {
+    const meta = $("#wp-search-meta");
+    const clearBtn = $("#wp-search-clear");
+    if (clearBtn) clearBtn.hidden = !tokens.length;
+    if (!meta) return;
+    if (!tokens.length) {
+      meta.textContent = "";
+      meta.hidden = true;
+      return;
+    }
+    meta.hidden = false;
+    meta.textContent =
+      matchCount === 0
+        ? `No matches for “${tokens.join(" ")}” — try another tag or clear`
+        : `${matchCount} match${matchCount === 1 ? "" : "es"} · filtering ${totalCount} wallpapers`;
+  }
+
+  function collectQuickChips() {
+    const counts = new Map();
+    const bump = (label) => {
+      if (!label) return;
+      const key = String(label).trim();
+      if (!key || key.length > 18) return;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    };
+    classics.forEach((w) => {
+      (w.tags || []).forEach(bump);
+      if (w.style) {
+        const pretty =
+          w.style === "lofi" ? "Lo-fi" : w.style === "minimal" ? "Minimal" : w.style === "masculine" ? "Masculine" : w.style;
+        bump(pretty);
+      }
+      if (w.themeTitle) bump(w.themeTitle);
+    });
+    daily.forEach((w) => (w.tags || []).forEach(bump));
+    // Prefer high-signal chips
+    const preferred = [
+      "Jesus",
+      "Baptism",
+      "Shepherd",
+      "Communion",
+      "Cosmos",
+      "Spirit",
+      "Easter",
+      "Prayer",
+      "Word",
+      "Lo-fi",
+      "Minimal",
+      "Masculine",
+      "Yours",
+      "Cross",
+      "Hope",
+    ];
+    const out = [];
+    preferred.forEach((p) => {
+      if (counts.has(p) || [...counts.keys()].some((k) => k.toLowerCase() === p.toLowerCase())) {
+        out.push(p);
+      }
+    });
+    // Fill with popular tags
+    [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([k]) => {
+        if (out.length >= 12) return;
+        if (!out.some((x) => x.toLowerCase() === k.toLowerCase())) out.push(k);
+      });
+    return out.slice(0, 12);
+  }
+
+  function paintSearchChips() {
+    const host = $("#wp-search-chips");
+    if (!host) return;
+    const chips = collectQuickChips();
+    const active = new Set(parseSearchQuery(searchQuery));
+    host.innerHTML = chips
+      .map((label) => {
+        const on = active.has(label.toLowerCase());
+        return `<button type="button" class="wp-chip${on ? " is-on" : ""}" data-wp-chip="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+      })
+      .join("");
+    host.querySelectorAll("[data-wp-chip]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const token = btn.dataset.wpChip || "";
+        const tokens = parseSearchQuery(searchQuery);
+        const lower = token.toLowerCase();
+        const idx = tokens.indexOf(lower);
+        if (idx >= 0) tokens.splice(idx, 1);
+        else tokens.push(lower);
+        // Prefer readable casing for known chips
+        const next = tokens
+          .map((t) => {
+            const hit = chips.find((c) => c.toLowerCase() === t);
+            return hit || t;
+          })
+          .join(" ");
+        setSearchQuery(next, { focus: false });
+      });
+    });
+  }
+
+  function setSearchQuery(q, { focus = false } = {}) {
+    searchQuery = String(q || "");
+    const input = $("#wp-search");
+    if (input && input.value !== searchQuery) input.value = searchQuery;
+    paintGrid();
+    paintSearchChips();
+    if (focus) input?.focus();
+  }
+
   function themedSetsHtml(list) {
     const withTheme = list.filter((w) => w.theme);
     if (!withTheme.length) return "";
@@ -604,14 +753,15 @@
             });
             const title = items[0]?.themeTitle || items[0]?.title || themeKey;
             const blurb = items.find((i) => i.style === "lofi")?.blurb?.replace(/^Lo-fi ·\s*/i, "") || "";
+            const cols = Math.min(3, Math.max(1, items.length));
             return `
           <section class="wp-theme-set" data-theme="${escapeHtml(themeKey)}">
             <header class="wp-theme-set-head">
               <h3 class="wp-theme-set-title">${escapeHtml(title)}</h3>
               ${blurb ? `<p class="wp-theme-set-blurb">${escapeHtml(blurb)}</p>` : ""}
-              <p class="wp-theme-set-styles mono">Lo-fi · Minimal · Masculine</p>
+              <p class="wp-theme-set-styles mono">${items.map((i) => (i.style === "lofi" ? "Lo-fi" : i.style === "minimal" ? "Minimal" : i.style === "masculine" ? "Masculine" : i.style || "")).filter(Boolean).join(" · ")}</p>
             </header>
-            <div class="wallpaper-grid-inner wp-theme-set-grid">
+            <div class="wallpaper-grid-inner wp-theme-set-grid" style="--wp-theme-cols:${cols}">
               ${items.map((w) => cardHtml(w)).join("")}
             </div>
           </section>`;
@@ -623,18 +773,37 @@
   function paintGrid() {
     const host = $("#wallpaper-grid");
     if (!host) return;
+    const tokens = parseSearchQuery(searchQuery);
     const classicList = classics.filter((w) => w.id !== "none");
     const none = classics.find((w) => w.id === "none");
-    const fromPc = classicList.filter((w) => String(w.id || "").startsWith("win-"));
-    const themed = classicList.filter((w) => w.theme);
-    const sanctuary = classicList.filter(
-      (w) =>
-        !String(w.id || "").startsWith("win-") &&
-        !w.theme &&
-        !String(w.id || "").startsWith("lofi-") &&
-        !String(w.id || "").startsWith("min-") &&
-        !String(w.id || "").startsWith("masc-")
+    const searchable = [...daily, ...classicList, ...(none ? [none] : [])];
+    const totalCount = searchable.length;
+
+    const fromPc = filterList(
+      classicList.filter((w) => String(w.id || "").startsWith("win-")),
+      tokens
     );
+    const themed = filterList(
+      classicList.filter((w) => w.theme),
+      tokens
+    );
+    const sanctuary = filterList(
+      classicList.filter(
+        (w) =>
+          !String(w.id || "").startsWith("win-") &&
+          !w.theme &&
+          !String(w.id || "").startsWith("lofi-") &&
+          !String(w.id || "").startsWith("min-") &&
+          !String(w.id || "").startsWith("masc-")
+      ),
+      tokens
+    );
+    const dailyFiltered = filterList(daily, tokens);
+    const noneList = none && matchesSearch(none, tokens) ? [none] : [];
+
+    const matchCount =
+      dailyFiltered.length + fromPc.length + themed.length + sanctuary.length + noneList.length;
+    updateSearchChrome(matchCount, totalCount, tokens);
 
     const section = (label, list, gridId) =>
       list.length
@@ -645,20 +814,37 @@
       </div>`
         : "";
 
+    const emptyFilter =
+      tokens.length && matchCount === 0
+        ? `<p class="wp-search-empty hint">No wallpapers match <strong>${escapeHtml(tokens.join(" "))}</strong>. Try a tag like <em>baptism</em>, <em>Jesus</em>, <em>minimal</em>, or <em>cosmos</em>.</p>`
+        : "";
+
     host.innerHTML = `
+      ${emptyFilter}
+      ${
+        dailyFiltered.length || !tokens.length
+          ? `
       <div class="wp-section-label mono">Today’s suggestions</div>
       <div class="wallpaper-grid-inner" id="wp-daily-grid">
-        ${daily.map((w) => cardHtml(w, { showDailyBadge: true })).join("") || `<p class="hint">Could not load daily images — classics still work.</p>`}
-      </div>
+        ${
+          dailyFiltered.length
+            ? dailyFiltered.map((w) => cardHtml(w, { showDailyBadge: true })).join("")
+            : !tokens.length
+              ? `<p class="hint">Could not load daily images — classics still work.</p>`
+              : ""
+        }
+      </div>`
+          : ""
+      }
       ${section("From your PC", fromPc, "wp-pc-grid")}
       ${themedSetsHtml(themed)}
       ${section("Sanctuary classics", sanctuary, "wp-classic-grid")}
       ${
-        none
+        noneList.length
           ? `
       <div class="wp-section-label mono">Theme only</div>
       <div class="wallpaper-grid-inner" id="wp-none-grid">
-        ${cardHtml(none)}
+        ${noneList.map((w) => cardHtml(w)).join("")}
       </div>`
           : ""
       }
@@ -702,6 +888,7 @@
     paintFeatured();
     paintHeroLoved();
     paintGrid();
+    paintSearchChips();
   }
 
   function rebuildDaily({ reshuffle = false } = {}) {
@@ -746,6 +933,24 @@
   }
 
   function bindUi() {
+    const searchInput = $("#wp-search");
+    let searchTimer = null;
+    searchInput?.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        setSearchQuery(searchInput.value, { focus: false });
+      }, 120);
+    });
+    searchInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setSearchQuery("", { focus: true });
+      }
+    });
+    $("#wp-search-clear")?.addEventListener("click", () => {
+      setSearchQuery("", { focus: true });
+    });
+
     $("#wp-new-suggestions")?.addEventListener("click", async () => {
       rebuildDaily({ reshuffle: true });
       const btn = $("#wp-new-suggestions");

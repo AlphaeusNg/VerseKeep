@@ -311,15 +311,15 @@
     },
     {
       "id": "lofi-baptism",
-      "title": "Baptism waters",
-      "blurb": "Lo-fi · Dawn river · dove feathers",
+      "title": "Baptism of Jesus",
+      "blurb": "Lo-fi · Jesus baptized in dawn river",
       "theme": "baptism",
-      "themeTitle": "Baptism waters",
+      "themeTitle": "Baptism of Jesus",
       "style": "lofi",
       "tags": [
         "Lo-fi",
         "Baptism",
-        "New life"
+        "Jesus"
       ],
       "tone": "water",
       "src": "assets/wallpapers/lofi-baptism.jpg",
@@ -327,15 +327,15 @@
     },
     {
       "id": "min-baptism",
-      "title": "Baptism waters",
-      "blurb": "Minimal · Dawn river · dove feathers",
+      "title": "Baptism of Jesus",
+      "blurb": "Minimal · Jesus baptized in quiet waters",
       "theme": "baptism",
-      "themeTitle": "Baptism waters",
+      "themeTitle": "Baptism of Jesus",
       "style": "minimal",
       "tags": [
         "Minimal",
         "Baptism",
-        "New life"
+        "Jesus"
       ],
       "tone": "minimal",
       "src": "assets/wallpapers/min-baptism.jpg",
@@ -343,15 +343,15 @@
     },
     {
       "id": "masc-baptism",
-      "title": "Baptism waters",
-      "blurb": "Masculine · Dawn river · dove feathers",
+      "title": "Baptism of Jesus",
+      "blurb": "Masculine · Jesus baptized at bronze dawn",
       "theme": "baptism",
-      "themeTitle": "Baptism waters",
+      "themeTitle": "Baptism of Jesus",
       "style": "masculine",
       "tags": [
         "Masculine",
         "Baptism",
-        "New life"
+        "Jesus"
       ],
       "tone": "masculine",
       "src": "assets/wallpapers/masc-baptism.jpg",

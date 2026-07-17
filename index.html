@@ -191,6 +191,22 @@
           <button type="button" class="btn primary" id="wp-new-suggestions">New suggestions</button>
         </div>
       </div>
+      <div class="wp-search-bar" role="search">
+        <label class="wp-search-label" for="wp-search">
+          <span class="sr-only">Search wallpapers</span>
+          <input
+            type="search"
+            id="wp-search"
+            class="wp-search-input"
+            placeholder="Search tags, titles, themes…  e.g. baptism, Jesus, cosmos, minimal"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+        <button type="button" class="btn ghost wp-search-clear" id="wp-search-clear" hidden>Clear</button>
+        <p class="wp-search-meta mono" id="wp-search-meta" aria-live="polite"></p>
+        <div class="wp-search-chips" id="wp-search-chips" aria-label="Quick filters"></div>
+      </div>
       <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
       <div class="wallpaper-grid" id="wallpaper-grid"></div>
       <p class="hint wp-credit">
