@@ -537,6 +537,9 @@
 
   async function boot() {
     ensureBarControls();
+    // Always begin in the Music section (even if off-screen) — same UX as AA near-top Music
+    seenMusicSection = false;
+    preferInline = false;
     mountInline();
     autoStartMusic();
     bindUi();
@@ -560,6 +563,8 @@
         el.textContent = `Could not load music list: ${err.message}`;
       }
     }
+    // Keep inline until Music has been scrolled into view at least once
+    if (!seenMusicSection && !minimized) mountInline();
     updateDockState();
   }
 
