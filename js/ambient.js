@@ -1,6 +1,8 @@
 /**
  * Worship music for VerseKeep.
- * Player stays inline in the Music section.
+ * Auto-starts a default (or last) station on page load.
+ * Player sits on the left of the Music section; docks bottom-left when
+ * that section scrolls out of view so it stays reachable while practicing.
  * Wallpapers live in js/wallpapers.js.
  */
 (function () {
@@ -10,12 +12,14 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
   const MUSIC_KEY = "versekeep-music";
+  const DEFAULT_SPOTIFY_ID = "alph-gods-encouragement";
 
   let playlists = { youtube: [], spotify: [] };
   let musicTab = "spotify";
   let activeMusicId = null;
   let currentEmbed = "";
   let playing = false;
+  let observer = null;
 
   function escapeHtml(s) {
     return String(s)
@@ -23,6 +27,22 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function withAutoplay(url) {
+    if (!url) return url;
+    try {
+      const u = new URL(url, location.href);
+      u.searchParams.set("autoplay", "1");
+      // YouTube often needs this pair for autoplay attempts
+      if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+        u.searchParams.set("autoplay", "1");
+        if (!u.searchParams.has("rel")) u.searchParams.set("rel", "0");
+      }
+      return u.toString();
+    } catch {
+      return url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+    }
   }
 
   async function loadJson(path) {
@@ -89,6 +109,44 @@
     });
   }
 
+  function updateDockState() {
+    const shell = $("#music-player-shell");
+    const sl = $("#music-player-slot");
+    if (!shell || !playing) return;
+
+    const rect = sl?.getBoundingClientRect();
+    const slotVisible =
+      sl &&
+      !sl.closest("[hidden]") &&
+      rect &&
+      rect.bottom > 48 &&
+      rect.top < (window.innerHeight || 0) - 48;
+
+    const shouldDock = !slotVisible;
+    shell.classList.toggle("is-docked", shouldDock);
+    sl?.classList.toggle("is-player-docked", shouldDock);
+
+    const pin = $("#music-dock-pin");
+    if (pin) pin.hidden = !shouldDock;
+  }
+
+  function watchVisibility() {
+    const sl = $("#music-player-slot");
+    if (!sl || !("IntersectionObserver" in window)) {
+      window.addEventListener("scroll", updateDockState, { passive: true });
+      window.addEventListener("resize", updateDockState);
+      return;
+    }
+    observer = new IntersectionObserver(() => updateDockState(), {
+      root: null,
+      threshold: [0, 0.01, 0.1, 0.5, 1],
+      rootMargin: "-40px 0px -40px 0px",
+    });
+    observer.observe(sl);
+    window.addEventListener("scroll", updateDockState, { passive: true });
+    window.addEventListener("resize", updateDockState);
+  }
+
   function selectMusic(id, embed, title) {
     if (!embed) return;
     const frame = $("#music-frame");
@@ -97,15 +155,17 @@
     if (!frame || !shell) return;
 
     activeMusicId = id;
+    const src = withAutoplay(embed);
 
     if (currentEmbed === embed && playing) {
       paintMusicList();
+      updateDockState();
       return;
     }
 
     currentEmbed = embed;
-    if (frame.getAttribute("src") !== embed) {
-      frame.src = embed;
+    if (frame.getAttribute("src") !== src) {
+      frame.src = src;
     }
     playing = true;
     shell.hidden = false;
@@ -123,6 +183,7 @@
       /* ignore */
     }
     paintMusicList();
+    updateDockState();
   }
 
   function stopMusic() {
@@ -133,7 +194,11 @@
       frame.removeAttribute("src");
       frame.src = "about:blank";
     }
-    if (shell) shell.hidden = true;
+    if (shell) {
+      shell.hidden = true;
+      shell.classList.remove("is-docked");
+    }
+    $("#music-player-slot")?.classList.remove("is-player-docked");
     if (empty) empty.hidden = false;
     activeMusicId = null;
     currentEmbed = "";
@@ -146,21 +211,39 @@
     paintMusicList();
   }
 
-  function restoreMusic() {
+  function autoStartMusic() {
     try {
       const raw = localStorage.getItem(MUSIC_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (data.tab) musicTab = data.tab;
-      paintMusicTabs();
-      paintMusicList();
-      if (data.embed) {
-        activeMusicId = data.id || null;
-        currentEmbed = "";
-        selectMusic(data.id, data.embed, data.title || "");
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.tab) musicTab = data.tab;
+        paintMusicTabs();
+        paintMusicList();
+        if (data.embed) {
+          activeMusicId = data.id || null;
+          currentEmbed = "";
+          selectMusic(data.id, data.embed, data.title || "");
+          return;
+        }
       }
     } catch {
       /* ignore */
+    }
+
+    // Default: Alphaeus "God's encouragement", else first Spotify entry
+    musicTab = "spotify";
+    paintMusicTabs();
+    paintMusicList();
+    const list = playlists.spotify || [];
+    const pick =
+      list.find((p) => p.id === DEFAULT_SPOTIFY_ID) || list[0] || (playlists.youtube || [])[0];
+    if (pick?.embed) {
+      if (!list.includes(pick) && (playlists.youtube || []).includes(pick)) {
+        musicTab = "youtube";
+        paintMusicTabs();
+        paintMusicList();
+      }
+      selectMusic(pick.id, pick.embed, pick.title);
     }
   }
 
@@ -182,8 +265,9 @@
       playlists = await loadJson("data/playlists.json");
       paintMusicTabs();
       paintMusicList();
-      restoreMusic();
       bindUi();
+      watchVisibility();
+      autoStartMusic();
     } catch (err) {
       console.warn("[ambient]", err);
       const el = $("#ambient-error");

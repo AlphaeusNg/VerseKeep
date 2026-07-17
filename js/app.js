@@ -1021,7 +1021,52 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.16.6";
+    if (ver) ver.textContent = "v2026.07.18.1";
+
+    // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
+    (function bindPhoneHeaderHide() {
+      const bar = document.querySelector(".topbar");
+      if (!bar) return;
+      const mq = window.matchMedia("(max-width: 720px)");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let lastY = window.scrollY || 0;
+      let ticking = false;
+
+      function apply() {
+        ticking = false;
+        if (!mq.matches || reduce.matches) {
+          bar.classList.remove("is-scroll-hidden");
+          return;
+        }
+        const yPos = window.scrollY || 0;
+        const delta = yPos - lastY;
+        if (yPos < 24) {
+          bar.classList.remove("is-scroll-hidden");
+        } else if (delta > 6) {
+          bar.classList.add("is-scroll-hidden");
+        } else if (delta < -6) {
+          bar.classList.remove("is-scroll-hidden");
+        }
+        lastY = yPos;
+      }
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(apply);
+          }
+        },
+        { passive: true }
+      );
+      window.addEventListener("resize", () => {
+        if (!mq.matches) bar.classList.remove("is-scroll-hidden");
+      });
+      mq.addEventListener?.("change", () => {
+        if (!mq.matches) bar.classList.remove("is-scroll-hidden");
+      });
+    })();
 
     // Resume last theme if present
     if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {
