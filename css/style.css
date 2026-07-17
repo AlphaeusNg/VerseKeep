@@ -979,49 +979,9 @@ main {
   color: var(--gold);
 }
 
-.music-mini-tab {
-  position: fixed;
-  left: 0;
-  top: calc(50% + 5.5rem);
-  transform: translateY(-50%);
-  z-index: 89;
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.4rem;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  padding: 0.85rem 0.45rem;
-  border: 1px solid var(--gold-line);
-  border-left: 0;
-  border-radius: 0 12px 12px 0;
-  background: rgba(10, 14, 12, 0.96);
-  color: var(--cream);
-  font: inherit;
-  cursor: pointer;
-  box-shadow: 6px 0 24px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-}
-
-.music-mini-tab:hover {
-  color: var(--gold);
+.music-dock-tab.is-player-mini {
   border-color: var(--gold);
-}
-
-.music-mini-tab-icon {
   color: var(--gold);
-  writing-mode: horizontal-tb;
-}
-
-.music-mini-tab-label {
-  font-family: var(--mono, ui-monospace, monospace);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  max-height: 8rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 
@@ -1298,6 +1258,16 @@ main {
   background: rgba(0, 0, 0, 0.55);
   color: var(--cream);
   border: 1px solid var(--line);
+}
+
+.wp-badge-pc {
+  background: rgba(90, 140, 180, 0.85);
+  color: #f2f7fb;
+}
+
+.wp-badge-lofi {
+  background: rgba(180, 120, 160, 0.85);
+  color: #fff8fc;
 }
 
 .wp-none {

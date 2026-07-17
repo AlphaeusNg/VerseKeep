@@ -80,10 +80,6 @@
   function empty() {
     return $("#music-empty");
   }
-  function miniTab() {
-    return $("#music-mini-tab");
-  }
-
   function paintMusicTabs() {
     $$("[data-music-tab]").forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.musicTab === musicTab);
@@ -147,25 +143,6 @@
     return s;
   }
 
-  function ensureMiniTab() {
-    let el = miniTab();
-    if (el) return el;
-    el = document.createElement("button");
-    el.type = "button";
-    el.id = "music-mini-tab";
-    el.className = "music-mini-tab";
-    el.hidden = true;
-    el.setAttribute("aria-label", "Expand music player");
-    el.innerHTML = `<span class="music-mini-tab-icon" aria-hidden="true">♪</span><span class="music-mini-tab-label mono" id="music-mini-tab-label">Music</span>`;
-    document.body.appendChild(el);
-    el.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setPlayerMode("float");
-    });
-    return el;
-  }
-
   function ensureBarChrome() {
     const s = ensureShellOnBody();
     const bar = s?.querySelector(".music-player-bar");
@@ -211,15 +188,19 @@
       : "Music";
     const tabText = $("#music-dock-tab-text");
     if (tabText) tabText.textContent = short;
-    const miniLab = $("#music-mini-tab-label");
-    if (miniLab) miniLab.textContent = short;
     const t = tab();
     if (t) {
       t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
-      t.title = dockOpen ? "Close stations" : "Open stations";
+      t.title = dockOpen
+        ? "Close stations"
+        : playerMode === "mini" && playing
+          ? `Open stations · ${currentLabel} (playing)`
+          : "Open stations";
       t.classList.toggle("is-active-tab", dockOpen);
+      t.classList.toggle("is-player-mini", playerMode === "mini" && playing);
     }
     dockRoot()?.classList.toggle("is-playing", playing);
+    $("#music-mini-tab")?.remove();
   }
 
   function persistUi() {
@@ -274,8 +255,6 @@
     clearShellPos(s);
     if (!playing || !sl) {
       setChrome(false);
-      const mt = miniTab();
-      if (mt) mt.hidden = true;
       return;
     }
     const rect = sl.getBoundingClientRect();
@@ -293,8 +272,6 @@
       placePlayerFloat({ soft: true });
       return;
     }
-    const mt = miniTab();
-    if (mt) mt.hidden = true;
   }
 
   function placePlayerFloat({ soft = false } = {}) {
@@ -325,8 +302,6 @@
     }
     const sl = slot();
     if (sl) sl.style.minHeight = "";
-    const mt = miniTab();
-    if (mt) mt.hidden = true;
     setChrome(true);
     if (!soft) persistUi();
   }
@@ -339,10 +314,8 @@
       s.classList.remove("is-home");
     }
     playerMode = "mini";
-    const mt = ensureMiniTab();
-    mt.hidden = false;
-    updateLabels();
     setChrome(false);
+    updateLabels();
   }
 
   function setPlayerMode(next, { persist = true } = {}) {
@@ -402,8 +375,6 @@
       e.textContent = "Music stopped · pick a station";
     }
     setPlayerMode("home", { persist: false });
-    const mt = miniTab();
-    if (mt) mt.hidden = true;
     updateLabels();
     try {
       localStorage.setItem(
@@ -618,7 +589,9 @@
     tab()?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      setDockOpen(!dockOpen);
+      const opening = !dockOpen;
+      setDockOpen(opening);
+      if (opening && playing && playerMode === "mini") setPlayerMode("home");
     });
     $("#music-dock-close")?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -679,7 +652,7 @@
   async function boot() {
     ensureShellOnBody();
     ensureBarChrome();
-    ensureMiniTab();
+    $("#music-mini-tab")?.remove();
     restoreUi();
     autoStartMusic();
     if (playing) setPlayerMode(playerMode, { persist: false });
