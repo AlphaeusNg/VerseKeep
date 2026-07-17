@@ -59,6 +59,36 @@
     return w.download || w.src || "";
   }
 
+  /**
+   * Force a real file download (works for same-origin classics and CORS remotes like Unsplash).
+   * Plain <a download> is ignored for cross-origin URLs — browsers just navigate/open instead.
+   */
+  async function downloadWallpaperFile(url, filename) {
+    if (!url) return;
+    const name = String(filename || "versekeep-wallpaper").replace(/[^\w.-]+/g, "_");
+    const file = name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".png")
+      ? name
+      : `${name}.jpg`;
+    try {
+      const res = await fetch(url, { mode: "cors", credentials: "omit", cache: "no-cache" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = file;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 2500);
+    } catch (err) {
+      console.warn("[wallpapers] download failed, falling back", err);
+      // Last resort: open in a new tab (user can save manually)
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  }
+
   function picsumUrl(seed) {
     return `https://picsum.photos/seed/${encodeURIComponent(seed)}/1920/1080`;
   }
@@ -337,13 +367,13 @@
       ? `<img src="${escapeHtml(w.src)}" alt="" loading="lazy" width="320" height="180" referrerpolicy="no-referrer" />`
       : `<div class="wp-none">Default dark</div>`;
     const open = hdUrl(w);
-    // Open HD: always open in a new tab (no download attr — same for classic + daily)
+    // Open HD: always open in a new tab
     const openHd = open
       ? `<a class="wp-open-hd" href="${escapeHtml(open)}" target="_blank" rel="noopener noreferrer" title="Open HD in a new tab">Open HD</a>`
       : "";
-    // Mini download beside heart (same-origin classics download; remotes open/save as browser allows)
+    // Mini download beside heart — uses blob fetch so daily/remote actually downloads
     const dlMini = open
-      ? `<a class="wp-dl-mini" href="${escapeHtml(open)}" download="${escapeHtml(w.id || "wallpaper")}.jpg" target="_blank" rel="noopener noreferrer" title="Download HD" aria-label="Download HD wallpaper">⬇</a>`
+      ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}.jpg" title="Download HD" aria-label="Download HD wallpaper">⬇</button>`
       : "";
     const badge =
       showDailyBadge || w.kind === "daily"
@@ -484,8 +514,22 @@
         if (w) applyWallpaper(w, { mode: "manual" });
       });
     });
-    host.querySelectorAll(".wp-open-hd, .wp-dl-mini").forEach((a) => {
+    host.querySelectorAll(".wp-open-hd").forEach((a) => {
       a.addEventListener("click", (e) => e.stopPropagation());
+    });
+    host.querySelectorAll(".wp-dl-mini").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = btn.dataset.dlUrl;
+        const name = btn.dataset.dlName || "versekeep-wallpaper.jpg";
+        btn.disabled = true;
+        btn.classList.add("is-busy");
+        downloadWallpaperFile(url, name).finally(() => {
+          btn.disabled = false;
+          btn.classList.remove("is-busy");
+        });
+      });
     });
     host.querySelectorAll("[data-heart]").forEach((btn) => {
       btn.addEventListener("click", (e) => {

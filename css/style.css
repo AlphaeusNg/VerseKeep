@@ -1158,20 +1158,24 @@ main {
   z-index: 2;
 }
 
+/* Same height as heart; rounded rectangle (not a circle) */
 .wp-dl-mini {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.85rem;
+  box-sizing: border-box;
   height: 1.85rem;
-  border-radius: 999px;
+  min-width: 1.85rem;
+  padding: 0 0.5rem;
+  border-radius: 0.5rem;
   border: 1px solid var(--line);
   background: rgba(0, 0, 0, 0.55);
   color: var(--gold);
   font-size: 0.78rem;
-  text-decoration: none;
   line-height: 1;
   flex-shrink: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .wp-dl-mini:hover {
@@ -1180,15 +1184,24 @@ main {
   color: #f0d878;
 }
 
+.wp-dl-mini:disabled,
+.wp-dl-mini.is-busy {
+  opacity: 0.55;
+  cursor: wait;
+}
+
 .wp-heart {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 1.85rem;
   gap: 0.2rem;
   border: 1px solid var(--line);
   background: rgba(0, 0, 0, 0.55);
   color: var(--muted);
   border-radius: 999px;
-  padding: 0.25rem 0.45rem;
+  padding: 0 0.45rem;
   font: inherit;
   font-size: 0.75rem;
   cursor: pointer;
