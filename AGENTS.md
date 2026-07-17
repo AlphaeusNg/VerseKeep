@@ -47,7 +47,8 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 ## Music
 
 - Autoplay on load: last station (`versekeep-music`) or default Spotify **God’s encouragement** (`alph-gods-encouragement`).
-- Player column is **left** in `#worship` (`.ambient-split`); docks **bottom-left** when scrolled away.
+- **Left-edge dock** (`#worship`): vertical tab opens/closes the panel; open state in `versekeep-music-dock-open`.
+- Iframe stays mounted when closed so audio never cuts. Nav **Music** toggles the dock.
 - Playlist metadata: `data/playlists.json` (categories; “From Alphaeus” first).
 
 ## Wallpapers
@@ -83,7 +84,7 @@ Footer version string is set in `js/app.js` (e.g. `v2026.07.18.1`) — **bump on
 
 - Zero-build static site; gold/cream dark theme.
 - Prefer editing `data/verses.json` / `data/playlists.json` for content, not hardcoding lists in JS.
-- Keep worship and practice panels independent; music should not block practice when docked.
+- Keep music dock independent of practice; closed dock must not stop audio.
 - Don’t commit API keys.
 
 ## Deploy

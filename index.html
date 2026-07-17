@@ -22,6 +22,50 @@
 <body>
   <a class="skip" href="#themes">Skip to themes</a>
 
+  <!-- Left music dock — uses empty side space; tab opens/closes the panel -->
+  <aside class="music-dock" id="worship" aria-label="Worship music">
+    <button type="button" class="music-dock-tab" id="music-dock-tab" aria-expanded="false" aria-controls="music-dock-panel" title="Open or close music">
+      <span class="music-dock-tab-icon" aria-hidden="true">♪</span>
+      <span class="music-dock-tab-text" id="music-dock-tab-text">Music</span>
+    </button>
+    <div class="music-dock-panel" id="music-dock-panel" role="dialog" aria-label="Music player" aria-modal="false">
+      <div class="music-dock-head">
+        <div>
+          <p class="eyebrow music-dock-eyebrow">Worship</p>
+          <h2 class="music-dock-title">Music</h2>
+        </div>
+        <button type="button" class="music-dock-close" id="music-dock-close" title="Close music panel" aria-label="Close music panel">×</button>
+      </div>
+      <p class="music-note music-dock-note">
+        Left dock · pick a station · audio keeps playing when closed.
+        Autoplay uses last station or <strong>God’s encouragement</strong>.
+      </p>
+      <div class="mode-row music-dock-tabs" role="tablist" aria-label="Music source">
+        <button type="button" class="chip is-active" data-music-tab="spotify">Spotify</button>
+        <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
+      </div>
+      <div class="pick-list" id="music-list"></div>
+      <div id="music-player-slot" class="music-player-slot">
+        <p id="music-empty" class="music-empty-inline">Starting music…</p>
+        <div class="music-player-shell" id="music-player-shell" hidden>
+          <div class="music-player-bar" id="music-player-bar">
+            <span class="music-player-label mono" id="music-player-label">Playing…</span>
+          </div>
+          <div class="music-player-frame-wrap">
+            <iframe
+              id="music-frame"
+              title="Worship player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              loading="eager"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="music-dock-scrim" id="music-dock-scrim" hidden aria-hidden="true"></div>
+  </aside>
+
   <header class="topbar">
     <a class="brand" href="./" title="VerseKeep home">
       <span class="brand-mark" aria-hidden="true">VK</span>
@@ -32,7 +76,7 @@
     </a>
     <nav class="top-nav" aria-label="Primary">
       <a href="#themes">Themes</a>
-      <a href="#worship">Music</a>
+      <a href="#worship" id="nav-music" title="Open or close music dock">Music</a>
       <a href="#wallpapers">Wallpapers</a>
       <a href="https://alphaeusng.github.io/pages/seeking-biblical-truth/" target="_blank" rel="noopener">Biblical Truth ↗</a>
       <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener">AlpArcade ↗</a>
@@ -45,7 +89,7 @@
       <p class="eyebrow">Christian · Scripture memory</p>
       <h1>Keep the Word where it belongs.</h1>
       <p>
-        Memorise by theme. Play worship from Alphaeus’s playlists, CityAlight, hymns, and a cappella.
+        Memorise by theme. Open the left <strong>Music</strong> tab for Alphaeus’s playlists, CityAlight, hymns, and a cappella.
         Live verse text and calm wallpapers while you train.
       </p>
       <p id="resume-hint" class="resume-hint" hidden></p>
@@ -124,44 +168,6 @@
         <input type="checkbox" id="auto-advance" />
         <span>Auto-advance after a correct answer</span>
       </label>
-    </section>
-
-    <section class="panel ambient-panel" id="worship">
-      <h2>Music · sides of the same heart</h2>
-      <p class="music-note">
-        Autoplay on visit (last station, or <strong>God’s encouragement</strong>).
-        Soundboard always lives <strong>here</strong>; scroll away and it floats bottom-right
-        (same stream — drag · – mini tab · × docks home without jumping the page).
-        Spotify: <a href="https://open.spotify.com/playlist/0qKlX3MZWEHZgR17jNfI3e" target="_blank" rel="noopener">God’s encouragement</a>,
-        <a href="https://open.spotify.com/playlist/7rAN4koGCFwrHkmPcuvfMO" target="_blank" rel="noopener">SSBC Winter’24</a>,
-        Hope · Despair · Catchy, then CityAlight, hymns &amp; a cappella.
-      </p>
-      <div class="mode-row" role="tablist" aria-label="Music source">
-        <button type="button" class="chip is-active" data-music-tab="spotify">Spotify</button>
-        <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
-      </div>
-      <!-- Picks first (like AA), then player home in this section -->
-      <div class="pick-list" id="music-list"></div>
-      <div id="music-player-slot" class="music-player-slot">
-        <p id="music-empty" class="music-empty-inline">Starting music…</p>
-        <div class="music-player-shell" id="music-player-shell" hidden>
-          <div class="music-player-bar" id="music-player-bar">
-            <span class="music-player-grip" aria-hidden="true" title="Drag when floating">⋮⋮</span>
-            <span class="music-player-label mono" id="music-player-label">Playing…</span>
-            <button type="button" class="music-player-min" id="music-player-min" hidden title="Minimize to tab" aria-label="Minimize music player to a tab">–</button>
-            <button type="button" class="music-player-close" id="music-player-close" hidden title="Return to Music section" aria-label="Close popup and return to Music section">×</button>
-          </div>
-          <div class="music-player-frame-wrap">
-            <iframe
-              id="music-frame"
-              title="Worship player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-              loading="eager"
-            ></iframe>
-          </div>
-        </div>
-      </div>
     </section>
 
     <section class="panel ambient-panel" id="wallpapers">
