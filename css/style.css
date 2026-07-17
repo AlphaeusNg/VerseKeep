@@ -648,14 +648,11 @@ main {
   margin-top: 0.65rem;
 }
 
-/* Inline home for the player inside Music section (after picks, like AA) */
+/* Slot reserves space; real shell is fixed over it (iframe never reparented) */
 .music-player-slot {
+  position: relative;
   margin-top: 0.85rem;
-  min-height: 2rem;
-}
-
-.music-player-slot.is-player-docked {
-  min-height: 0;
+  min-height: 11.5rem;
 }
 
 .music-empty-inline {
@@ -668,48 +665,97 @@ main {
   font-size: 0.88rem;
 }
 
+.music-popup-host {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
 .music-player-shell {
+  pointer-events: auto;
   border-radius: 0.9rem;
   border: 1px solid var(--gold-line);
-  background: rgba(8, 12, 10, 0.55);
+  background: rgba(10, 14, 12, 0.96);
   overflow: hidden;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
 }
 
 .music-player-shell[hidden] {
   display: none !important;
 }
 
-/* Floating host when docked */
-.music-popup-host {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 70;
-  width: min(340px, calc(100vw - 1.5rem));
-  pointer-events: none;
+.music-player-shell.is-home {
+  box-shadow: none;
+  background: rgba(8, 12, 10, 0.55);
 }
 
-.music-popup-host .music-player-shell {
-  pointer-events: auto;
-  width: 100%;
+.music-player-shell.is-popup {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  background: rgba(10, 14, 12, 0.96);
-  backdrop-filter: blur(12px);
   border-color: rgba(212, 175, 55, 0.5);
-}
-
-.music-player-shell.is-popup.is-dragged {
-  position: fixed;
-  z-index: 71;
-  width: min(340px, calc(100vw - 1.5rem));
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   background: rgba(10, 14, 12, 0.96);
-  backdrop-filter: blur(12px);
 }
 
 .music-player-shell.is-dragging {
   opacity: 0.95;
   cursor: grabbing;
+}
+
+.music-slot-mirror {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.9rem;
+  border: 1px dashed var(--gold-line);
+  background: var(--gold-soft);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.music-slot-mirror[hidden] {
+  display: none !important;
+}
+
+.music-slot-mirror:hover {
+  border-color: var(--gold);
+}
+
+.music-slot-mirror-icon {
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+
+.music-slot-mirror-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.music-slot-mirror-title {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--cream);
+}
+
+.music-slot-mirror-sub {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.72rem;
+  color: var(--dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-slot-mirror-hint {
+  font-size: 0.65rem;
+  color: var(--gold);
+  flex-shrink: 0;
 }
 
 .music-player-bar {
@@ -733,7 +779,7 @@ main {
   flex-shrink: 0;
 }
 
-.music-player-shell:not(.is-popup) .music-player-grip {
+.music-player-shell.is-home .music-player-grip {
   display: none;
 }
 

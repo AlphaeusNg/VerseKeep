@@ -1,9 +1,8 @@
 /**
- * Worship music for VerseKeep.
- * - Starts in the Music section
- * - When that section scrolls away → bottom-right popup (draggable, closable)
- * - Close returns the player to the Music box
- * - No separate Stop buttons (use embed controls)
+ * VerseKeep music — single iframe player (never reparented → no audio cut on dock).
+ * - Music section always shows a soundboard (live when in view, mirror when floating)
+ * - Scroll away → bottom-right popup (drag · minimize · close without scrolling)
+ * - Station picks + autoplay defaults unchanged
  */
 (function () {
   "use strict";
@@ -20,16 +19,13 @@
   let musicTab = "spotify";
   let activeMusicId = null;
   let currentEmbed = "";
+  let currentLabel = "Playing…";
   let playing = false;
   let gestureHooked = false;
-  /** User closed the popup → stay inline until section is seen then left again */
-  let preferInline = false;
-  /** Only auto-float after the Music section has been on-screen at least once (matches AA UX) */
-  let seenMusicSection = false;
-  let docked = false;
-  let minimized = false;
-  let drag = null; // { ox, oy, id }
-  let popupPos = null; // { left, top } when user dragged
+  let preferHome = false;
+  let mode = "home"; // home | popup | mini
+  let drag = null;
+  let popupPos = null;
 
   function escapeHtml(s) {
     return String(s)
@@ -83,6 +79,9 @@
   function miniTab() {
     return $("#music-mini-tab");
   }
+  function mirror() {
+    return $("#music-slot-mirror");
+  }
 
   function paintMusicTabs() {
     $$("[data-music-tab]").forEach((btn) => {
@@ -114,7 +113,6 @@
     if (!host) return;
     const list = playlists[musicTab] || [];
     const groups = groupByCategory(list);
-
     host.innerHTML = groups
       .map(
         (g) => `
@@ -134,7 +132,6 @@
       </div>`
       )
       .join("");
-
     host.querySelectorAll("[data-music-id]").forEach((btn) => {
       btn.addEventListener("click", () =>
         selectMusic(btn.dataset.musicId, btn.dataset.embed, btn.dataset.title)
@@ -142,40 +139,47 @@
     });
   }
 
-  function ensurePopupHost() {
+  function ensureHost() {
     let host = $("#music-popup-host");
-    if (host) return host;
-    host = document.createElement("div");
-    host.id = "music-popup-host";
-    host.className = "music-popup-host";
-    host.setAttribute("aria-live", "polite");
-    document.body.appendChild(host);
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "music-popup-host";
+      host.className = "music-popup-host";
+      host.setAttribute("aria-live", "polite");
+      document.body.appendChild(host);
+    }
+    const s = shell();
+    // Never reparent after first attach if already under host — moving iframe stops audio
+    if (s && s.parentElement !== host) host.appendChild(s);
     return host;
   }
 
-  function clearPopupPos(s) {
-    if (!s) return;
-    s.style.left = "";
-    s.style.top = "";
-    s.style.right = "";
-    s.style.bottom = "";
-    s.classList.remove("is-dragged");
-  }
-
-  function applyPopupPos(s) {
-    if (!s || !popupPos) return;
-    s.style.left = `${popupPos.left}px`;
-    s.style.top = `${popupPos.top}px`;
-    s.style.right = "auto";
-    s.style.bottom = "auto";
-    s.classList.add("is-dragged");
-  }
-
-  function setChromeVisible(isFloating) {
-    const c = closeBtn();
-    const m = minBtn();
-    if (c) c.hidden = !isFloating;
-    if (m) m.hidden = !isFloating;
+  function ensureMirror() {
+    const sl = slot();
+    if (!sl) return null;
+    let m = mirror();
+    if (!m) {
+      m = document.createElement("button");
+      m.type = "button";
+      m.id = "music-slot-mirror";
+      m.className = "music-slot-mirror";
+      m.hidden = true;
+      m.innerHTML = `<span class="music-slot-mirror-icon" aria-hidden="true">♪</span>
+        <span class="music-slot-mirror-body">
+          <strong class="music-slot-mirror-title">Now playing</strong>
+          <small class="music-slot-mirror-sub mono" id="music-slot-mirror-sub">—</small>
+        </span>
+        <span class="music-slot-mirror-hint mono">floating</span>`;
+      sl.appendChild(m);
+      m.addEventListener("click", () => {
+        if (mode === "mini") expandFromTab();
+        else if (mode !== "popup") {
+          preferHome = false;
+          setMode("popup");
+        }
+      });
+    }
+    return m;
   }
 
   function ensureMiniTab() {
@@ -191,320 +195,6 @@
     document.body.appendChild(tab);
     tab.addEventListener("click", () => expandFromTab());
     return tab;
-  }
-
-  function updateMiniTabLabel() {
-    const lab = $("#music-mini-tab-label");
-    const title = $("#music-player-label")?.textContent || "Music";
-    if (lab) lab.textContent = title.length > 18 ? title.slice(0, 16) + "…" : title;
-  }
-
-  function hideMiniTab() {
-    const tab = miniTab();
-    if (tab) tab.hidden = true;
-  }
-
-  function showMiniTab() {
-    const tab = ensureMiniTab();
-    updateMiniTabLabel();
-    tab.hidden = false;
-  }
-
-  function mountInline() {
-    const s = shell();
-    const sl = slot();
-    if (!s || !sl) return;
-    minimized = false;
-    hideMiniTab();
-    if (s.parentElement !== sl) sl.appendChild(s);
-    s.classList.remove("is-popup", "is-docked", "is-minimized");
-    s.hidden = !playing;
-    clearPopupPos(s);
-    docked = false;
-    setChromeVisible(false);
-    sl.classList.remove("is-player-docked");
-  }
-
-  function mountPopup() {
-    const s = shell();
-    if (!s) return;
-    const host = ensurePopupHost();
-    if (s.parentElement !== host) host.appendChild(s);
-    s.classList.add("is-popup", "is-docked");
-    docked = true;
-    setChromeVisible(true);
-    slot()?.classList.add("is-player-docked");
-    if (popupPos) applyPopupPos(s);
-    else clearPopupPos(s);
-    if (minimized) {
-      s.classList.add("is-minimized");
-      s.hidden = true;
-      showMiniTab();
-    } else {
-      s.classList.remove("is-minimized");
-      s.hidden = false;
-      hideMiniTab();
-    }
-  }
-
-  function minimizePopup() {
-    if (!playing) return;
-    // Same as AA: if still inline, float first then collapse to tab
-    if (!docked) {
-      preferInline = false;
-      seenMusicSection = true; // allow floating mini-tab even if Music never scrolled into view
-      minimized = false;
-      mountPopup();
-    }
-    minimized = true;
-    const s = shell();
-    if (s) {
-      s.hidden = true;
-      s.classList.add("is-minimized");
-    }
-    showMiniTab();
-  }
-
-  function expandFromTab() {
-    minimized = false;
-    preferInline = false;
-    seenMusicSection = true;
-    hideMiniTab();
-    const s = shell();
-    if (s) {
-      s.classList.remove("is-minimized");
-      s.hidden = false;
-    }
-    if (!docked) mountPopup();
-    else {
-      setChromeVisible(true);
-      if (popupPos) applyPopupPos(s);
-    }
-  }
-
-  function slotVisible() {
-    const sl = slot();
-    if (!sl) return false;
-    const rect = sl.getBoundingClientRect();
-    const vh = window.innerHeight || 0;
-    // Consider "in view" if any meaningful part is on screen
-    return rect.bottom > 64 && rect.top < vh - 48;
-  }
-
-  function updateDockState() {
-    const s = shell();
-    if (!s || !playing) return;
-
-    const visible = slotVisible();
-    if (visible) {
-      // Music section is on screen → player lives there (same as AA)
-      seenMusicSection = true;
-      preferInline = false;
-      if (docked || minimized) mountInline();
-      return;
-    }
-
-    // Off-screen: stay in the Music box until user has visited Music (or closed popup)
-    if (preferInline || !seenMusicSection) {
-      if (docked || minimized) mountInline();
-      return;
-    }
-
-    if (!docked) mountPopup();
-    else if (minimized) {
-      if (s) {
-        s.hidden = true;
-        s.classList.add("is-minimized");
-      }
-      showMiniTab();
-    }
-  }
-
-  function closePopupToMusic() {
-    // Return player to Music box without scrolling the page (same as AA)
-    preferInline = true;
-    popupPos = null;
-    mountInline();
-  }
-
-  function bindDrag() {
-    const s = shell();
-    const bar = $("#music-player-bar") || s?.querySelector(".music-player-bar");
-    if (!s || !bar || bar.dataset.dragBound) return;
-    bar.dataset.dragBound = "1";
-
-    bar.addEventListener("pointerdown", (e) => {
-      if (!docked || minimized) return;
-      if (e.target.closest("button, a, iframe")) return;
-      e.preventDefault();
-      const rect = s.getBoundingClientRect();
-      drag = {
-        ox: e.clientX - rect.left,
-        oy: e.clientY - rect.top,
-        id: e.pointerId,
-      };
-      bar.setPointerCapture?.(e.pointerId);
-      s.classList.add("is-dragging");
-    });
-
-    bar.addEventListener("pointermove", (e) => {
-      if (!drag || e.pointerId !== drag.id) return;
-      const w = s.offsetWidth;
-      const h = s.offsetHeight;
-      let left = e.clientX - drag.ox;
-      let top = e.clientY - drag.oy;
-      const maxL = Math.max(0, (window.innerWidth || 0) - w - 4);
-      const maxT = Math.max(0, (window.innerHeight || 0) - h - 4);
-      left = Math.min(maxL, Math.max(4, left));
-      top = Math.min(maxT, Math.max(4, top));
-      popupPos = { left, top };
-      applyPopupPos(s);
-    });
-
-    const endDrag = (e) => {
-      if (!drag || (e && e.pointerId !== drag.id)) return;
-      drag = null;
-      s.classList.remove("is-dragging");
-    };
-    bar.addEventListener("pointerup", endDrag);
-    bar.addEventListener("pointercancel", endDrag);
-  }
-
-  function selectMusic(id, embed, title, { forceReload = false } = {}) {
-    if (!embed) return;
-    const f = frame();
-    const s = shell();
-    const e = empty();
-    if (!f || !s) return;
-
-    activeMusicId = id;
-    const src = withAutoplay(embed);
-
-    if (currentEmbed === embed && playing && !forceReload) {
-      paintMusicList();
-      s.hidden = false;
-      updateDockState();
-      return;
-    }
-
-    currentEmbed = embed;
-    f.removeAttribute("src");
-    requestAnimationFrame(() => {
-      f.src = src;
-    });
-
-    playing = true;
-    s.hidden = false;
-    if (e) e.hidden = true;
-    const sl = slot();
-    if (sl) sl.hidden = false;
-
-    const lab = $("#music-player-label");
-    if (lab) lab.textContent = title || id || "Playing…";
-    updateMiniTabLabel();
-
-    try {
-      localStorage.setItem(
-        MUSIC_KEY,
-        JSON.stringify({ tab: musicTab, id, embed, title: title || "" })
-      );
-    } catch {
-      /* ignore */
-    }
-    paintMusicList();
-    // Start in the Music box (like AA); only float after Music has been seen then left
-    if (!docked && !minimized) mountInline();
-    updateDockState();
-  }
-
-  function nudgeAutoplayOnGesture() {
-    if (gestureHooked) return;
-    gestureHooked = true;
-    const once = () => {
-      window.removeEventListener("pointerdown", once, true);
-      window.removeEventListener("keydown", once, true);
-      window.removeEventListener("touchstart", once, true);
-      if (!playing || !currentEmbed) return;
-      selectMusic(activeMusicId || "nudge", currentEmbed, $("#music-player-label")?.textContent || "", {
-        forceReload: true,
-      });
-    };
-    window.addEventListener("pointerdown", once, { capture: true, passive: true });
-    window.addEventListener("keydown", once, { capture: true });
-    window.addEventListener("touchstart", once, { capture: true, passive: true });
-  }
-
-  function autoStartMusic() {
-    try {
-      const raw = localStorage.getItem(MUSIC_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (data.tab) musicTab = data.tab;
-        paintMusicTabs();
-        if (data.embed) {
-          selectMusic(data.id || "restored", data.embed, data.title || "");
-          nudgeAutoplayOnGesture();
-          return;
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-
-    musicTab = "spotify";
-    paintMusicTabs();
-    const list = playlists.spotify || [];
-    const pick =
-      list.find((p) => p.id === DEFAULT_SPOTIFY_ID) ||
-      list[0] ||
-      (playlists.youtube || [])[0] || {
-        id: DEFAULT_SPOTIFY_ID,
-        title: "God's encouragement",
-        embed: DEFAULT_EMBED,
-      };
-    if (pick?.embed) {
-      if (
-        list.length &&
-        !list.some((p) => p.id === pick.id) &&
-        (playlists.youtube || []).some((p) => p.id === pick.id)
-      ) {
-        musicTab = "youtube";
-        paintMusicTabs();
-      }
-      selectMusic(pick.id, pick.embed, pick.title);
-    }
-    nudgeAutoplayOnGesture();
-  }
-
-  function bindUi() {
-    $$("[data-music-tab]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        musicTab = btn.dataset.musicTab;
-        paintMusicTabs();
-        paintMusicList();
-      });
-    });
-    closeBtn()?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closePopupToMusic();
-    });
-    minBtn()?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      minimizePopup();
-    });
-    ensureMiniTab();
-    bindDrag();
-    window.addEventListener("scroll", updateDockState, { passive: true });
-    window.addEventListener("resize", updateDockState);
-    if ("IntersectionObserver" in window && slot()) {
-      new IntersectionObserver(() => updateDockState(), {
-        root: null,
-        threshold: [0, 0.05, 0.2, 0.5, 1],
-        rootMargin: "-40px 0px -40px 0px",
-      }).observe(slot());
-    }
   }
 
   function ensureBarControls() {
@@ -527,20 +217,348 @@
       btn.type = "button";
       btn.id = "music-player-close";
       btn.className = "music-player-close";
-      btn.title = "Return player to Music section";
-      btn.setAttribute("aria-label", "Close popup and return to Music section");
+      btn.title = "Dock player back to Music section";
+      btn.setAttribute("aria-label", "Close popup and dock to Music section");
       btn.hidden = true;
       btn.textContent = "×";
       bar.appendChild(btn);
     }
   }
 
+  function setChromeVisible(show) {
+    if (closeBtn()) closeBtn().hidden = !show;
+    if (minBtn()) minBtn().hidden = !show;
+  }
+
+  function updateLabels() {
+    const lab = $("#music-player-label");
+    if (lab) lab.textContent = currentLabel;
+    const sub = $("#music-slot-mirror-sub");
+    if (sub) sub.textContent = currentLabel;
+    const tabLab = $("#music-mini-tab-label");
+    if (tabLab) {
+      tabLab.textContent =
+        currentLabel.length > 18 ? currentLabel.slice(0, 16) + "…" : currentLabel;
+    }
+  }
+
+  function clearShellPos(s) {
+    if (!s) return;
+    s.style.left = "";
+    s.style.top = "";
+    s.style.right = "";
+    s.style.bottom = "";
+    s.style.width = "";
+    s.classList.remove("is-dragged");
+  }
+
+  function slotVisible() {
+    const sl = slot();
+    if (!sl) return false;
+    const rect = sl.getBoundingClientRect();
+    const vh = window.innerHeight || 0;
+    return rect.bottom > 72 && rect.top < vh - 48 && rect.width > 0;
+  }
+
+  function placeHome() {
+    const s = shell();
+    const sl = slot();
+    if (!s || !sl) return;
+    ensureHost();
+    const rect = sl.getBoundingClientRect();
+    s.classList.remove("is-popup", "is-minimized");
+    s.classList.add("is-home");
+    s.hidden = !playing;
+    setChromeVisible(false);
+    clearShellPos(s);
+    if (rect.width > 0) {
+      s.style.position = "fixed";
+      s.style.left = `${Math.max(0, rect.left)}px`;
+      s.style.top = `${Math.max(0, rect.top)}px`;
+      s.style.width = `${rect.width}px`;
+      s.style.right = "auto";
+      s.style.bottom = "auto";
+      s.style.zIndex = "40";
+    }
+    const h = Math.max(s.offsetHeight || 180, 168);
+    sl.style.minHeight = `${h}px`;
+    const m = ensureMirror();
+    if (m) m.hidden = true;
+    const tab = miniTab();
+    if (tab) tab.hidden = true;
+    mode = "home";
+  }
+
+  function placePopup() {
+    const s = shell();
+    if (!s) return;
+    ensureHost();
+    s.classList.add("is-popup");
+    s.classList.remove("is-home", "is-minimized");
+    s.hidden = false;
+    setChromeVisible(true);
+    s.style.zIndex = "70";
+    if (popupPos) {
+      s.style.position = "fixed";
+      s.style.left = `${popupPos.left}px`;
+      s.style.top = `${popupPos.top}px`;
+      s.style.right = "auto";
+      s.style.bottom = "auto";
+      s.style.width = "min(340px, calc(100vw - 1.5rem))";
+      s.classList.add("is-dragged");
+    } else {
+      clearShellPos(s);
+      s.style.position = "fixed";
+      s.style.right = "1rem";
+      s.style.bottom = "1rem";
+      s.style.left = "auto";
+      s.style.top = "auto";
+      s.style.width = "min(340px, calc(100vw - 1.5rem))";
+    }
+    const m = ensureMirror();
+    if (m) {
+      m.hidden = false;
+      updateLabels();
+    }
+    const tab = miniTab();
+    if (tab) tab.hidden = true;
+    const sl = slot();
+    if (sl) sl.style.minHeight = "";
+    mode = "popup";
+  }
+
+  function placeMini() {
+    const s = shell();
+    if (s) {
+      s.hidden = true;
+      s.classList.add("is-minimized", "is-popup");
+      s.classList.remove("is-home");
+    }
+    setChromeVisible(false);
+    const tab = ensureMiniTab();
+    tab.hidden = false;
+    updateLabels();
+    const m = ensureMirror();
+    if (m) {
+      m.hidden = false;
+      updateLabels();
+    }
+    mode = "mini";
+  }
+
+  function setMode(next) {
+    if (!playing && next !== "home") return;
+    if (next === "home") placeHome();
+    else if (next === "mini") placeMini();
+    else placePopup();
+  }
+
+  function updateDockState() {
+    if (!playing) return;
+    const visible = slotVisible();
+
+    if (visible) {
+      preferHome = false;
+      if (mode !== "home") setMode("home");
+      else placeHome();
+      return;
+    }
+
+    if (preferHome) {
+      if (mode !== "home") setMode("home");
+      return;
+    }
+
+    if (mode === "mini") {
+      placeMini();
+      return;
+    }
+    if (mode !== "popup") setMode("popup");
+    else placePopup();
+  }
+
+  function closeToHome() {
+    preferHome = true;
+    popupPos = null;
+    setMode("home");
+    // no scrollIntoView — stay where the user is
+  }
+
+  function minimize() {
+    if (!playing) return;
+    preferHome = false;
+    setMode("mini");
+  }
+
+  function expandFromTab() {
+    preferHome = false;
+    setMode("popup");
+  }
+
+  function bindDrag() {
+    const s = shell();
+    const bar = $("#music-player-bar") || s?.querySelector(".music-player-bar");
+    if (!s || !bar || bar.dataset.dragBound) return;
+    bar.dataset.dragBound = "1";
+
+    bar.addEventListener("pointerdown", (e) => {
+      if (mode !== "popup") return;
+      if (e.target.closest("button, a, iframe")) return;
+      e.preventDefault();
+      const rect = s.getBoundingClientRect();
+      drag = { ox: e.clientX - rect.left, oy: e.clientY - rect.top, id: e.pointerId };
+      bar.setPointerCapture?.(e.pointerId);
+      s.classList.add("is-dragging");
+    });
+    bar.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const w = s.offsetWidth || 320;
+      const h = s.offsetHeight || 200;
+      let left = e.clientX - drag.ox;
+      let top = e.clientY - drag.oy;
+      left = Math.min(Math.max(4, left), Math.max(4, (window.innerWidth || 0) - w - 4));
+      top = Math.min(Math.max(4, top), Math.max(4, (window.innerHeight || 0) - h - 4));
+      popupPos = { left, top };
+      s.style.left = `${left}px`;
+      s.style.top = `${top}px`;
+      s.style.right = "auto";
+      s.style.bottom = "auto";
+      s.classList.add("is-dragged");
+    });
+    const end = (e) => {
+      if (!drag || (e && e.pointerId !== drag.id)) return;
+      drag = null;
+      s.classList.remove("is-dragging");
+    };
+    bar.addEventListener("pointerup", end);
+    bar.addEventListener("pointercancel", end);
+  }
+
+  function selectMusic(id, embed, title, { forceReload = false } = {}) {
+    if (!embed) return;
+    const f = frame();
+    const s = shell();
+    const e = empty();
+    if (!f || !s) return;
+
+    ensureHost();
+    activeMusicId = id;
+    const src = withAutoplay(embed);
+
+    if (currentEmbed === embed && playing && !forceReload) {
+      paintMusicList();
+      s.hidden = false;
+      updateDockState();
+      return;
+    }
+
+    currentEmbed = embed;
+    currentLabel = title || id || "Playing…";
+    // Change src only — never reparent the iframe (that was stopping Spotify)
+    f.src = src;
+
+    playing = true;
+    s.hidden = false;
+    if (e) e.hidden = true;
+    const sl = slot();
+    if (sl) sl.hidden = false;
+    updateLabels();
+
+    try {
+      localStorage.setItem(
+        MUSIC_KEY,
+        JSON.stringify({ tab: musicTab, id, embed, title: currentLabel })
+      );
+    } catch {
+      /* ignore */
+    }
+    paintMusicList();
+
+    if (mode === "mini") placeMini();
+    else if (mode === "popup" && !preferHome) placePopup();
+    else placeHome();
+    updateDockState();
+  }
+
+  function nudgeAutoplayOnGesture() {
+    if (gestureHooked) return;
+    gestureHooked = true;
+    const once = () => {
+      window.removeEventListener("pointerdown", once, true);
+      window.removeEventListener("keydown", once, true);
+      window.removeEventListener("touchstart", once, true);
+      if (!playing || !currentEmbed) return;
+      selectMusic(activeMusicId || "nudge", currentEmbed, currentLabel, { forceReload: true });
+    };
+    window.addEventListener("pointerdown", once, { capture: true, passive: true });
+    window.addEventListener("keydown", once, { capture: true });
+    window.addEventListener("touchstart", once, { capture: true, passive: true });
+  }
+
+  function autoStartMusic() {
+    try {
+      const raw = localStorage.getItem(MUSIC_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.tab) musicTab = data.tab;
+        paintMusicTabs();
+        if (data.embed) {
+          selectMusic(data.id || "restored", data.embed, data.title || "");
+          nudgeAutoplayOnGesture();
+          return;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    musicTab = "spotify";
+    paintMusicTabs();
+    const list = playlists.spotify || [];
+    const pick =
+      list.find((p) => p.id === DEFAULT_SPOTIFY_ID) ||
+      list[0] || {
+        id: DEFAULT_SPOTIFY_ID,
+        title: "God's encouragement",
+        embed: DEFAULT_EMBED,
+      };
+    if (pick?.embed) selectMusic(pick.id, pick.embed, pick.title);
+    nudgeAutoplayOnGesture();
+  }
+
+  function bindUi() {
+    $$("[data-music-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        musicTab = btn.dataset.musicTab;
+        paintMusicTabs();
+        paintMusicList();
+      });
+    });
+    closeBtn()?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeToHome();
+    });
+    minBtn()?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      minimize();
+    });
+    bindDrag();
+    window.addEventListener("scroll", updateDockState, { passive: true });
+    window.addEventListener("resize", updateDockState);
+    if ("IntersectionObserver" in window && slot()) {
+      new IntersectionObserver(() => updateDockState(), {
+        threshold: [0, 0.05, 0.25, 0.5, 1],
+        rootMargin: "-48px 0px -48px 0px",
+      }).observe(slot());
+    }
+  }
+
   async function boot() {
+    ensureHost();
     ensureBarControls();
-    // Always begin in the Music section (even if off-screen) — same UX as AA near-top Music
-    seenMusicSection = false;
-    preferInline = false;
-    mountInline();
+    ensureMirror();
+    ensureMiniTab();
     autoStartMusic();
     bindUi();
 
@@ -553,6 +571,8 @@
         const pick = list.find((p) => p.id === DEFAULT_SPOTIFY_ID) || list[0];
         if (pick?.embed && pick.embed !== currentEmbed) {
           selectMusic(pick.id, pick.embed, pick.title);
+        } else {
+          paintMusicList();
         }
       }
     } catch (err) {
@@ -563,8 +583,6 @@
         el.textContent = `Could not load music list: ${err.message}`;
       }
     }
-    // Keep inline until Music has been scrolled into view at least once
-    if (!seenMusicSection && !minimized) mountInline();
     updateDockState();
   }
 
