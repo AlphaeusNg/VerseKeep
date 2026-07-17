@@ -3,30 +3,191 @@
     {
       "id": "dawn-hills",
       "title": "Dawn over the hills",
-      "blurb": "Quiet morning light — 1920×1080",
+      "blurb": "Quiet morning light — classic",
       "src": "assets/wallpapers/dawn-hills.jpg",
       "download": "assets/wallpapers/dawn-hills.jpg"
     },
     {
       "id": "open-bible",
       "title": "Open Word",
-      "blurb": "Study desk, soft window light — 1920×1080",
+      "blurb": "Study desk, soft window light — classic",
       "src": "assets/wallpapers/open-bible.jpg",
       "download": "assets/wallpapers/open-bible.jpg"
     },
     {
       "id": "starry-lake",
       "title": "Heavens declare",
-      "blurb": "Night sky over still water — 1920×1080",
+      "blurb": "Night sky over still water — classic",
       "src": "assets/wallpapers/starry-lake.jpg",
       "download": "assets/wallpapers/starry-lake.jpg"
     },
     {
       "id": "stained-light",
       "title": "Stained light",
-      "blurb": "Gold & sapphire glow — 1920×1080",
+      "blurb": "Gold & sapphire glow — classic",
       "src": "assets/wallpapers/stained-light.jpg",
       "download": "assets/wallpapers/stained-light.jpg"
+    },
+    {
+      "id": "win-nt-vibes",
+      "title": "NT vibes (from PC)",
+      "blurb": "Your Windows collection · New Testament mood",
+      "src": "assets/wallpapers/win-nt-vibes.jpg",
+      "download": "assets/wallpapers/win-nt-vibes.jpg"
+    },
+    {
+      "id": "win-ot-vibes",
+      "title": "OT vibes (from PC)",
+      "blurb": "Your Windows collection · Old Testament mood",
+      "src": "assets/wallpapers/win-ot-vibes.jpg",
+      "download": "assets/wallpapers/win-ot-vibes.jpg"
+    },
+    {
+      "id": "win-current-desktop",
+      "title": "Current desktop (from PC)",
+      "blurb": "Your active Windows wallpaper",
+      "src": "assets/wallpapers/win-current-desktop.jpg",
+      "download": "assets/wallpapers/win-current-desktop.jpg"
+    },
+    {
+      "id": "win-awe-inspiring",
+      "title": "Awe-inspiring (from PC)",
+      "blurb": "Your cosmic panorama from D:\\Life\\Wallpaper",
+      "src": "assets/wallpapers/win-awe-inspiring.jpg",
+      "download": "assets/wallpapers/win-awe-inspiring.jpg"
+    },
+    {
+      "id": "win-soft-pages",
+      "title": "Soft pages (from PC)",
+      "blurb": "From your Windows wallpaper folder",
+      "src": "assets/wallpapers/win-soft-pages.jpg",
+      "download": "assets/wallpapers/win-soft-pages.jpg"
+    },
+    {
+      "id": "win-still-desk",
+      "title": "Still desk (from PC)",
+      "blurb": "From your Windows wallpaper folder",
+      "src": "assets/wallpapers/win-still-desk.jpg",
+      "download": "assets/wallpapers/win-still-desk.jpg"
+    },
+    {
+      "id": "win-gentle-bloom",
+      "title": "Gentle bloom (from PC)",
+      "blurb": "From your Windows wallpaper folder",
+      "src": "assets/wallpapers/win-gentle-bloom.jpg",
+      "download": "assets/wallpapers/win-gentle-bloom.jpg"
+    },
+    {
+      "id": "lofi-cross-hills",
+      "title": "Lofi hills & cross",
+      "blurb": "Soft evening faith scene",
+      "src": "assets/wallpapers/lofi-cross-hills.jpg",
+      "download": "assets/wallpapers/lofi-cross-hills.jpg"
+    },
+    {
+      "id": "lofi-good-shepherd",
+      "title": "Good Shepherd",
+      "blurb": "Sheep at rest · crook & olive tree",
+      "src": "assets/wallpapers/lofi-good-shepherd.jpg",
+      "download": "assets/wallpapers/lofi-good-shepherd.jpg"
+    },
+    {
+      "id": "lofi-lords-supper",
+      "title": "Lord’s Supper",
+      "blurb": "Bread & cup in candlelight",
+      "src": "assets/wallpapers/lofi-lords-supper.jpg",
+      "download": "assets/wallpapers/lofi-lords-supper.jpg"
+    },
+    {
+      "id": "lofi-cosmic-awe",
+      "title": "Heavens declare",
+      "blurb": "Starfield · cross on the ridge",
+      "src": "assets/wallpapers/lofi-cosmic-awe.jpg",
+      "download": "assets/wallpapers/lofi-cosmic-awe.jpg"
+    },
+    {
+      "id": "lofi-baptism",
+      "title": "Baptism waters",
+      "blurb": "Dawn river · dove feathers",
+      "src": "assets/wallpapers/lofi-baptism.jpg",
+      "download": "assets/wallpapers/lofi-baptism.jpg"
+    },
+    {
+      "id": "lofi-holy-spirit",
+      "title": "Holy Spirit",
+      "blurb": "Light, flame & dove at the window",
+      "src": "assets/wallpapers/lofi-holy-spirit.jpg",
+      "download": "assets/wallpapers/lofi-holy-spirit.jpg"
+    },
+    {
+      "id": "lofi-empty-tomb",
+      "title": "Empty tomb",
+      "blurb": "Rolled stone · resurrection dawn",
+      "src": "assets/wallpapers/lofi-empty-tomb.jpg",
+      "download": "assets/wallpapers/lofi-empty-tomb.jpg"
+    },
+    {
+      "id": "lofi-quiet-prayer",
+      "title": "Quiet prayer",
+      "blurb": "Window seat · rain & candle",
+      "src": "assets/wallpapers/lofi-quiet-prayer.jpg",
+      "download": "assets/wallpapers/lofi-quiet-prayer.jpg"
+    },
+    {
+      "id": "lofi-open-word",
+      "title": "Open Word study",
+      "blurb": "Bible, tea & rainy night desk",
+      "src": "assets/wallpapers/lofi-open-word.jpg",
+      "download": "assets/wallpapers/lofi-open-word.jpg"
+    },
+    {
+      "id": "lofi-rainbow-covenant",
+      "title": "Rainbow covenant",
+      "blurb": "Ark after the rain · hope",
+      "src": "assets/wallpapers/lofi-rainbow-covenant.jpg",
+      "download": "assets/wallpapers/lofi-rainbow-covenant.jpg"
+    },
+    {
+      "id": "lofi-gethsemane",
+      "title": "Gethsemane",
+      "blurb": "Moonlit olive grove path",
+      "src": "assets/wallpapers/lofi-gethsemane.jpg",
+      "download": "assets/wallpapers/lofi-gethsemane.jpg"
+    },
+    {
+      "id": "lofi-fishers",
+      "title": "Fishers of men",
+      "blurb": "Boat & nets at sunrise",
+      "src": "assets/wallpapers/lofi-fishers.jpg",
+      "download": "assets/wallpapers/lofi-fishers.jpg"
+    },
+    {
+      "id": "lofi-lamp-light",
+      "title": "Light of the world",
+      "blurb": "Oil lamp over a night village",
+      "src": "assets/wallpapers/lofi-lamp-light.jpg",
+      "download": "assets/wallpapers/lofi-lamp-light.jpg"
+    },
+    {
+      "id": "lofi-burning-bush",
+      "title": "Burning bush",
+      "blurb": "Desert night · holy fire",
+      "src": "assets/wallpapers/lofi-burning-bush.jpg",
+      "download": "assets/wallpapers/lofi-burning-bush.jpg"
+    },
+    {
+      "id": "lofi-new-jerusalem",
+      "title": "City of light",
+      "blurb": "Soft new-Jerusalem hope",
+      "src": "assets/wallpapers/lofi-new-jerusalem.jpg",
+      "download": "assets/wallpapers/lofi-new-jerusalem.jpg"
+    },
+    {
+      "id": "lofi-loaves-fishes",
+      "title": "Loaves & fishes",
+      "blurb": "Galilee hillside picnic",
+      "src": "assets/wallpapers/lofi-loaves-fishes.jpg",
+      "download": "assets/wallpapers/lofi-loaves-fishes.jpg"
     },
     {
       "id": "none",

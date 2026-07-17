@@ -409,12 +409,16 @@
     const dlMini = open
       ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}.jpg" title="Download HD" aria-label="Download HD wallpaper">⬇</button>`
       : "";
-    const badge =
-      showDailyBadge || w.kind === "daily"
-        ? `<span class="wp-badge">Today</span>`
-        : w.kind === "classic"
-          ? `<span class="wp-badge wp-badge-classic">Classic</span>`
-          : "";
+    let badge = "";
+    if (showDailyBadge || w.kind === "daily") {
+      badge = `<span class="wp-badge">Today</span>`;
+    } else if (String(w.id || "").startsWith("win-")) {
+      badge = `<span class="wp-badge wp-badge-pc">From PC</span>`;
+    } else if (String(w.id || "").startsWith("lofi-")) {
+      badge = `<span class="wp-badge wp-badge-lofi">Lo-fi</span>`;
+    } else if (w.kind === "classic") {
+      badge = `<span class="wp-badge wp-badge-classic">Classic</span>`;
+    }
 
     return `
       <article class="wp-card${active ? " is-active" : ""}${hearted ? " is-hearted" : ""}" data-wp-id="${escapeHtml(w.id)}">
@@ -527,17 +531,38 @@
     if (!host) return;
     const classicList = classics.filter((w) => w.id !== "none");
     const none = classics.find((w) => w.id === "none");
+    const fromPc = classicList.filter((w) => String(w.id || "").startsWith("win-"));
+    const lofi = classicList.filter((w) => String(w.id || "").startsWith("lofi-"));
+    const sanctuary = classicList.filter(
+      (w) => !String(w.id || "").startsWith("win-") && !String(w.id || "").startsWith("lofi-")
+    );
+
+    const section = (label, list, gridId) =>
+      list.length
+        ? `
+      <div class="wp-section-label mono">${label}</div>
+      <div class="wallpaper-grid-inner" id="${gridId}">
+        ${list.map((w) => cardHtml(w)).join("")}
+      </div>`
+        : "";
 
     host.innerHTML = `
       <div class="wp-section-label mono">Today’s suggestions</div>
       <div class="wallpaper-grid-inner" id="wp-daily-grid">
         ${daily.map((w) => cardHtml(w, { showDailyBadge: true })).join("") || `<p class="hint">Could not load daily images — classics still work.</p>`}
       </div>
-      <div class="wp-section-label mono">Sanctuary classics</div>
-      <div class="wallpaper-grid-inner" id="wp-classic-grid">
-        ${classicList.map((w) => cardHtml(w)).join("")}
-        ${none ? cardHtml(none) : ""}
-      </div>
+      ${section("From your PC", fromPc, "wp-pc-grid")}
+      ${section("Christian lo-fi", lofi, "wp-lofi-grid")}
+      ${section("Sanctuary classics", sanctuary, "wp-classic-grid")}
+      ${
+        none
+          ? `
+      <div class="wp-section-label mono">Theme only</div>
+      <div class="wallpaper-grid-inner" id="wp-none-grid">
+        ${cardHtml(none)}
+      </div>`
+          : ""
+      }
     `;
 
     host.querySelectorAll("[data-apply]").forEach((btn) => {
