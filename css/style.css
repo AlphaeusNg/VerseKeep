@@ -1240,34 +1240,112 @@ main {
   display: block;
 }
 
-.wp-badge {
+.wp-badges {
   position: absolute;
-  top: 0.4rem;
-  left: 0.4rem;
+  top: 0.35rem;
+  left: 0.35rem;
+  right: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wp-badge {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.15rem 0.4rem;
+  padding: 0.14rem 0.42rem;
   border-radius: 999px;
   background: rgba(212, 175, 55, 0.9);
+  color: var(--ink);
+  border: 1px solid transparent;
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+
+.wp-badge-daily {
+  background: rgba(212, 175, 55, 0.92);
   color: var(--ink);
 }
 
 .wp-badge-classic {
   background: rgba(0, 0, 0, 0.55);
   color: var(--cream);
-  border: 1px solid var(--line);
+  border-color: var(--line);
 }
 
+.wp-badge-personal,
 .wp-badge-pc {
-  background: rgba(90, 140, 180, 0.85);
+  background: rgba(70, 120, 165, 0.9);
   color: #f2f7fb;
 }
 
 .wp-badge-lofi {
-  background: rgba(180, 120, 160, 0.85);
+  background: rgba(180, 120, 160, 0.88);
   color: #fff8fc;
+}
+
+.wp-badge-gospel {
+  background: rgba(170, 90, 95, 0.9);
+  color: #fff5f5;
+}
+
+.wp-badge-spirit {
+  background: rgba(210, 150, 70, 0.92);
+  color: #1a1208;
+}
+
+.wp-badge-cosmos {
+  background: rgba(70, 60, 130, 0.9);
+  color: #e8e4ff;
+}
+
+.wp-badge-water {
+  background: rgba(55, 120, 150, 0.9);
+  color: #eaf6fb;
+}
+
+.wp-badge-study {
+  background: rgba(95, 85, 70, 0.9);
+  color: #f5efe4;
+}
+
+.wp-badge-worship {
+  background: rgba(150, 115, 50, 0.92);
+  color: #1a1408;
+}
+
+.wp-badge-peace {
+  background: rgba(80, 120, 95, 0.9);
+  color: #eef6f0;
+}
+
+.wp-badge-creation {
+  background: rgba(100, 140, 80, 0.9);
+  color: #f4faf0;
+}
+
+.wp-badge-night {
+  background: rgba(45, 55, 90, 0.92);
+  color: #dce4ff;
+}
+
+.wp-badge-hope {
+  background: rgba(190, 150, 90, 0.92);
+  color: #1a1208;
+}
+
+.wp-badge-minimal {
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--dim);
+  border-color: var(--line);
 }
 
 .wp-none {

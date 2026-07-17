@@ -5,181 +5,331 @@
       "id": "rw-open-word",
       "unsplash": "1504052430486-c2d9c9ff00e5",
       "title": "Open Word",
-      "blurb": "Scripture in quiet light"
+      "blurb": "Scripture in quiet light",
+      "tags": [
+        "Word",
+        "Study"
+      ],
+      "tone": "study"
     },
     {
       "id": "rw-study-pages",
       "unsplash": "1456513087080-7b3def8777b7",
       "title": "Pages of life",
-      "blurb": "Study in warm room light"
+      "blurb": "Study in warm room light",
+      "tags": [
+        "Word",
+        "Study"
+      ],
+      "tone": "study"
     },
     {
       "id": "rw-lamp-bible",
       "unsplash": "1481627834876-b7833e8f5570",
       "title": "Lamp for my feet",
-      "blurb": "Books and a quiet desk"
+      "blurb": "Books and a quiet desk",
+      "tags": [
+        "Word",
+        "Study"
+      ],
+      "tone": "study"
     },
     {
       "id": "rw-morning-word",
       "unsplash": "1490730141103-6cac27aaab94",
       "title": "New mercies",
-      "blurb": "Morning quiet with the Word"
+      "blurb": "Morning quiet with the Word",
+      "tags": [
+        "Word",
+        "Study"
+      ],
+      "tone": "study"
     },
     {
       "id": "rw-cross-dusk",
       "unsplash": "1507692049790-fbc3e6c5e59c",
       "title": "Cross at dusk",
-      "blurb": "Silhouette against the sky"
+      "blurb": "Silhouette against the sky",
+      "tags": [
+        "Cross",
+        "Gospel"
+      ],
+      "tone": "gospel"
     },
     {
       "id": "rw-cross-glass",
       "unsplash": "1519892300163-cbac0fb54b55",
       "title": "Lifted cross",
-      "blurb": "Cross in sacred space"
+      "blurb": "Cross in sacred space",
+      "tags": [
+        "Cross",
+        "Gospel"
+      ],
+      "tone": "gospel"
     },
     {
       "id": "rw-stained-sanctuary",
       "unsplash": "1438032005730-c779502df39b",
       "title": "Stained light",
-      "blurb": "Glass colour in the nave"
+      "blurb": "Glass colour in the nave",
+      "tags": [
+        "Sanctuary",
+        "Worship"
+      ],
+      "tone": "worship"
     },
     {
       "id": "rw-stained-windows",
       "unsplash": "1478146896981-b80fe463b330",
       "title": "Chapel windows",
-      "blurb": "Quiet place of prayer"
+      "blurb": "Quiet place of prayer",
+      "tags": [
+        "Sanctuary",
+        "Worship"
+      ],
+      "tone": "worship"
     },
     {
       "id": "rw-church-aisle",
       "unsplash": "1438031188742-9bb4e0a0c0b1",
       "title": "Toward the altar",
-      "blurb": "Aisle into holy light"
+      "blurb": "Aisle into holy light",
+      "tags": [
+        "Sanctuary",
+        "Worship"
+      ],
+      "tone": "worship"
     },
     {
       "id": "rw-steeple-sky",
       "unsplash": "1464822759023-fed622ff2c3b",
       "title": "High places",
-      "blurb": "Peaks that call the heart up"
+      "blurb": "Peaks that call the heart up",
+      "tags": [
+        "Creation",
+        "Ascent"
+      ],
+      "tone": "creation"
     },
     {
       "id": "rw-heavens-declare",
       "unsplash": "1419242902214-272b3f66ee7a",
       "title": "Heavens declare",
-      "blurb": "Night host over the earth"
+      "blurb": "Night host over the earth",
+      "tags": [
+        "Cosmos",
+        "Wonder"
+      ],
+      "tone": "cosmos"
     },
     {
       "id": "rw-still-waters",
       "unsplash": "1439066615861-d1af74d74000",
       "title": "Still waters",
-      "blurb": "He leads me beside quiet water"
+      "blurb": "He leads me beside quiet water",
+      "tags": [
+        "Psalm 23",
+        "Peace"
+      ],
+      "tone": "peace"
     },
     {
       "id": "rw-green-pasture",
       "unsplash": "1472214103451-9374bd1c798e",
       "title": "Green pastures",
-      "blurb": "Meadow rest under open sky"
+      "blurb": "Meadow rest under open sky",
+      "tags": [
+        "Psalm 23",
+        "Peace"
+      ],
+      "tone": "peace"
     },
     {
       "id": "rw-living-water",
       "unsplash": "1432405972618-c0462ff46c8d",
       "title": "Living water",
-      "blurb": "Falls in the wilderness"
+      "blurb": "Falls in the wilderness",
+      "tags": [
+        "Psalm 23",
+        "Peace"
+      ],
+      "tone": "peace"
     },
     {
       "id": "rw-creation-dawn",
       "unsplash": "1495616811223-4d98c6e9c869",
       "title": "Morning by morning",
-      "blurb": "New mercies at sunrise"
+      "blurb": "New mercies at sunrise",
+      "tags": [
+        "Word",
+        "Study"
+      ],
+      "tone": "study"
     },
     {
       "id": "rw-mountain-glory",
       "unsplash": "1506905925346-21bda4d32df4",
       "title": "His hills",
-      "blurb": "Dawn on the mountains"
+      "blurb": "Dawn on the mountains",
+      "tags": [
+        "Creation",
+        "Ascent"
+      ],
+      "tone": "creation"
     },
     {
       "id": "rw-valley-light",
       "unsplash": "1469474968028-56623f02e42e",
       "title": "Valley light",
-      "blurb": "Sunbeams through the hills"
+      "blurb": "Sunbeams through the hills",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-path-of-life",
       "unsplash": "1441974231531-c6227db76b6e",
       "title": "Path of life",
-      "blurb": "Forest way in the light"
+      "blurb": "Forest way in the light",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-sea-hope",
       "unsplash": "1505142468610-359e7d316be0",
       "title": "Hope on the horizon",
-      "blurb": "Sea meeting faithful sky"
+      "blurb": "Sea meeting faithful sky",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-harvest",
       "unsplash": "1500382017468-9049fed747ef",
       "title": "Fields white",
-      "blurb": "Harvest gold at evening"
+      "blurb": "Harvest gold at evening",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-prayer-hands",
       "unsplash": "1511632765486-a01980e01a18",
       "title": "Gathered in prayer",
-      "blurb": "Hands lifted together"
+      "blurb": "Hands lifted together",
+      "tags": [
+        "Prayer",
+        "Stillness"
+      ],
+      "tone": "peace"
     },
     {
       "id": "rw-communion-table",
       "unsplash": "1507003211169-0a1dd7228f2d",
       "title": "Table of the Lord",
-      "blurb": "Bread, cup, and quiet"
+      "blurb": "Bread, cup, and quiet",
+      "tags": [
+        "Prayer",
+        "Stillness"
+      ],
+      "tone": "peace"
     },
     {
       "id": "rw-candle-vigil",
       "unsplash": "1519681393784-d120267933ba",
       "title": "Keep watch",
-      "blurb": "Stars over creation"
+      "blurb": "Stars over creation",
+      "tags": [
+        "Cosmos",
+        "Wonder"
+      ],
+      "tone": "cosmos"
     },
     {
       "id": "rw-olive-light",
       "unsplash": "1464226184884-fa280b87c399",
       "title": "Olive country",
-      "blurb": "Sunlit trees of the land"
+      "blurb": "Sunlit trees of the land",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-desert-journey",
       "unsplash": "1469854523086-cc02fe5d8800",
       "title": "Wilderness road",
-      "blurb": "Journey under wide sky"
+      "blurb": "Journey under wide sky",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-snow-refuge",
       "unsplash": "1519904981063-b0cf448d479e",
       "title": "Refuge on high",
-      "blurb": "Snow ridge and sky"
+      "blurb": "Snow ridge and sky",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-fog-fir",
       "unsplash": "1448375240586-882707db888b",
       "title": "Stillness in mist",
-      "blurb": "Firs in quiet fog"
+      "blurb": "Firs in quiet fog",
+      "tags": [
+        "Psalm 23",
+        "Peace"
+      ],
+      "tone": "peace"
     },
     {
       "id": "rw-wildflower-praise",
       "unsplash": "1465146633011-14f8e0781093",
       "title": "Consider the lilies",
-      "blurb": "Field flowers in bloom"
+      "blurb": "Field flowers in bloom",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-mirror-lake",
       "unsplash": "1501785888041-af3ef285b470",
       "title": "As in a mirror",
-      "blurb": "Lake reflecting the sky"
+      "blurb": "Lake reflecting the sky",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     },
     {
       "id": "rw-purple-rest",
       "unsplash": "1499002238440-d264edd596ec",
       "title": "Sabbath fields",
-      "blurb": "Lavender rest at dusk"
+      "blurb": "Lavender rest at dusk",
+      "tags": [
+        "Daily light",
+        "Faith"
+      ],
+      "tone": "daily"
     }
   ]
 }

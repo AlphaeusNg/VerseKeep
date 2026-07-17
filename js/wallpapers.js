@@ -136,6 +136,8 @@
       blurb: w.blurb || "",
       src: w.src || "",
       download: w.download || w.src || "",
+      tags: normalizeTags(w.tags || w.tag),
+      tone: w.tone || "",
     };
     try {
       localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
@@ -162,11 +164,21 @@
     }
   }
 
+  function normalizeTags(raw) {
+    if (Array.isArray(raw)) {
+      return raw.map((t) => String(t || "").trim()).filter(Boolean).slice(0, 3);
+    }
+    if (typeof raw === "string" && raw.trim()) return [raw.trim()];
+    return [];
+  }
+
   function normalizeClassic(w) {
     return {
       ...w,
       kind: "classic",
       download: w.download || w.src || "",
+      tags: normalizeTags(w.tags || w.tag),
+      tone: w.tone || "",
     };
   }
 
@@ -176,6 +188,8 @@
       ? unsplashUrl(photo)
       : picsumUrl(`versekeep-${day}-${item.id}-${index}`);
     const download = photo ? unsplashUrl(photo, { w: 2400, h: 1350, q: 90 }) : src;
+    const tags = normalizeTags(item.tags || item.tag);
+    if (!tags.length) tags.push("Today’s light");
     return {
       id: item.id,
       title: item.title || "Daily light",
@@ -184,7 +198,45 @@
       download,
       kind: "daily",
       unsplash: photo,
+      tags,
+      tone: item.tone || "daily",
     };
+  }
+
+  /** Badge chips: personalized tags from catalog, with gentle fallbacks. */
+  function badgeHtml(w, { showDailyBadge = false } = {}) {
+    const tags = normalizeTags(w.tags);
+    const tone = String(w.tone || "").toLowerCase().replace(/[^a-z0-9-]/g, "") || "classic";
+    const chips = [];
+
+    if (showDailyBadge || w.kind === "daily") {
+      chips.push({ label: "Today", tone: "daily" });
+    }
+
+    if (tags.length) {
+      tags.forEach((label) => {
+        // Avoid duplicating "Today" style labels
+        if (/^today/i.test(label) && chips.some((c) => c.tone === "daily")) return;
+        chips.push({ label, tone });
+      });
+    } else if (String(w.id || "").startsWith("win-")) {
+      chips.push({ label: "Yours", tone: "personal" });
+    } else if (String(w.id || "").startsWith("lofi-")) {
+      chips.push({ label: "Lo-fi", tone: "lofi" });
+    } else if (w.id === "none") {
+      chips.push({ label: "Minimal", tone: "minimal" });
+    } else if (w.kind === "classic") {
+      chips.push({ label: "Sanctuary", tone: "classic" });
+    }
+
+    if (!chips.length) return "";
+    return `<div class="wp-badges">${chips
+      .slice(0, 3)
+      .map(
+        (c) =>
+          `<span class="wp-badge wp-badge-${escapeHtml(c.tone)}">${escapeHtml(c.label)}</span>`
+      )
+      .join("")}</div>`;
   }
 
   function pickDaily(pool, day, saltVal, count) {
@@ -409,16 +461,7 @@
     const dlMini = open
       ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}.jpg" title="Download HD" aria-label="Download HD wallpaper">⬇</button>`
       : "";
-    let badge = "";
-    if (showDailyBadge || w.kind === "daily") {
-      badge = `<span class="wp-badge">Today</span>`;
-    } else if (String(w.id || "").startsWith("win-")) {
-      badge = `<span class="wp-badge wp-badge-pc">From PC</span>`;
-    } else if (String(w.id || "").startsWith("lofi-")) {
-      badge = `<span class="wp-badge wp-badge-lofi">Lo-fi</span>`;
-    } else if (w.kind === "classic") {
-      badge = `<span class="wp-badge wp-badge-classic">Classic</span>`;
-    }
+    const badge = badgeHtml(w, { showDailyBadge });
 
     return `
       <article class="wp-card${active ? " is-active" : ""}${hearted ? " is-hearted" : ""}" data-wp-id="${escapeHtml(w.id)}">

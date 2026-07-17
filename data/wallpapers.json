@@ -3,84 +3,108 @@
     {
       "id": "dawn-hills",
       "title": "Dawn over the hills",
-      "blurb": "Quiet morning light — classic",
+      "blurb": "Quiet morning light on the ridgeline",
+      "tags": ["Creation", "Morning"],
+      "tone": "creation",
       "src": "assets/wallpapers/dawn-hills.jpg",
       "download": "assets/wallpapers/dawn-hills.jpg"
     },
     {
       "id": "open-bible",
       "title": "Open Word",
-      "blurb": "Study desk, soft window light — classic",
+      "blurb": "Study desk, soft window light",
+      "tags": ["Word", "Study"],
+      "tone": "study",
       "src": "assets/wallpapers/open-bible.jpg",
       "download": "assets/wallpapers/open-bible.jpg"
     },
     {
       "id": "starry-lake",
       "title": "Heavens declare",
-      "blurb": "Night sky over still water — classic",
+      "blurb": "Night sky over still water",
+      "tags": ["Cosmos", "Wonder"],
+      "tone": "cosmos",
       "src": "assets/wallpapers/starry-lake.jpg",
       "download": "assets/wallpapers/starry-lake.jpg"
     },
     {
       "id": "stained-light",
       "title": "Stained light",
-      "blurb": "Gold & sapphire glow — classic",
+      "blurb": "Gold & sapphire sanctuary glow",
+      "tags": ["Sanctuary", "Worship"],
+      "tone": "worship",
       "src": "assets/wallpapers/stained-light.jpg",
       "download": "assets/wallpapers/stained-light.jpg"
     },
     {
       "id": "win-nt-vibes",
-      "title": "NT vibes (from PC)",
-      "blurb": "Your Windows collection · New Testament mood",
+      "title": "NT vibes",
+      "blurb": "From your PC · New Testament mood board",
+      "tags": ["Yours", "NT"],
+      "tone": "personal",
       "src": "assets/wallpapers/win-nt-vibes.jpg",
       "download": "assets/wallpapers/win-nt-vibes.jpg"
     },
     {
       "id": "win-ot-vibes",
-      "title": "OT vibes (from PC)",
-      "blurb": "Your Windows collection · Old Testament mood",
+      "title": "OT vibes",
+      "blurb": "From your PC · Old Testament mood board",
+      "tags": ["Yours", "OT"],
+      "tone": "personal",
       "src": "assets/wallpapers/win-ot-vibes.jpg",
       "download": "assets/wallpapers/win-ot-vibes.jpg"
     },
     {
       "id": "win-current-desktop",
-      "title": "Current desktop (from PC)",
-      "blurb": "Your active Windows wallpaper",
+      "title": "My desktop",
+      "blurb": "What was on your Windows desktop",
+      "tags": ["Yours", "Desktop"],
+      "tone": "personal",
       "src": "assets/wallpapers/win-current-desktop.jpg",
       "download": "assets/wallpapers/win-current-desktop.jpg"
     },
     {
       "id": "win-awe-inspiring",
-      "title": "Awe-inspiring (from PC)",
-      "blurb": "Your cosmic panorama from D:\\Life\\Wallpaper",
+      "title": "Awe-inspiring",
+      "blurb": "Your cosmic panorama from Life\\Wallpaper",
+      "tags": ["Yours", "Cosmos"],
+      "tone": "cosmos",
       "src": "assets/wallpapers/win-awe-inspiring.jpg",
       "download": "assets/wallpapers/win-awe-inspiring.jpg"
     },
     {
       "id": "win-soft-pages",
-      "title": "Soft pages (from PC)",
+      "title": "Soft pages",
       "blurb": "From your Windows wallpaper folder",
+      "tags": ["Yours", "Quiet"],
+      "tone": "personal",
       "src": "assets/wallpapers/win-soft-pages.jpg",
       "download": "assets/wallpapers/win-soft-pages.jpg"
     },
     {
       "id": "win-still-desk",
-      "title": "Still desk (from PC)",
+      "title": "Still desk",
       "blurb": "From your Windows wallpaper folder",
+      "tags": ["Yours", "Study"],
+      "tone": "study",
       "src": "assets/wallpapers/win-still-desk.jpg",
       "download": "assets/wallpapers/win-still-desk.jpg"
     },
     {
       "id": "win-gentle-bloom",
-      "title": "Gentle bloom (from PC)",
+      "title": "Gentle bloom",
       "blurb": "From your Windows wallpaper folder",
+      "tags": ["Yours", "Peace"],
+      "tone": "personal",
       "src": "assets/wallpapers/win-gentle-bloom.jpg",
       "download": "assets/wallpapers/win-gentle-bloom.jpg"
     },
     {
       "id": "lofi-cross-hills",
       "title": "Lofi hills & cross",
-      "blurb": "Soft evening faith scene",
+      "blurb": "Soft evening faith on the hills",
+      "tags": ["Cross", "Lo-fi"],
+      "tone": "gospel",
       "src": "assets/wallpapers/lofi-cross-hills.jpg",
       "download": "assets/wallpapers/lofi-cross-hills.jpg"
     },
@@ -88,6 +112,8 @@
       "id": "lofi-good-shepherd",
       "title": "Good Shepherd",
       "blurb": "Sheep at rest · crook & olive tree",
+      "tags": ["Shepherd", "Psalm 23"],
+      "tone": "peace",
       "src": "assets/wallpapers/lofi-good-shepherd.jpg",
       "download": "assets/wallpapers/lofi-good-shepherd.jpg"
     },
@@ -95,6 +121,8 @@
       "id": "lofi-lords-supper",
       "title": "Lord’s Supper",
       "blurb": "Bread & cup in candlelight",
+      "tags": ["Communion", "Table"],
+      "tone": "gospel",
       "src": "assets/wallpapers/lofi-lords-supper.jpg",
       "download": "assets/wallpapers/lofi-lords-supper.jpg"
     },
@@ -102,6 +130,8 @@
       "id": "lofi-cosmic-awe",
       "title": "Heavens declare",
       "blurb": "Starfield · cross on the ridge",
+      "tags": ["Cosmos", "Psalm 19"],
+      "tone": "cosmos",
       "src": "assets/wallpapers/lofi-cosmic-awe.jpg",
       "download": "assets/wallpapers/lofi-cosmic-awe.jpg"
     },
@@ -109,6 +139,8 @@
       "id": "lofi-baptism",
       "title": "Baptism waters",
       "blurb": "Dawn river · dove feathers",
+      "tags": ["Baptism", "New life"],
+      "tone": "water",
       "src": "assets/wallpapers/lofi-baptism.jpg",
       "download": "assets/wallpapers/lofi-baptism.jpg"
     },
@@ -116,6 +148,8 @@
       "id": "lofi-holy-spirit",
       "title": "Holy Spirit",
       "blurb": "Light, flame & dove at the window",
+      "tags": ["Spirit", "Pentecost"],
+      "tone": "spirit",
       "src": "assets/wallpapers/lofi-holy-spirit.jpg",
       "download": "assets/wallpapers/lofi-holy-spirit.jpg"
     },
@@ -123,6 +157,8 @@
       "id": "lofi-empty-tomb",
       "title": "Empty tomb",
       "blurb": "Rolled stone · resurrection dawn",
+      "tags": ["Easter", "Hope"],
+      "tone": "gospel",
       "src": "assets/wallpapers/lofi-empty-tomb.jpg",
       "download": "assets/wallpapers/lofi-empty-tomb.jpg"
     },
@@ -130,6 +166,8 @@
       "id": "lofi-quiet-prayer",
       "title": "Quiet prayer",
       "blurb": "Window seat · rain & candle",
+      "tags": ["Prayer", "Stillness"],
+      "tone": "peace",
       "src": "assets/wallpapers/lofi-quiet-prayer.jpg",
       "download": "assets/wallpapers/lofi-quiet-prayer.jpg"
     },
@@ -137,6 +175,8 @@
       "id": "lofi-open-word",
       "title": "Open Word study",
       "blurb": "Bible, tea & rainy night desk",
+      "tags": ["Word", "Study night"],
+      "tone": "study",
       "src": "assets/wallpapers/lofi-open-word.jpg",
       "download": "assets/wallpapers/lofi-open-word.jpg"
     },
@@ -144,6 +184,8 @@
       "id": "lofi-rainbow-covenant",
       "title": "Rainbow covenant",
       "blurb": "Ark after the rain · hope",
+      "tags": ["Covenant", "Genesis"],
+      "tone": "creation",
       "src": "assets/wallpapers/lofi-rainbow-covenant.jpg",
       "download": "assets/wallpapers/lofi-rainbow-covenant.jpg"
     },
@@ -151,6 +193,8 @@
       "id": "lofi-gethsemane",
       "title": "Gethsemane",
       "blurb": "Moonlit olive grove path",
+      "tags": ["Passion", "Watch"],
+      "tone": "night",
       "src": "assets/wallpapers/lofi-gethsemane.jpg",
       "download": "assets/wallpapers/lofi-gethsemane.jpg"
     },
@@ -158,6 +202,8 @@
       "id": "lofi-fishers",
       "title": "Fishers of men",
       "blurb": "Boat & nets at sunrise",
+      "tags": ["Calling", "Galilee"],
+      "tone": "water",
       "src": "assets/wallpapers/lofi-fishers.jpg",
       "download": "assets/wallpapers/lofi-fishers.jpg"
     },
@@ -165,6 +211,8 @@
       "id": "lofi-lamp-light",
       "title": "Light of the world",
       "blurb": "Oil lamp over a night village",
+      "tags": ["Light", "Witness"],
+      "tone": "worship",
       "src": "assets/wallpapers/lofi-lamp-light.jpg",
       "download": "assets/wallpapers/lofi-lamp-light.jpg"
     },
@@ -172,6 +220,8 @@
       "id": "lofi-burning-bush",
       "title": "Burning bush",
       "blurb": "Desert night · holy fire",
+      "tags": ["Moses", "Holy ground"],
+      "tone": "spirit",
       "src": "assets/wallpapers/lofi-burning-bush.jpg",
       "download": "assets/wallpapers/lofi-burning-bush.jpg"
     },
@@ -179,6 +229,8 @@
       "id": "lofi-new-jerusalem",
       "title": "City of light",
       "blurb": "Soft new-Jerusalem hope",
+      "tags": ["Hope", "Revelation"],
+      "tone": "hope",
       "src": "assets/wallpapers/lofi-new-jerusalem.jpg",
       "download": "assets/wallpapers/lofi-new-jerusalem.jpg"
     },
@@ -186,6 +238,8 @@
       "id": "lofi-loaves-fishes",
       "title": "Loaves & fishes",
       "blurb": "Galilee hillside picnic",
+      "tags": ["Miracle", "Provision"],
+      "tone": "peace",
       "src": "assets/wallpapers/lofi-loaves-fishes.jpg",
       "download": "assets/wallpapers/lofi-loaves-fishes.jpg"
     },
@@ -193,6 +247,8 @@
       "id": "none",
       "title": "Default (no image)",
       "blurb": "Clean dark theme only",
+      "tags": ["Minimal"],
+      "tone": "minimal",
       "src": "",
       "download": ""
     }
