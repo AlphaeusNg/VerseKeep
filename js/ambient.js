@@ -1,9 +1,6 @@
 /**
- * VerseKeep music — station dock + detachable small player (matches AA).
- * - Left ♪ tab opens/closes the station list dock
- * - Small player shell floats (drag), mini tab, or home in dock
- * - × on floating player stops music; – packs to side mini tab
- * - Iframe never reparented
+ * VerseKeep music — station dock + free-floating small player (matches AA).
+ * Shell is mounted on body so drag is never trapped by dock transforms.
  */
 (function () {
   "use strict";
@@ -12,11 +9,11 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
   const MUSIC_KEY = "versekeep-music";
-  const UI_KEY = "versekeep-music-ui-v3";
+  const UI_KEY = "versekeep-music-ui-v4";
   const DEFAULT_SPOTIFY_ID = "alph-gods-encouragement";
   const DEFAULT_EMBED =
     "https://open.spotify.com/embed/playlist/0qKlX3MZWEHZgR17jNfI3e?utm_source=generator";
-  const SNAP_LEFT = 80;
+  const SNAP_LEFT = 96;
 
   let playlists = { youtube: [], spotify: [] };
   let musicTab = "spotify";
@@ -27,7 +24,6 @@
   let playing = false;
   let gestureHooked = false;
   let dockOpen = false;
-  /** home | float | mini */
   let playerMode = "home";
   let floatPos = null;
   let drag = null;
@@ -65,9 +61,6 @@
 
   function dockRoot() {
     return $("#worship");
-  }
-  function panel() {
-    return $("#music-dock-panel");
   }
   function tab() {
     return $("#music-dock-tab");
@@ -147,6 +140,13 @@
     });
   }
 
+  function ensureShellOnBody() {
+    const s = shell();
+    if (!s) return null;
+    if (s.parentElement !== document.body) document.body.appendChild(s);
+    return s;
+  }
+
   function ensureMiniTab() {
     let el = miniTab();
     if (el) return el;
@@ -155,14 +155,20 @@
     el.id = "music-mini-tab";
     el.className = "music-mini-tab";
     el.hidden = true;
+    el.setAttribute("aria-label", "Expand music player");
     el.innerHTML = `<span class="music-mini-tab-icon" aria-hidden="true">♪</span><span class="music-mini-tab-label mono" id="music-mini-tab-label">Music</span>`;
     document.body.appendChild(el);
-    el.addEventListener("click", () => setPlayerMode("float"));
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setPlayerMode("float");
+    });
     return el;
   }
 
   function ensureBarChrome() {
-    const bar = shell()?.querySelector(".music-player-bar");
+    const s = ensureShellOnBody();
+    const bar = s?.querySelector(".music-player-bar");
     if (!bar) return;
     if (!$("#music-player-grip")) {
       const g = document.createElement("span");
@@ -198,26 +204,20 @@
   function updateLabels() {
     const lab = $("#music-player-label");
     if (lab) lab.textContent = playing ? currentLabel : "Stopped";
+    const short = playing
+      ? currentLabel.length > 14
+        ? currentLabel.slice(0, 12) + "…"
+        : currentLabel
+      : "Music";
     const tabText = $("#music-dock-tab-text");
-    if (tabText) {
-      tabText.textContent = playing
-        ? currentLabel.length > 14
-          ? currentLabel.slice(0, 12) + "…"
-          : currentLabel
-        : "Music";
-    }
+    if (tabText) tabText.textContent = short;
     const miniLab = $("#music-mini-tab-label");
-    if (miniLab) {
-      miniLab.textContent = playing
-        ? currentLabel.length > 16
-          ? currentLabel.slice(0, 14) + "…"
-          : currentLabel
-        : "Music";
-    }
+    if (miniLab) miniLab.textContent = short;
     const t = tab();
     if (t) {
       t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
-      t.title = dockOpen ? "Close station list" : "Open stations";
+      t.title = dockOpen ? "Close stations" : "Open stations";
+      t.classList.toggle("is-active-tab", dockOpen);
     }
     dockRoot()?.classList.toggle("is-playing", playing);
   }
@@ -249,50 +249,70 @@
     s.style.right = "";
     s.style.bottom = "";
     s.style.width = "";
-    s.classList.remove("is-dragged", "is-popup", "is-home", "is-minimized", "is-snap-near");
+    s.style.maxWidth = "";
+    s.style.transform = "";
+    s.classList.remove("is-dragged", "is-popup", "is-home", "is-minimized", "is-snap-near", "is-dragging");
+  }
+
+  function setChrome(floaty) {
+    const minB = $("#music-player-min");
+    const closeB = $("#music-player-close");
+    const grip = $("#music-player-grip");
+    if (minB) minB.hidden = !floaty;
+    if (closeB) closeB.hidden = !floaty;
+    if (grip) grip.hidden = !floaty;
   }
 
   function placePlayerHome() {
-    const s = shell();
+    const s = ensureShellOnBody();
     const sl = slot();
-    if (!s || !sl) return;
+    if (!s) return;
     playerMode = "home";
     s.classList.remove("is-popup", "is-minimized", "is-dragged");
     s.classList.add("is-home");
     s.hidden = !playing;
     clearShellPos(s);
+    if (!playing || !sl) {
+      setChrome(false);
+      const mt = miniTab();
+      if (mt) mt.hidden = true;
+      return;
+    }
     const rect = sl.getBoundingClientRect();
-    if (rect.width > 0 && playing) {
+    const slotOnScreen =
+      dockOpen && rect.width > 8 && rect.bottom > 0 && rect.top < (window.innerHeight || 0);
+    if (slotOnScreen) {
       s.style.position = "fixed";
       s.style.left = `${Math.max(0, rect.left)}px`;
       s.style.top = `${Math.max(0, rect.top)}px`;
       s.style.width = `${rect.width}px`;
       s.style.zIndex = "58";
+      sl.style.minHeight = `${Math.max(s.offsetHeight || 180, 168)}px`;
+      setChrome(false);
+    } else {
+      placePlayerFloat({ soft: true });
+      return;
     }
-    sl.style.minHeight = playing ? `${Math.max(s.offsetHeight || 180, 168)}px` : "";
     const mt = miniTab();
     if (mt) mt.hidden = true;
-    const minB = $("#music-player-min");
-    const closeB = $("#music-player-close");
-    if (minB) minB.hidden = true;
-    if (closeB) closeB.hidden = true;
-    const grip = $("#music-player-grip");
-    if (grip) grip.hidden = true;
   }
 
-  function placePlayerFloat() {
-    const s = shell();
+  function placePlayerFloat({ soft = false } = {}) {
+    const s = ensureShellOnBody();
     if (!s || !playing) return;
     playerMode = "float";
     s.hidden = false;
     s.classList.add("is-popup");
     s.classList.remove("is-home", "is-minimized");
     s.style.position = "fixed";
-    s.style.zIndex = "70";
+    s.style.zIndex = "80";
     s.style.width = "min(340px, calc(100vw - 1.5rem))";
-    if (floatPos) {
-      s.style.left = `${floatPos.left}px`;
-      s.style.top = `${floatPos.top}px`;
+    s.style.maxWidth = "calc(100vw - 1rem)";
+    if (floatPos && Number.isFinite(floatPos.left)) {
+      const pos = clamp(floatPos.left, floatPos.top, s);
+      floatPos = pos;
+      s.style.left = `${pos.left}px`;
+      s.style.top = `${pos.top}px`;
       s.style.right = "auto";
       s.style.bottom = "auto";
       s.classList.add("is-dragged");
@@ -301,21 +321,18 @@
       s.style.bottom = "1rem";
       s.style.left = "auto";
       s.style.top = "auto";
+      s.classList.remove("is-dragged");
     }
     const sl = slot();
     if (sl) sl.style.minHeight = "";
     const mt = miniTab();
     if (mt) mt.hidden = true;
-    const minB = $("#music-player-min");
-    const closeB = $("#music-player-close");
-    if (minB) minB.hidden = false;
-    if (closeB) closeB.hidden = false;
-    const grip = $("#music-player-grip");
-    if (grip) grip.hidden = false;
+    setChrome(true);
+    if (!soft) persistUi();
   }
 
   function placePlayerMini() {
-    const s = shell();
+    const s = ensureShellOnBody();
     if (s) {
       s.hidden = true;
       s.classList.add("is-minimized", "is-popup");
@@ -325,10 +342,7 @@
     const mt = ensureMiniTab();
     mt.hidden = false;
     updateLabels();
-    const minB = $("#music-player-min");
-    const closeB = $("#music-player-close");
-    if (minB) minB.hidden = true;
-    if (closeB) closeB.hidden = true;
+    setChrome(false);
   }
 
   function setPlayerMode(next, { persist = true } = {}) {
@@ -353,12 +367,18 @@
       d.classList.toggle("is-dock", dockOpen);
       d.classList.toggle("is-tab", !dockOpen);
     }
-    if (t) t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
+    if (t) {
+      t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
+      t.classList.toggle("is-active-tab", dockOpen);
+    }
     if (sc) {
       const narrow = window.matchMedia("(max-width: 820px)").matches;
       sc.hidden = !(dockOpen && narrow);
     }
-    if (playerMode === "home" && playing) placePlayerHome();
+    if (playing) {
+      if (playerMode === "home") placePlayerHome();
+      else if (playerMode === "float") placePlayerFloat({ soft: true });
+    }
     updateLabels();
     if (persist) persistUi();
   }
@@ -404,12 +424,13 @@
 
   function selectMusic(id, embed, title, { forceReload = false } = {}) {
     if (!embed) return;
+    ensureShellOnBody();
+    ensureBarChrome();
     const f = frame();
     const s = shell();
     const e = empty();
     if (!f || !s) return;
 
-    ensureBarChrome();
     activeMusicId = id;
     const src = withAutoplay(embed);
 
@@ -455,14 +476,17 @@
   function clamp(left, top, el) {
     const w = el?.offsetWidth || 320;
     const h = el?.offsetHeight || 200;
+    const vw = window.innerWidth || 800;
+    const vh = window.innerHeight || 600;
+    const margin = 4;
     return {
-      left: Math.min(Math.max(8, left), Math.max(8, (window.innerWidth || 0) - w - 8)),
-      top: Math.min(Math.max(8, top), Math.max(8, (window.innerHeight || 0) - h - 8)),
+      left: Math.min(Math.max(margin, left), Math.max(margin, vw - w - margin)),
+      top: Math.min(Math.max(margin, top), Math.max(margin, vh - h - margin)),
     };
   }
 
   function bindPlayerDrag() {
-    const s = shell();
+    const s = ensureShellOnBody();
     const bar = s?.querySelector(".music-player-bar");
     if (!s || !bar || bar.dataset.dragBound) return;
     bar.dataset.dragBound = "1";
@@ -470,15 +494,19 @@
     bar.addEventListener("pointerdown", (e) => {
       if (e.button != null && e.button !== 0) return;
       if (e.target.closest("button, a, iframe")) return;
-      if (playerMode === "mini") return;
+      if (playerMode === "mini" || !playing) return;
       e.preventDefault();
       const rect = s.getBoundingClientRect();
       if (playerMode === "home") {
         floatPos = { left: rect.left, top: rect.top };
-        placePlayerFloat();
+        placePlayerFloat({ soft: true });
       }
       drag = { ox: e.clientX - rect.left, oy: e.clientY - rect.top, id: e.pointerId };
-      bar.setPointerCapture?.(e.pointerId);
+      try {
+        bar.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
       s.classList.add("is-dragging");
     });
     bar.addEventListener("pointermove", (e) => {
@@ -565,7 +593,7 @@
       const raw = localStorage.getItem(UI_KEY);
       if (raw) {
         const data = JSON.parse(raw);
-        if (data.float) floatPos = data.float;
+        if (data.float && Number.isFinite(data.float.left)) floatPos = data.float;
         if (data.playerMode === "float" || data.playerMode === "mini" || data.playerMode === "home") {
           playerMode = data.playerMode;
         }
@@ -575,7 +603,7 @@
     } catch {
       /* ignore */
     }
-    setDockOpen(window.matchMedia("(min-width: 1100px)").matches, { persist: false });
+    setDockOpen(false, { persist: false });
   }
 
   function bindUi() {
@@ -594,28 +622,26 @@
     });
     $("#music-dock-close")?.addEventListener("click", (e) => {
       e.preventDefault();
-      setDockOpen(false);
-    });
-    $("#music-dock-min")?.addEventListener("click", (e) => {
-      e.preventDefault();
+      e.stopPropagation();
       setDockOpen(false);
     });
     scrim()?.addEventListener("click", () => setDockOpen(false));
 
-    // Re-bind player chrome after ensure
-    setTimeout(() => {
-      $("#music-player-min")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setPlayerMode("mini");
-      });
-      $("#music-player-close")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        stopMusic();
-      });
-      bindPlayerDrag();
-    }, 0);
+    document.addEventListener(
+      "click",
+      (e) => {
+        if (e.target.closest?.("#music-player-min")) {
+          e.preventDefault();
+          e.stopPropagation();
+          setPlayerMode("mini");
+        } else if (e.target.closest?.("#music-player-close")) {
+          e.preventDefault();
+          e.stopPropagation();
+          stopMusic();
+        }
+      },
+      true
+    );
 
     $("#nav-music")?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -651,11 +677,13 @@
   }
 
   async function boot() {
+    ensureShellOnBody();
     ensureBarChrome();
     ensureMiniTab();
     restoreUi();
     autoStartMusic();
     if (playing) setPlayerMode(playerMode, { persist: false });
+    bindPlayerDrag();
     bindUi();
 
     try {
