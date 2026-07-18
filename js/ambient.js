@@ -1,6 +1,7 @@
 /**
- * VerseKeep music — station dock + free-floating small player (matches AA).
- * Shell is mounted on body so drag is never trapped by dock transforms.
+ * VerseKeep music — station dock only (matches AA).
+ * Player stays in the side panel slot; never free-floats or drags.
+ * Iframe stays mounted when closed so audio never cuts.
  */
 (function () {
   "use strict";
@@ -9,11 +10,10 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
   const MUSIC_KEY = "versekeep-music";
-  const UI_KEY = "versekeep-music-ui-v4";
+  const UI_KEY = "versekeep-music-ui-v5";
   const DEFAULT_SPOTIFY_ID = "alph-gods-encouragement";
   const DEFAULT_EMBED =
     "https://open.spotify.com/embed/playlist/0qKlX3MZWEHZgR17jNfI3e?utm_source=generator";
-  const SNAP_LEFT = 96;
 
   let playlists = { youtube: [], spotify: [] };
   let musicTab = "spotify";
@@ -24,9 +24,6 @@
   let playing = false;
   let gestureHooked = false;
   let dockOpen = false;
-  let playerMode = "home";
-  let floatPos = null;
-  let drag = null;
 
   function escapeHtml(s) {
     return String(s)
@@ -68,9 +65,6 @@
   function scrim() {
     return $("#music-dock-scrim");
   }
-  function slot() {
-    return $("#music-player-slot");
-  }
   function shell() {
     return $("#music-player-shell");
   }
@@ -80,6 +74,7 @@
   function empty() {
     return $("#music-empty");
   }
+
   function paintMusicTabs() {
     $$("[data-music-tab]").forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.musicTab === musicTab);
@@ -136,36 +131,31 @@
     });
   }
 
-  function ensureShellOnBody() {
+  /** Keep shell inside the dock slot — never reparent to body. */
+  function ensureShellInSlot() {
     const s = shell();
-    if (!s) return null;
-    if (s.parentElement !== document.body) document.body.appendChild(s);
+    const slot = $("#music-player-slot");
+    if (!s || !slot) return s;
+    if (s.parentElement !== slot) slot.appendChild(s);
+    s.classList.add("music-player-shell", "is-docked");
+    s.classList.remove("is-popup", "is-home", "is-minimized", "is-dragged", "is-dragging", "is-snap-near");
+    s.style.position = "";
+    s.style.left = "";
+    s.style.top = "";
+    s.style.right = "";
+    s.style.bottom = "";
+    s.style.width = "";
+    s.style.maxWidth = "";
+    s.style.transform = "";
+    s.style.zIndex = "";
     return s;
   }
 
-  function ensureBarChrome() {
-    const s = ensureShellOnBody();
-    const bar = s?.querySelector(".music-player-bar");
+  function ensureStopButton() {
+    const bar = shell()?.querySelector(".music-player-bar");
     if (!bar) return;
-    if (!$("#music-player-grip")) {
-      const g = document.createElement("span");
-      g.id = "music-player-grip";
-      g.className = "music-player-grip";
-      g.setAttribute("aria-hidden", "true");
-      g.title = "Drag player";
-      g.textContent = "⋮⋮";
-      bar.insertBefore(g, bar.firstChild);
-    }
-    if (!$("#music-player-min")) {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.id = "music-player-min";
-      b.className = "music-player-min";
-      b.title = "Minimize to side tab";
-      b.setAttribute("aria-label", "Minimize to side tab");
-      b.textContent = "–";
-      bar.appendChild(b);
-    }
+    $("#music-player-grip")?.remove();
+    $("#music-player-min")?.remove();
     if (!$("#music-player-close")) {
       const b = document.createElement("button");
       b.type = "button";
@@ -176,6 +166,8 @@
       b.textContent = "×";
       bar.appendChild(b);
     }
+    const closeB = $("#music-player-close");
+    if (closeB) closeB.hidden = false;
   }
 
   function updateLabels() {
@@ -193,11 +185,13 @@
       t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
       t.title = dockOpen
         ? "Close stations"
-        : playerMode === "mini" && playing
+        : playing
           ? `Open stations · ${currentLabel} (playing)`
           : "Open stations";
       t.classList.toggle("is-active-tab", dockOpen);
-      t.classList.toggle("is-player-mini", playerMode === "mini" && playing);
+      t.classList.toggle("is-playing-tab", playing);
+      t.classList.remove("is-player-mini");
+      t.style.zIndex = "";
     }
     dockRoot()?.classList.toggle("is-playing", playing);
     $("#music-mini-tab")?.remove();
@@ -209,8 +203,6 @@
         UI_KEY,
         JSON.stringify({
           dockOpen,
-          playerMode,
-          float: floatPos,
           playing,
           id: activeMusicId,
           embed: lastEmbed || currentEmbed,
@@ -223,141 +215,6 @@
     }
   }
 
-  function clearShellPos(s) {
-    if (!s) return;
-    s.style.left = "";
-    s.style.top = "";
-    s.style.right = "";
-    s.style.bottom = "";
-    s.style.width = "";
-    s.style.maxWidth = "";
-    s.style.transform = "";
-    s.classList.remove("is-dragged", "is-popup", "is-home", "is-minimized", "is-snap-near", "is-dragging");
-  }
-
-  function setChrome(floaty) {
-    const minB = $("#music-player-min");
-    const closeB = $("#music-player-close");
-    const grip = $("#music-player-grip");
-    if (minB) minB.hidden = !floaty;
-    if (closeB) closeB.hidden = !floaty;
-    if (grip) grip.hidden = !floaty;
-  }
-
-  function placePlayerHome() {
-    const s = ensureShellOnBody();
-    const sl = slot();
-    if (!s) return;
-    playerMode = "home";
-    s.classList.remove("is-popup", "is-minimized", "is-dragged", "is-dragging", "is-snap-near");
-    s.classList.add("is-home");
-    s.hidden = !playing;
-    const t = tab();
-    if (t) {
-      t.classList.remove("is-player-mini");
-      t.style.zIndex = "";
-    }
-    if (!playing || !sl) {
-      setChrome(false);
-      return;
-    }
-    // Slot lives in a fixed dock — only pin while open (stable during page scroll)
-    if (!dockOpen) {
-      placePlayerFloat({ soft: true });
-      return;
-    }
-    const rect = sl.getBoundingClientRect();
-    if (rect.width < 8) {
-      placePlayerFloat({ soft: true });
-      return;
-    }
-    s.style.position = "fixed";
-    s.style.transform = "none";
-    s.style.left = `${Math.round(rect.left)}px`;
-    s.style.top = `${Math.round(rect.top)}px`;
-    s.style.right = "auto";
-    s.style.bottom = "auto";
-    s.style.width = `${Math.round(rect.width)}px`;
-    s.style.maxWidth = "";
-    s.style.zIndex = "58";
-    const h = Math.max(s.offsetHeight || 180, 168);
-    if (sl.style.minHeight !== `${h}px`) sl.style.minHeight = `${h}px`;
-    setChrome(false);
-  }
-
-  function placePlayerFloat({ soft = false } = {}) {
-    const s = ensureShellOnBody();
-    if (!s || !playing) return;
-    playerMode = "float";
-    s.hidden = false;
-    s.classList.add("is-popup");
-    s.classList.remove("is-home", "is-minimized", "is-dragging", "is-snap-near");
-    // Viewport-fixed: never track document scroll
-    s.style.position = "fixed";
-    s.style.transform = "none";
-    s.style.zIndex = "100"; /* above edge tab while floating */
-    s.style.width = "min(340px, calc(100vw - 1.5rem))";
-    s.style.maxWidth = "calc(100vw - 1rem)";
-    if (floatPos && Number.isFinite(floatPos.left)) {
-      const pos = clamp(floatPos.left, floatPos.top, s);
-      floatPos = pos;
-      s.style.left = `${pos.left}px`;
-      s.style.top = `${pos.top}px`;
-      s.style.right = "auto";
-      s.style.bottom = "auto";
-      s.classList.add("is-dragged");
-    } else {
-      s.style.right = "1rem";
-      s.style.bottom = "1rem";
-      s.style.left = "auto";
-      s.style.top = "auto";
-      s.classList.remove("is-dragged");
-    }
-    const sl = slot();
-    if (sl) sl.style.minHeight = "";
-    const t = tab();
-    if (t) {
-      t.classList.remove("is-player-mini");
-      t.style.zIndex = "";
-    }
-    setChrome(true);
-    if (!soft) persistUi();
-  }
-
-  /** Minimize → board hides; side ♪ tab is the mini player at the front. */
-  function placePlayerMini() {
-    setDockOpen(false, { persist: false });
-    const s = ensureShellOnBody();
-    if (s) {
-      s.hidden = true;
-      s.classList.add("is-minimized", "is-popup");
-      s.classList.remove("is-home", "is-dragging");
-      s.style.zIndex = "";
-    }
-    playerMode = "mini";
-    setChrome(false);
-    const t = tab();
-    if (t) {
-      t.classList.add("is-player-mini");
-      t.style.zIndex = "110";
-      t.style.left = "";
-      t.style.pointerEvents = "auto";
-    }
-    updateLabels();
-  }
-
-  function setPlayerMode(next, { persist = true } = {}) {
-    if (!playing && next !== "home") {
-      placePlayerHome();
-      if (persist) persistUi();
-      return;
-    }
-    if (next === "home") placePlayerHome();
-    else if (next === "mini") placePlayerMini();
-    else placePlayerFloat();
-    if (persist) persistUi();
-  }
-
   function setDockOpen(open, { persist = true } = {}) {
     dockOpen = !!open;
     const d = dockRoot();
@@ -367,6 +224,7 @@
       d.classList.toggle("is-open", dockOpen);
       d.classList.toggle("is-dock", dockOpen);
       d.classList.toggle("is-tab", !dockOpen);
+      d.classList.toggle("is-playing", playing);
     }
     if (t) {
       t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
@@ -375,10 +233,7 @@
     if (sc) {
       const narrow = window.matchMedia("(max-width: 820px)").matches;
       sc.hidden = !(dockOpen && narrow);
-    }
-    if (playing) {
-      if (playerMode === "home") placePlayerHome();
-      else if (playerMode === "float") placePlayerFloat({ soft: true });
+      sc.setAttribute("aria-hidden", sc.hidden ? "true" : "false");
     }
     updateLabels();
     if (persist) persistUi();
@@ -402,7 +257,6 @@
       e.hidden = false;
       e.textContent = "Music stopped · pick a station";
     }
-    setPlayerMode("home", { persist: false });
     updateLabels();
     try {
       localStorage.setItem(
@@ -423,8 +277,8 @@
 
   function selectMusic(id, embed, title, { forceReload = false } = {}) {
     if (!embed) return;
-    ensureShellOnBody();
-    ensureBarChrome();
+    ensureShellInSlot();
+    ensureStopButton();
     const f = frame();
     const s = shell();
     const e = empty();
@@ -437,7 +291,7 @@
       paintMusicList();
       s.hidden = false;
       if (e) e.hidden = true;
-      setPlayerMode(playerMode === "mini" ? "mini" : playerMode === "float" ? "float" : "home");
+      updateLabels();
       return;
     }
 
@@ -465,80 +319,7 @@
       /* ignore */
     }
     paintMusicList();
-
-    if (playerMode === "mini") placePlayerMini();
-    else if (playerMode === "float") placePlayerFloat();
-    else placePlayerHome();
     persistUi();
-  }
-
-  /**
-   * Soft bounds only: player may hang mostly off-screen (past the viewport
-   * edge). Keep a grab strip (~48px) visible so it can always be dragged back.
-   */
-  function clamp(left, top, el) {
-    const w = el?.offsetWidth || 320;
-    const h = el?.offsetHeight || 200;
-    const vw = window.innerWidth || 800;
-    const vh = window.innerHeight || 600;
-    const keep = 48;
-    return {
-      left: Math.min(Math.max(-(w - keep), left), vw - keep),
-      top: Math.min(Math.max(-(h - keep), top), vh - keep),
-    };
-  }
-
-  function bindPlayerDrag() {
-    const s = ensureShellOnBody();
-    const bar = s?.querySelector(".music-player-bar");
-    if (!s || !bar || bar.dataset.dragBound) return;
-    bar.dataset.dragBound = "1";
-
-    bar.addEventListener("pointerdown", (e) => {
-      if (e.button != null && e.button !== 0) return;
-      if (e.target.closest("button, a, iframe")) return;
-      if (playerMode === "mini" || !playing) return;
-      e.preventDefault();
-      const rect = s.getBoundingClientRect();
-      if (playerMode === "home") {
-        floatPos = { left: rect.left, top: rect.top };
-        placePlayerFloat({ soft: true });
-      }
-      drag = { ox: e.clientX - rect.left, oy: e.clientY - rect.top, id: e.pointerId };
-      try {
-        bar.setPointerCapture(e.pointerId);
-      } catch {
-        /* ignore */
-      }
-      s.classList.add("is-dragging");
-      s.style.zIndex = "200";
-    });
-    bar.addEventListener("pointermove", (e) => {
-      if (!drag || e.pointerId !== drag.id) return;
-      const pos = clamp(e.clientX - drag.ox, e.clientY - drag.oy, s);
-      floatPos = pos;
-      s.style.left = `${pos.left}px`;
-      s.style.top = `${pos.top}px`;
-      s.style.right = "auto";
-      s.style.bottom = "auto";
-      s.style.zIndex = "200";
-      s.classList.add("is-dragged");
-      s.classList.toggle("is-snap-near", pos.left < SNAP_LEFT && dockOpen);
-    });
-    const end = (e) => {
-      if (!drag || (e && e.pointerId !== drag.id)) return;
-      const near = floatPos && floatPos.left < SNAP_LEFT && dockOpen;
-      drag = null;
-      s.classList.remove("is-dragging", "is-snap-near");
-      if (near) {
-        floatPos = null;
-        setPlayerMode("home");
-      } else {
-        setPlayerMode("float");
-      }
-    };
-    bar.addEventListener("pointerup", end);
-    bar.addEventListener("pointercancel", end);
   }
 
   function nudgeAutoplayOnGesture() {
@@ -598,13 +379,10 @@
       const raw = localStorage.getItem(UI_KEY);
       if (raw) {
         const data = JSON.parse(raw);
-        if (data.float && Number.isFinite(data.float.left)) floatPos = data.float;
-        if (data.playerMode === "float" || data.playerMode === "mini" || data.playerMode === "home") {
-          playerMode = data.playerMode;
-        }
         setDockOpen(!!data.dockOpen, { persist: false });
         return;
       }
+      localStorage.removeItem("versekeep-music-ui-v4");
     } catch {
       /* ignore */
     }
@@ -623,11 +401,6 @@
     tab()?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Minimized → expand floating board in front
-      if (playing && playerMode === "mini") {
-        setPlayerMode("float");
-        return;
-      }
       setDockOpen(!dockOpen);
     });
     $("#music-dock-close")?.addEventListener("click", (e) => {
@@ -640,11 +413,7 @@
     document.addEventListener(
       "click",
       (e) => {
-        if (e.target.closest?.("#music-player-min")) {
-          e.preventDefault();
-          e.stopPropagation();
-          setPlayerMode("mini");
-        } else if (e.target.closest?.("#music-player-close")) {
+        if (e.target.closest?.("#music-player-close")) {
           e.preventDefault();
           e.stopPropagation();
           stopMusic();
@@ -665,17 +434,7 @@
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && dockOpen) setDockOpen(false);
     });
-    // No scroll re-pin: dock + player shell are position:fixed to the viewport.
     window.addEventListener("resize", () => {
-      if (playerMode === "home" && playing && dockOpen) placePlayerHome();
-      else if (playerMode === "float" && floatPos) {
-        const s = shell();
-        floatPos = clamp(floatPos.left, floatPos.top, s);
-        if (s) {
-          s.style.left = `${floatPos.left}px`;
-          s.style.top = `${floatPos.top}px`;
-        }
-      }
       const sc = scrim();
       if (sc) {
         const narrow = window.matchMedia("(max-width: 820px)").matches;
@@ -686,13 +445,11 @@
   }
 
   async function boot() {
-    ensureShellOnBody();
-    ensureBarChrome();
+    ensureShellInSlot();
+    ensureStopButton();
     $("#music-mini-tab")?.remove();
     restoreUi();
     autoStartMusic();
-    if (playing) setPlayerMode(playerMode, { persist: false });
-    bindPlayerDrag();
     bindUi();
 
     try {

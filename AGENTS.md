@@ -47,8 +47,8 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 ## Music
 
 - Autoplay on load: last station (`versekeep-music`) or default Spotify **God’s encouragement** (`alph-gods-encouragement`).
-- **Left-edge dock** (`#worship`): vertical tab opens/closes the panel; open state in `versekeep-music-dock-open`.
-- Iframe stays mounted when closed so audio never cuts. Nav **Music** toggles the dock.
+- **Left-edge dock** (`#worship`): vertical tab opens/closes the panel; open state in `versekeep-music-ui-v5`.
+- Player shell stays **inside the dock slot only** (no free-float / drag). Iframe stays mounted when closed so audio never cuts. Nav **Music** toggles the dock.
 - Playlist metadata: `data/playlists.json` (categories; “From Alphaeus” first).
 
 ## Wallpapers

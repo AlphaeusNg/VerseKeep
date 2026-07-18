@@ -39,7 +39,7 @@
         </div>
       </div>
       <p class="music-note music-dock-note">
-        Pick a station · drag the small player free · – mini tab · × stops.
+        Pick a station · player stays in this panel · × stops · closes without cutting audio.
         Autoplay uses last station or <strong>God’s encouragement</strong>.
       </p>
       <div class="mode-row music-dock-tabs" role="tablist" aria-label="Music source">
@@ -49,12 +49,10 @@
       <div class="pick-list" id="music-list"></div>
       <div id="music-player-slot" class="music-player-slot">
         <p id="music-empty" class="music-empty-inline">Starting music…</p>
-        <div class="music-player-shell" id="music-player-shell" hidden>
+        <div class="music-player-shell is-docked" id="music-player-shell" hidden>
           <div class="music-player-bar" id="music-player-bar">
-            <span class="music-player-grip" id="music-player-grip" aria-hidden="true" hidden title="Drag player">⋮⋮</span>
             <span class="music-player-label mono" id="music-player-label">Playing…</span>
-            <button type="button" class="music-player-min" id="music-player-min" hidden title="Minimize to side tab" aria-label="Minimize to side tab">–</button>
-            <button type="button" class="music-player-close" id="music-player-close" hidden title="Stop music" aria-label="Stop music">×</button>
+            <button type="button" class="music-player-close" id="music-player-close" title="Stop music" aria-label="Stop music">×</button>
           </div>
           <div class="music-player-frame-wrap">
             <iframe
