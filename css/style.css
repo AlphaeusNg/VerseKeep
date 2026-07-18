@@ -2190,9 +2190,57 @@ body.med-focus .med-topics {
   margin: 0.65rem 0 0.85rem;
 }
 
+/* Wallpapers collapsed by default so meditation stays primary */
+.wp-details {
+  border: none;
+  margin: 0;
+}
+
+.wp-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.15rem 0.1rem;
+  color: var(--cream);
+}
+
+.wp-summary::-webkit-details-marker {
+  display: none;
+}
+
+.wp-summary strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.wp-summary small {
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.wp-summary::after {
+  content: "▸";
+  color: var(--gold);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease;
+}
+
+.wp-details[open] .wp-summary::after {
+  transform: rotate(90deg);
+}
+
+.wp-details-body {
+  margin-top: 0.85rem;
+}
+
 /* Wallpaper gallery: scrollable so it doesn’t dominate the page */
 .wallpaper-scroll {
-  max-height: min(22rem, 42vh);
+  max-height: min(20rem, 40vh);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;

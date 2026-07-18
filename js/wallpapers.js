@@ -979,8 +979,26 @@
     });
   }
 
+  function bindDetailsMemory() {
+    const det = document.getElementById("wp-details");
+    if (!det) return;
+    try {
+      if (localStorage.getItem("versekeep-wp-open") === "1") det.open = true;
+    } catch {
+      /* ignore */
+    }
+    det.addEventListener("toggle", () => {
+      try {
+        localStorage.setItem("versekeep-wp-open", det.open ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+    });
+  }
+
   async function boot() {
     loadHearts();
+    bindDetailsMemory();
     try {
       const [local, remote] = await Promise.all([
         loadJson("data/wallpapers.json"),

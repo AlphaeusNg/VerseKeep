@@ -215,42 +215,46 @@
     </section>
 
     <section class="panel ambient-panel" id="wallpapers">
-      <div class="panel-head-row">
-        <div>
-          <h2>Wallpapers</h2>
-          <p class="hint">
-            Calm backgrounds while you meditate — scroll the gallery; click to apply.
-          </p>
+      <details class="wp-details" id="wp-details">
+        <summary class="wp-summary">
+          <span>
+            <strong>Wallpapers</strong>
+            <small class="hint">Calm backgrounds · expand to browse</small>
+          </span>
+        </summary>
+        <div class="wp-details-body">
+          <div class="panel-head-row">
+            <p class="hint" style="margin:0">
+              Scroll the gallery; click to apply. Hearts when the counter is reachable.
+            </p>
+            <div class="wp-tools">
+              <button type="button" class="btn ghost" id="wp-use-daily">Use today’s</button>
+              <button type="button" class="btn primary" id="wp-new-suggestions">New suggestions</button>
+            </div>
+          </div>
+          <div class="wp-search-bar" role="search">
+            <label class="wp-search-label" for="wp-search">
+              <span class="sr-only">Search wallpapers</span>
+              <input
+                type="search"
+                id="wp-search"
+                class="wp-search-input"
+                placeholder="Search tags, titles, themes…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </label>
+            <button type="button" class="btn ghost wp-search-clear" id="wp-search-clear" hidden>Clear</button>
+            <p class="wp-search-meta mono" id="wp-search-meta" aria-live="polite"></p>
+            <div class="wp-search-chips" id="wp-search-chips" aria-label="Quick filters"></div>
+          </div>
+          <div id="wp-hero-loved" class="wp-hero-loved" hidden></div>
+          <div class="wallpaper-scroll" id="wallpaper-scroll">
+            <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
+            <div class="wallpaper-grid" id="wallpaper-grid"></div>
+          </div>
         </div>
-        <div class="wp-tools">
-          <button type="button" class="btn ghost" id="wp-use-daily">Use today’s</button>
-          <button type="button" class="btn primary" id="wp-new-suggestions">New suggestions</button>
-        </div>
-      </div>
-      <div class="wp-search-bar" role="search">
-        <label class="wp-search-label" for="wp-search">
-          <span class="sr-only">Search wallpapers</span>
-          <input
-            type="search"
-            id="wp-search"
-            class="wp-search-input"
-            placeholder="Search tags, titles, themes…"
-            autocomplete="off"
-            spellcheck="false"
-          />
-        </label>
-        <button type="button" class="btn ghost wp-search-clear" id="wp-search-clear" hidden>Clear</button>
-        <p class="wp-search-meta mono" id="wp-search-meta" aria-live="polite"></p>
-        <div class="wp-search-chips" id="wp-search-chips" aria-label="Quick filters"></div>
-      </div>
-      <div id="wp-hero-loved" class="wp-hero-loved" hidden></div>
-      <div class="wallpaper-scroll" id="wallpaper-scroll">
-        <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
-        <div class="wallpaper-grid" id="wallpaper-grid"></div>
-      </div>
-      <p class="hint wp-credit">
-        Daily picks and bundled classics · hearts when the counter is reachable.
-      </p>
+      </details>
     </section>
 
     <section class="panel">
