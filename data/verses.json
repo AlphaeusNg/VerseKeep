@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "translationNote": "English Standard Version (ESV) style wording for study; verify in your preferred Bible.",
+  "version": 2,
+  "translationNote": "Study wording for meditation and memory; live text can refresh from the web when available.",
   "themes": [
     {
       "id": "trusting-god",
@@ -10,31 +10,52 @@
       "verses": [
         {
           "ref": "Proverbs 3:5–6",
-          "text": "Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths."
+          "text": "Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.",
+          "context": "Solomon urges the covenant people not to trust clever self-reliance. True wisdom begins with wholehearted dependence on the Lord who orders every path.",
+          "application": "Where are you leaning on your own understanding today? Name it, then deliberately entrust that decision, worry, or plan to the Lord.",
+          "prayer": "Father, I refuse self-reliance. Teach me to trust You with all my heart and to acknowledge You in every step."
         },
         {
           "ref": "Psalm 56:3",
-          "text": "When I am afraid, I put my trust in you."
+          "text": "When I am afraid, I put my trust in you.",
+          "context": "David wrote while seized by fear among enemies. Faith does not deny fear; it redirects it toward the trustworthy God.",
+          "application": "When anxiety rises, treat it as a cue to pray: “I put my trust in You” — out loud if you can.",
+          "prayer": "Lord, when I am afraid, turn my fear into trust. Be my refuge right now."
         },
         {
           "ref": "Isaiah 26:3",
-          "text": "You keep him in perfect peace whose mind is stayed on you, because he trusts in you."
+          "text": "You keep him in perfect peace whose mind is stayed on you, because he trusts in you.",
+          "context": "In a song of the redeemed city, Isaiah promises perfect peace to the one whose mind is steadfast because it trusts the unchanging Lord.",
+          "application": "Notice where your mind drifts. Fix it again on God’s character rather than on outcomes you cannot control.",
+          "prayer": "Keep my mind stayed on You. Guard me with the peace that only trust in You can give."
         },
         {
           "ref": "Psalm 46:1",
-          "text": "God is our refuge and strength, a very present help in trouble."
+          "text": "God is our refuge and strength, a very present help in trouble.",
+          "context": "A song for Zion under threat: God is not distant help, but a present fortress when the earth seems to give way.",
+          "application": "In trouble, run first to God — not to distraction. He is already near and strong for you.",
+          "prayer": "God my refuge, be my strength in this trouble. I take shelter in You alone."
         },
         {
           "ref": "Jeremiah 17:7",
-          "text": "Blessed is the man who trusts in the Lord, whose trust is the Lord."
+          "text": "Blessed is the man who trusts in the Lord, whose trust is the Lord.",
+          "context": "Jeremiah contrasts the cursed trust in man with the blessed trust that roots itself in the Lord Himself.",
+          "application": "Ask: is my hope resting on people, money, or reputation — or on the Lord as my trust?",
+          "prayer": "Blessed Lord, be my trust. Uproot every lesser refuge I have built."
         },
         {
           "ref": "Psalm 9:10",
-          "text": "And those who know your name put their trust in you, for you, O Lord, have not forsaken those who seek you."
+          "text": "And those who know your name put their trust in you, for you, O Lord, have not forsaken those who seek you.",
+          "context": "Those who know God’s name — His revealed character — learn to entrust themselves to Him because He does not abandon seekers.",
+          "application": "Recall a specific way God has kept you. Let that memory fuel fresh trust today.",
+          "prayer": "Lord, those who know Your name trust You. Help me know You better and rest in Your faithfulness."
         },
         {
           "ref": "Hebrews 11:1",
-          "text": "Now faith is the assurance of things hoped for, the conviction of things not seen."
+          "text": "Now faith is the assurance of things hoped for, the conviction of things not seen.",
+          "context": "Hebrews defines faith before the great cloud of witnesses: assurance of future hope and conviction about unseen realities God has spoken.",
+          "application": "Faith acts on God’s Word even when sight says otherwise. What unseen promise will you bank on today?",
+          "prayer": "Lord, strengthen my faith — the assurance of things hoped for and the conviction of things not seen."
         }
       ]
     },
@@ -46,31 +67,52 @@
       "verses": [
         {
           "ref": "Exodus 34:6",
-          "text": "The Lord, the Lord, a God merciful and gracious, slow to anger, and abounding in steadfast love and faithfulness."
+          "text": "The Lord, the Lord, a God merciful and gracious, slow to anger, and abounding in steadfast love and faithfulness.",
+          "context": "After Israel’s golden-calf sin, God proclaims His own name to Moses: merciful, gracious, patient, abounding in steadfast love and faithfulness.",
+          "application": "When shame whispers that God is only wrath, remember He first named Himself as merciful and faithful.",
+          "prayer": "Lord, merciful and gracious, slow to anger and abounding in love — show me who You are again."
         },
         {
           "ref": "1 John 4:8",
-          "text": "Anyone who does not love does not know God, because God is love."
+          "text": "Anyone who does not love does not know God, because God is love.",
+          "context": "John grounds Christian love in God’s nature: love is not a mood we invent but a reflection of who God eternally is.",
+          "application": "Love someone costly today — not from surplus feeling, but because God is love and you belong to Him.",
+          "prayer": "God of love, make me know You more truly, that I may love as You love."
         },
         {
           "ref": "Isaiah 6:3",
-          "text": "Holy, holy, holy is the Lord of hosts; the whole earth is full of his glory!"
+          "text": "Holy, holy, holy is the Lord of hosts; the whole earth is full of his glory!",
+          "context": "In the temple vision, seraphim cry “Holy” thrice — God’s otherness and moral purity fill heaven and earth with glory.",
+          "application": "Approach God with reverence, not casualness. Holiness should shape how you speak, choose, and worship.",
+          "prayer": "Holy, holy, holy Lord — let Your glory humble me and make me clean."
         },
         {
           "ref": "Numbers 23:19",
-          "text": "God is not man, that he should lie, or a son of man, that he should change his mind."
+          "text": "God is not man, that he should lie, or a son of man, that he should change his mind.",
+          "context": "Balaam, hired to curse Israel, is forced to confess: God is not like fickle humans; His word stands.",
+          "application": "Stand on a promise God has spoken rather than on changing feelings or circumstances.",
+          "prayer": "Faithful God, You do not lie or change Your mind. Anchor me in Your unbreakable word."
         },
         {
           "ref": "Psalm 145:8–9",
-          "text": "The Lord is gracious and merciful, slow to anger and abounding in steadfast love. The Lord is good to all, and his mercy is over all that he has made."
+          "text": "The Lord is gracious and merciful, slow to anger and abounding in steadfast love. The Lord is good to all, and his mercy is over all that he has made.",
+          "context": "David’s praise psalm celebrates God’s gracious character and wide mercy over all He has made.",
+          "application": "Receive God’s goodness as true of you today, then mirror that patience toward someone difficult.",
+          "prayer": "Gracious Lord, slow to anger and rich in love — thank You that Your mercy is over all You have made."
         },
         {
           "ref": "Deuteronomy 7:9",
-          "text": "Know therefore that the Lord your God is God, the faithful God who keeps covenant and steadfast love with those who love him and keep his commandments, to a thousand generations."
+          "text": "Know therefore that the Lord your God is God, the faithful God who keeps covenant and steadfast love with those who love him and keep his commandments, to a thousand generations.",
+          "context": "Moses reminds Israel before the land: their God keeps covenant love across generations for those who love Him.",
+          "application": "God’s faithfulness is multi-generational. Live today as someone inside a long covenant story.",
+          "prayer": "Covenant-keeping God, thank You that You are faithful to a thousand generations. Keep me faithful to You."
         },
         {
           "ref": "Malachi 3:6",
-          "text": "For I the Lord do not change; therefore you, O children of Jacob, are not consumed."
+          "text": "For I the Lord do not change; therefore you, O children of Jacob, are not consumed.",
+          "context": "In a time of spiritual coldness, God declares His own immutability as the reason Jacob is not consumed.",
+          "application": "Your security is not your consistency but God’s. Rest there when you feel unstable.",
+          "prayer": "Unchanging Lord, because You do not change, I am not consumed. Hold me fast."
         }
       ]
     },
@@ -82,23 +124,38 @@
       "verses": [
         {
           "ref": "Romans 3:23",
-          "text": "For all have sinned and fall short of the glory of God."
+          "text": "For all have sinned and fall short of the glory of God.",
+          "context": "Paul levels every mouth: Jew and Gentile alike fall short of God’s glory — none are righteous by themselves.",
+          "application": "Drop comparison. Admit your need of grace without excuse or self-justification.",
+          "prayer": "Holy God, I have sinned and fallen short of Your glory. I come as a sinner needing mercy."
         },
         {
           "ref": "Romans 6:23",
-          "text": "For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord."
+          "text": "For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord.",
+          "context": "Paul contrasts sin’s earned wage — death — with God’s free gift: eternal life in Christ Jesus.",
+          "application": "Stop trying to earn what only Christ gives. Receive life as gift, then live free from sin’s mastery.",
+          "prayer": "Father, the wages of my sin is death, but Your gift is life in Christ. I receive Him with empty hands."
         },
         {
           "ref": "1 John 1:8",
-          "text": "If we say we have no sin, we deceive ourselves, and the truth is not in us."
+          "text": "If we say we have no sin, we deceive ourselves, and the truth is not in us.",
+          "context": "John confronts denial: claiming sinlessness is self-deception, not maturity.",
+          "application": "Practice honest confession. Bring specific sins into the light rather than managing an image.",
+          "prayer": "Lord, keep me from lying to myself. Search me, and lead me in the truth about my sin and Your grace."
         },
         {
           "ref": "Isaiah 53:6",
-          "text": "All we like sheep have gone astray; we have turned—every one—to his own way; and the Lord has laid on him the iniquity of us all."
+          "text": "All we like sheep have gone astray; we have turned—every one—to his own way; and the Lord has laid on him the iniquity of us all.",
+          "context": "The Servant Song: we all wandered like sheep; the Lord laid our iniquity on the suffering Servant.",
+          "application": "Your wandering was laid on Christ. Live forgiven — and stop carrying guilt He already bore.",
+          "prayer": "Lord Jesus, I like a sheep have gone astray. Thank You that my iniquity was laid on You."
         },
         {
           "ref": "Jeremiah 17:9",
-          "text": "The heart is deceitful above all things, and desperately sick; who can understand it?"
+          "text": "The heart is deceitful above all things, and desperately sick; who can understand it?",
+          "context": "Jeremiah diagnoses the human heart as deceitful and sick — beyond self-cure or self-knowledge.",
+          "application": "Distrust your unexamined motives. Submit your heart to Scripture and the Spirit’s conviction.",
+          "prayer": "Lord, my heart is deceitful. Expose what I hide from myself and heal me by Your grace."
         }
       ]
     },
@@ -110,31 +167,52 @@
       "verses": [
         {
           "ref": "John 3:16",
-          "text": "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life."
+          "text": "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.",
+          "context": "Jesus explains new birth to Nicodemus: the Father’s love gives the Son so believers will not perish but have life.",
+          "application": "Believe again the simple gospel. Share it with someone who needs life, not religious performance.",
+          "prayer": "Father, thank You for giving Your only Son. I believe; give me eternal life and a heart for the lost."
         },
         {
           "ref": "Romans 5:8",
-          "text": "But God shows his love for us in that while we were still sinners, Christ died for us."
+          "text": "But God shows his love for us in that while we were still sinners, Christ died for us.",
+          "context": "Paul shows God’s love at its height: Christ died for us while we were still sinners — not after we cleaned up.",
+          "application": "Stop waiting to “deserve” nearness to God. Come as you are; love has already moved first.",
+          "prayer": "God, You showed Your love while I was still a sinner. Soften my heart to rest in that love today."
         },
         {
           "ref": "Ephesians 2:8–9",
-          "text": "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast."
+          "text": "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast.",
+          "context": "Paul demolishes boasting: salvation is by grace through faith — gift, not works.",
+          "application": "If you catch yourself scoring spiritual points, return to empty-handed faith in Christ alone.",
+          "prayer": "Lord, by grace I have been saved through faith — not my doing. Kill my pride; enlarge my gratitude."
         },
         {
           "ref": "2 Corinthians 5:21",
-          "text": "For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God."
+          "text": "For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God.",
+          "context": "The great exchange: the sinless Christ was made sin for us so we might become God’s righteousness in Him.",
+          "application": "Your standing is Christ’s righteousness, not your recent performance. Walk in that freedom.",
+          "prayer": "Jesus, You knew no sin yet became sin for me. Clothe me in Your righteousness and make me new."
         },
         {
           "ref": "1 Corinthians 15:3–4",
-          "text": "Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures."
+          "text": "Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures.",
+          "context": "Paul delivers the gospel of first importance: Christ died for sins, was buried, and rose — according to the Scriptures.",
+          "application": "Keep the cross and empty tomb central. Build every hope and duty on that finished work.",
+          "prayer": "Lord Christ, You died for my sins, were buried, and rose. Let this gospel of first importance rule my day."
         },
         {
           "ref": "Acts 4:12",
-          "text": "And there is salvation in no one else, for there is no other name under heaven given among men by which we must be saved."
+          "text": "And there is salvation in no one else, for there is no other name under heaven given among men by which we must be saved.",
+          "context": "Peter before the council: there is no other name under heaven by which we must be saved — exclusivity of Christ.",
+          "application": "Hold firm that Jesus alone saves. Speak His name with courage and humility.",
+          "prayer": "Jesus, there is salvation in no one else. Keep me loyal to Your name alone."
         },
         {
           "ref": "Titus 3:5",
-          "text": "He saved us, not because of works done by us in righteousness, but according to his own mercy, by the washing of regeneration and renewal of the Holy Spirit."
+          "text": "He saved us, not because of works done by us in righteousness, but according to his own mercy, by the washing of regeneration and renewal of the Holy Spirit.",
+          "context": "Paul grounds salvation in mercy, not righteous works — regeneration and renewal by the Holy Spirit.",
+          "application": "When pride rises over spiritual habits, remember: mercy washed you; the Spirit renews you.",
+          "prayer": "Merciful God, You saved me not by my works but by washing and renewal of the Spirit. Keep me soft."
         }
       ]
     },
@@ -146,23 +224,38 @@
       "verses": [
         {
           "ref": "Ephesians 5:25",
-          "text": "Husbands, love your wives, as Christ loved the church and gave himself up for her."
+          "text": "Husbands, love your wives, as Christ loved the church and gave himself up for her.",
+          "context": "Paul’s household code: husbands love as Christ loved the church — self-giving, sacrificial, covenant love.",
+          "application": "If you are a husband, ask how to give yourself up for her good today — not convenience, but Christlike cost.",
+          "prayer": "Lord Jesus, You gave Yourself for the church. Teach husbands to love with that same self-giving love."
         },
         {
           "ref": "Ephesians 5:28–29",
-          "text": "In the same way husbands should love their wives as their own bodies. He who loves his wife loves himself. For no one ever hated his own flesh, but nourishes and cherishes it, just as Christ does the church."
+          "text": "In the same way husbands should love their wives as their own bodies. He who loves his wife loves himself. For no one ever hated his own flesh, but nourishes and cherishes it, just as Christ does the church.",
+          "context": "Christlike husbandry nourishes and cherishes; loving one’s wife is not optional extras but one’s own body-care.",
+          "application": "Nourish means provide and build up; cherish means tender care. Practice one concrete act of each today.",
+          "prayer": "Christ, You nourish and cherish Your church. Form that same care in how I treat those I love."
         },
         {
           "ref": "1 Peter 3:7",
-          "text": "Likewise, husbands, live with your wives in an understanding way, showing honor to the woman as the weaker vessel, since they are heirs with you of the grace of life, so that your prayers may not be hindered."
+          "text": "Likewise, husbands, live with your wives in an understanding way, showing honor to the woman as the weaker vessel, since they are heirs with you of the grace of life, so that your prayers may not be hindered.",
+          "context": "Peter calls husbands to understanding and honor; wives are co-heirs of grace — disregard hinders prayer.",
+          "application": "Listen to understand. Honor is not optional politeness; it is spiritual seriousness before God.",
+          "prayer": "Lord, help me live with understanding and honor, as a co-heir of grace — that my prayers may not be hindered."
         },
         {
           "ref": "Colossians 3:19",
-          "text": "Husbands, love your wives, and do not be harsh with them."
+          "text": "Husbands, love your wives, and do not be harsh with them.",
+          "context": "In the new-creation household, Paul forbids harshness: love without bitterness or crushing severity.",
+          "application": "Watch your tone. Harsh words undo hours of care; choose gentleness as strength under control.",
+          "prayer": "Lord, keep me from harshness. Let my love be patient, kind, and free of bitterness."
         },
         {
           "ref": "Proverbs 18:22",
-          "text": "He who finds a wife finds a good thing and obtains favor from the Lord."
+          "text": "He who finds a wife finds a good thing and obtains favor from the Lord.",
+          "context": "Wisdom literature treats a godly wife as the Lord’s favor — marriage as gift, not mere arrangement.",
+          "application": "If married, thank God specifically for your spouse today. If seeking, ask for wisdom, not fantasy.",
+          "prayer": "Lord, marriage is Your favor and gift. Teach me gratitude, wisdom, and covenant faithfulness."
         }
       ]
     },
@@ -174,23 +267,38 @@
       "verses": [
         {
           "ref": "1 Peter 3:15",
-          "text": "But in your hearts honor Christ the Lord as holy, always being prepared to make a defense to anyone who asks you for a reason for the hope that is in you; yet do it with gentleness and respect."
+          "text": "But in your hearts honor Christ the Lord as holy, always being prepared to make a defense to anyone who asks you for a reason for the hope that is in you; yet do it with gentleness and respect.",
+          "context": "Suffering Christians are told to set Christ apart as Lord and be ready to explain their hope — gently.",
+          "application": "Prepare a clear, humble answer for why you hope in Christ. Gentleness is not optional.",
+          "prayer": "Christ, be Lord in my heart. Make me ready to give a reason for my hope with gentleness and respect."
         },
         {
           "ref": "2 Timothy 3:16–17",
-          "text": "All Scripture is breathed out by God and profitable for teaching, for reproof, for correction, and for training in righteousness, that the man of God may be complete, equipped for every good work."
+          "text": "All Scripture is breathed out by God and profitable for teaching, for reproof, for correction, and for training in righteousness, that the man of God may be complete, equipped for every good work.",
+          "context": "Paul affirms Scripture as God-breathed and fully useful to equip the believer for every good work.",
+          "application": "Open the Word expecting God to teach, reprove, correct, and train you — not merely inform you.",
+          "prayer": "Lord, all Scripture is breathed out by You. Equip me through Your Word for every good work."
         },
         {
           "ref": "John 14:6",
-          "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\""
+          "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\"",
+          "context": "On the night of betrayal, Jesus claims exclusive access to the Father: He is the way, truth, and life.",
+          "application": "Refuse both despair and pluralistic ease. Come to the Father only through Christ, and invite others the same way.",
+          "prayer": "Jesus, You are the way, the truth, and the life. I come to the Father only through You."
         },
         {
           "ref": "Acts 17:11",
-          "text": "Now these Jews were more noble than those in Thessalonica; they received the word with all eagerness, examining the Scriptures daily to see if these things were so."
+          "text": "Now these Jews were more noble than those in Thessalonica; they received the word with all eagerness, examining the Scriptures daily to see if these things were so.",
+          "context": "The Bereans are praised for eager reception of the word and daily examination of the Scriptures.",
+          "application": "Test teaching by Scripture. Eagerness and examination belong together.",
+          "prayer": "Lord, give me a Berean heart — eager for Your word and diligent to examine all things by it."
         },
         {
           "ref": "Colossians 2:8",
-          "text": "See to it that no one takes you captive by philosophy and empty deceit, according to human tradition, according to the elemental spirits of the world, and not according to Christ."
+          "text": "See to it that no one takes you captive by philosophy and empty deceit, according to human tradition, according to the elemental spirits of the world, and not according to Christ.",
+          "context": "Paul warns against captivity to hollow philosophy and human tradition that sidelines Christ.",
+          "application": "Filter ideas, trends, and “wisdom” by whether they exalt Christ or empty Him of sufficiency.",
+          "prayer": "Lord Jesus, keep me from empty deceit. Let every thought be taken captive to You."
         }
       ]
     },
@@ -202,27 +310,45 @@
       "verses": [
         {
           "ref": "Psalm 119:11",
-          "text": "I have stored up your word in my heart, that I might not sin against you."
+          "text": "I have stored up your word in my heart, that I might not sin against you.",
+          "context": "The psalmist treasures Scripture internally so that sin loses its foothold.",
+          "application": "Store one verse in memory or meditation today — hide it where temptation reaches first.",
+          "prayer": "Lord, I store up Your word in my heart. Guard me from sin by the truth I treasure."
         },
         {
           "ref": "Psalm 119:105",
-          "text": "Your word is a lamp to my feet and a light to my path."
+          "text": "Your word is a lamp to my feet and a light to my path.",
+          "context": "God’s word is pictured as lamp and light for the pilgrim path — guidance for steps, not only destinations.",
+          "application": "Before a decision, open Scripture. Ask what light the Word casts on the next right step.",
+          "prayer": "Your word is a lamp to my feet. Light the path before me and keep me from stumbling."
         },
         {
           "ref": "Philippians 4:6–7",
-          "text": "Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God. And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus."
+          "text": "Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God. And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.",
+          "context": "From prison, Paul commands anxiety to be replaced with prayer, petition, and thanksgiving — then promises guarding peace.",
+          "application": "Turn today’s anxiety list into a prayer list with thanksgiving. Watch peace stand guard.",
+          "prayer": "Father, I bring my cares with thanksgiving. Guard my heart and mind in Christ Jesus with Your peace."
         },
         {
           "ref": "Hebrews 4:12",
-          "text": "For the word of God is living and active, sharper than any two-edged sword, piercing to the division of soul and of spirit, of joints and of marrow, and discerning the thoughts and intentions of the heart."
+          "text": "For the word of God is living and active, sharper than any two-edged sword, piercing to the division of soul and of spirit, of joints and of marrow, and discerning the thoughts and intentions of the heart.",
+          "context": "God’s word is living and piercing — it exposes motives no human judge can reach.",
+          "application": "Read Scripture expecting it to read you. Welcome conviction as kindness.",
+          "prayer": "Living Word, pierce my heart. Discern my intentions and lead me to repentance and rest."
         },
         {
           "ref": "Matthew 4:4",
-          "text": "Man shall not live by bread alone, but by every word that comes from the mouth of God."
+          "text": "Man shall not live by bread alone, but by every word that comes from the mouth of God.",
+          "context": "Jesus, tempted in the wilderness, answers Satan with Deuteronomy: life depends on God’s every word.",
+          "application": "Do not live on bread, news, or productivity alone. Feed on Scripture as true sustenance.",
+          "prayer": "Lord, I shall not live by bread alone. Feed me with every word from Your mouth."
         },
         {
           "ref": "1 Thessalonians 5:16–18",
-          "text": "Rejoice always, pray without ceasing, give thanks in all circumstances; for this is the will of God in Christ Jesus for you."
+          "text": "Rejoice always, pray without ceasing, give thanks in all circumstances; for this is the will of God in Christ Jesus for you.",
+          "context": "Paul’s rapid commands for church life: joy, continual prayer, and thanksgiving as God’s will in Christ.",
+          "application": "Practice micro-habits: rejoice, pray, give thanks — especially when you least feel like it.",
+          "prayer": "God, this is Your will in Christ Jesus: help me rejoice, pray without ceasing, and give thanks in all things."
         }
       ]
     },
@@ -234,27 +360,45 @@
       "verses": [
         {
           "ref": "James 1:2–3",
-          "text": "Count it all joy, my brothers, when you meet trials of various kinds, for you know that the testing of your faith produces steadfastness."
+          "text": "Count it all joy, my brothers, when you meet trials of various kinds, for you know that the testing of your faith produces steadfastness.",
+          "context": "James reframes trials as joy-worthy tests that produce steadfastness in faith.",
+          "application": "Name a current trial and ask what steadfastness God may be forming — then cooperate, don’t only escape.",
+          "prayer": "Lord, when trials come, teach me to count it joy, knowing You are producing steadfastness in me."
         },
         {
           "ref": "Romans 8:28",
-          "text": "And we know that for those who love God all things work together for good, for those who are called according to his purpose."
+          "text": "And we know that for those who love God all things work together for good, for those who are called according to his purpose.",
+          "context": "For those who love God and are called, all things — even hard things — work together for good under His purpose.",
+          "application": "You may not see the “good” yet. Trust the Caller’s purpose more than your timeline.",
+          "prayer": "Father, I love You and trust Your call. Work all things together for good according to Your purpose."
         },
         {
           "ref": "2 Corinthians 12:9",
-          "text": "But he said to me, \"My grace is sufficient for you, for my power is made perfect in weakness.\""
+          "text": "But he said to me, \"My grace is sufficient for you, for my power is made perfect in weakness.\"",
+          "context": "God answers Paul’s thorn not with removal but with sufficient grace and power perfected in weakness.",
+          "application": "Stop despising weakness. Boast in the place where Christ’s power rests on you.",
+          "prayer": "Lord, Your grace is sufficient. Perfect Your power in my weakness today."
         },
         {
           "ref": "Isaiah 41:10",
-          "text": "Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand."
+          "text": "Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand.",
+          "context": "God comforts fearful Israel with presence, identity, strength, help, and upholding righteousness.",
+          "application": "Speak this verse against fear: God is with you, is your God, and will uphold you.",
+          "prayer": "Fear not — You are with me. Strengthen me, help me, uphold me with Your righteous right hand."
         },
         {
           "ref": "Philippians 4:13",
-          "text": "I can do all things through him who strengthens me."
+          "text": "I can do all things through him who strengthens me.",
+          "context": "In context of contentment in plenty or want, Paul can do all through Christ who strengthens him — not blank self-empowerment.",
+          "application": "Apply this to faithful endurance and contentment, not ego projects. Rely on Christ’s strength for today’s callings.",
+          "prayer": "Christ who strengthens me, enable me for what You have assigned — content and faithful in all things."
         },
         {
           "ref": "Psalm 34:18",
-          "text": "The Lord is near to the brokenhearted and saves the crushed in spirit."
+          "text": "The Lord is near to the brokenhearted and saves the crushed in spirit.",
+          "context": "David celebrates the Lord who draws near to the brokenhearted and saves the crushed.",
+          "application": "If your spirit is crushed, do not hide. The Lord is near — bring the wound to Him.",
+          "prayer": "Lord, You are near to the brokenhearted. Come close; save my crushed spirit."
         }
       ]
     },
@@ -266,23 +410,210 @@
       "verses": [
         {
           "ref": "2 Corinthians 5:17",
-          "text": "Therefore, if anyone is in Christ, he is a new creation. The old has passed away; behold, the new has come."
+          "text": "Therefore, if anyone is in Christ, he is a new creation. The old has passed away; behold, the new has come.",
+          "context": "Union with Christ means new creation: old has passed, the new has come — identity remade.",
+          "application": "Refuse to define yourself by the old self. Live as someone made new in Christ.",
+          "prayer": "In Christ I am a new creation. Let the old pass away in practice; make the new visible in me."
         },
         {
           "ref": "Galatians 2:20",
-          "text": "I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me."
+          "text": "I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me.",
+          "context": "Paul’s personal gospel: crucified with Christ, living by faith in the Son who loved and gave Himself.",
+          "application": "Die again to self-rule. Live today’s hours by faith in the One who loved you first.",
+          "prayer": "I have been crucified with Christ. Live in me, Lord Jesus — I live by faith in You who loved me."
         },
         {
           "ref": "Ephesians 2:10",
-          "text": "For we are his workmanship, created in Christ Jesus for good works, which God prepared beforehand, that we should walk in them."
+          "text": "For we are his workmanship, created in Christ Jesus for good works, which God prepared beforehand, that we should walk in them.",
+          "context": "After grace alone, Paul shows purpose: we are God’s workmanship, created for prepared good works.",
+          "application": "Look for the good works God already prepared — ordinary faithfulness, not fame.",
+          "prayer": "Lord, I am Your workmanship. Lead me into the good works You prepared beforehand."
         },
         {
           "ref": "1 John 3:1",
-          "text": "See what kind of love the Father has given to us, that we should be called children of God; and so we are."
+          "text": "See what kind of love the Father has given to us, that we should be called children of God; and so we are.",
+          "context": "John marvels: the Father’s love makes us children of God — present identity, not mere future hope.",
+          "application": "Receive the name “child of God.” Let it quiet both shame and status-seeking.",
+          "prayer": "Father, what love You have given — that I should be called Your child. Help me live as one."
         },
         {
           "ref": "Romans 8:1",
-          "text": "There is therefore now no condemnation for those who are in Christ Jesus."
+          "text": "There is therefore now no condemnation for those who are in Christ Jesus.",
+          "context": "After the struggle of chapter 7, Paul announces freedom: no condemnation for those in Christ Jesus.",
+          "application": "When accusation floods in, answer with this verdict: in Christ, no condemnation.",
+          "prayer": "There is no condemnation for me in Christ Jesus. Silence every charge with Your finished work."
+        }
+      ]
+    },
+    {
+      "id": "sovereignty-providence",
+      "title": "Sovereignty & Providence",
+      "emoji": "👑",
+      "blurb": "God rules all things wisely — rest in His wise decree.",
+      "verses": [
+        {
+          "ref": "Psalm 115:3",
+          "text": "Our God is in the heavens; he does all that he pleases.",
+          "context": "Israel’s God is not an idol of human hands; He reigns freely in the heavens and acts according to His pleasure.",
+          "application": "Surrender the illusion of control. Trust the God who does all He pleases with perfect wisdom.",
+          "prayer": "God in the heavens, You do all that You please. I yield my plans to Your wise rule."
+        },
+        {
+          "ref": "Proverbs 16:9",
+          "text": "The heart of man plans his way, but the Lord establishes his steps.",
+          "context": "Wisdom holds both human planning and divine establishing together — neither fatalism nor autonomy.",
+          "application": "Plan diligently, then hold plans loosely. Ask God to establish the steps that matter.",
+          "prayer": "Lord, I plan my way; establish my steps. Direct me where You will."
+        },
+        {
+          "ref": "Romans 11:36",
+          "text": "For from him and through him and to him are all things. To him be glory forever. Amen.",
+          "context": "Paul ends his deep theology of election and mercy with doxology: all things flow from, through, and to God.",
+          "application": "Turn theology into praise. Redirect glory away from yourself toward Him.",
+          "prayer": "From You, through You, and to You are all things. Glory forever, Amen."
+        },
+        {
+          "ref": "Ephesians 1:11",
+          "text": "In him we have obtained an inheritance, having been predestined according to the purpose of him who works all things according to the counsel of his will.",
+          "context": "Believers’ inheritance rests on God’s predestining purpose; He works all things by the counsel of His will.",
+          "application": "Your security is God’s counsel, not chance. Rest and worship.",
+          "prayer": "Father, You work all things according to the counsel of Your will. Secure my hope in Your purpose."
+        },
+        {
+          "ref": "Isaiah 46:9–10",
+          "text": "I am God, and there is none like me, declaring the end from the beginning and from ancient times things not yet done, saying, ‘My counsel shall stand, and I will accomplish all my purpose.’",
+          "context": "God contrasts Himself with idols: He declares the end from the beginning; His counsel stands.",
+          "application": "When the future feels chaotic, remember: God’s purpose is not improvisation.",
+          "prayer": "There is none like You. Your counsel shall stand; accomplish all Your purpose in my life."
+        }
+      ]
+    },
+    {
+      "id": "justification-grace",
+      "title": "Justification by Grace",
+      "emoji": "⚖️",
+      "blurb": "Declared righteous in Christ — grace alone, faith alone.",
+      "verses": [
+        {
+          "ref": "Romans 3:24",
+          "text": "And are justified by his grace as a gift, through the redemption that is in Christ Jesus.",
+          "context": "After universal guilt, Paul announces justification as free gift through Christ’s redeeming work.",
+          "application": "Receive righteousness as gift. Stop self-justifying; start thanking.",
+          "prayer": "Justify me by Your grace as a gift, through the redemption in Christ Jesus."
+        },
+        {
+          "ref": "Romans 5:1",
+          "text": "Therefore, since we have been justified by faith, we have peace with God through our Lord Jesus Christ.",
+          "context": "Justification by faith yields peace with God — objective reconciliation, not mere calm feelings.",
+          "application": "When guilt returns, stand on peace already secured through Christ.",
+          "prayer": "Justified by faith, I have peace with You through Jesus. Let that peace rule my conscience."
+        },
+        {
+          "ref": "Galatians 2:16",
+          "text": "Yet we know that a person is not justified by works of the law but through faith in Jesus Christ.",
+          "context": "Paul confronts legalism: no flesh is justified by law-works, only through faith in Christ.",
+          "application": "Check for subtle law-righteousness. Return to faith in Jesus alone.",
+          "prayer": "I am not justified by works of the law but through faith in Jesus Christ. Keep me there."
+        },
+        {
+          "ref": "Philippians 3:9",
+          "text": "And be found in him, not having a righteousness of my own that comes from the law, but that which comes through faith in Christ, the righteousness from God that depends on faith.",
+          "context": "Paul discards his religious résumé to be found in Christ with God-given righteousness by faith.",
+          "application": "Count your spiritual résumé as loss compared to being found in Him.",
+          "prayer": "Find me in Christ — not with a righteousness of my own, but Yours that depends on faith."
+        },
+        {
+          "ref": "Romans 8:33–34",
+          "text": "Who shall bring any charge against God’s elect? It is God who justifies. Who is to condemn? Christ Jesus is the one who died—more than that, who was raised—who is at the right hand of God, who indeed is interceding for us.",
+          "context": "Paul’s courtroom triumph: God justifies; Christ died, rose, and intercedes — no charge can stick.",
+          "application": "Answer every accusation with the gospel courtroom: God justifies; Christ intercedes.",
+          "prayer": "God who justifies, silence every charge. Christ who intercedes, keep me in Your advocacy."
+        }
+      ]
+    },
+    {
+      "id": "union-christ",
+      "title": "Union with Christ",
+      "emoji": "🔗",
+      "blurb": "In Him — dead to sin, alive to God, seated with Christ.",
+      "verses": [
+        {
+          "ref": "Colossians 3:3",
+          "text": "For you have died, and your life is hidden with Christ in God.",
+          "context": "Believers’ true life is hidden with Christ — secure, unseen by the world, safe in God.",
+          "application": "Live from a hidden life, not from public image. Your real life is with Christ.",
+          "prayer": "I have died; my life is hidden with Christ in God. Keep me secure and free from pretence."
+        },
+        {
+          "ref": "Romans 6:11",
+          "text": "So you also must consider yourselves dead to sin and alive to God in Christ Jesus.",
+          "context": "Union with Christ’s death and resurrection grounds a new self-reckoning: dead to sin, alive to God.",
+          "application": "When temptation comes, reckon yourself dead to it and alive to God — then act accordingly.",
+          "prayer": "Help me consider myself dead to sin and alive to You in Christ Jesus."
+        },
+        {
+          "ref": "Ephesians 2:6",
+          "text": "And raised us up with him and seated us with him in the heavenly places in Christ Jesus.",
+          "context": "Already raised and seated with Christ — present spiritual position of the believer.",
+          "application": "Fight sin and despair from the high ground: you are seated with Christ.",
+          "prayer": "You raised me and seated me with Christ. Let heavenly position shape earthly choices."
+        },
+        {
+          "ref": "John 15:5",
+          "text": "I am the vine; you are the branches. Whoever abides in me and I in him, he it is that bears much fruit, for apart from me you can do nothing.",
+          "context": "Jesus pictures discipleship as abiding: fruitfulness flows from union, not independent effort.",
+          "application": "Abide first; fruit follows. Schedule nearness to Christ before performance for Christ.",
+          "prayer": "Vine of life, I abide in You. Apart from You I can do nothing — bear fruit through me."
+        },
+        {
+          "ref": "1 Corinthians 1:30",
+          "text": "And because of him you are in Christ Jesus, who became to us wisdom from God, righteousness and sanctification and redemption.",
+          "context": "God places us in Christ, who is our full supply: wisdom, righteousness, holiness, and redemption.",
+          "application": "Stop hunting elsewhere for what Christ already is for you.",
+          "prayer": "Because of You I am in Christ — my wisdom, righteousness, sanctification, and redemption."
+        }
+      ]
+    },
+    {
+      "id": "repentance-holiness",
+      "title": "Repentance & Holiness",
+      "emoji": "🔥",
+      "blurb": "Turn from sin; pursue the holiness without which no one sees the Lord.",
+      "verses": [
+        {
+          "ref": "Acts 3:19",
+          "text": "Repent therefore, and turn back, that your sins may be blotted out.",
+          "context": "Peter calls Israel to repent and turn so sins may be wiped away in the gospel era.",
+          "application": "Repentance is turning, not merely regretting. Name the sin and change direction.",
+          "prayer": "I repent and turn back. Blot out my sins and restore the joy of Your salvation."
+        },
+        {
+          "ref": "Hebrews 12:14",
+          "text": "Strive for peace with everyone, and for the holiness without which no one will see the Lord.",
+          "context": "The race of faith includes striving for peace and holiness — essential, not optional.",
+          "application": "Pursue peace and purity today in one concrete relationship or habit.",
+          "prayer": "Help me strive for peace and for the holiness without which I will not see You."
+        },
+        {
+          "ref": "1 Peter 1:15–16",
+          "text": "But as he who called you is holy, you also be holy in all your conduct, since it is written, “You shall be holy, for I am holy.”",
+          "context": "Peter roots holiness in God’s character and calling — conduct must match the Holy One.",
+          "application": "Holiness is all-of-life, not weekend religion. Audit one area of conduct.",
+          "prayer": "Holy God who called me, make me holy in all my conduct, for You are holy."
+        },
+        {
+          "ref": "Psalm 51:10",
+          "text": "Create in me a clean heart, O God, and renew a right spirit within me.",
+          "context": "David after grievous sin asks for creation of a clean heart — only God can remake the inner person.",
+          "application": "Ask for a clean heart, not cosmetic change. God creates; you receive.",
+          "prayer": "Create in me a clean heart, O God, and renew a right spirit within me."
+        },
+        {
+          "ref": "Romans 12:1–2",
+          "text": "I appeal to you therefore, brothers, by the mercies of God, to present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship. Do not be conformed to this world, but be transformed by the renewal of your mind.",
+          "context": "After eleven chapters of mercy, Paul calls for living sacrifice and mind-renewal against world-conformity.",
+          "application": "Present your body today as worship. Renew your mind with truth where the world squeezes hardest.",
+          "prayer": "By Your mercies I present myself a living sacrifice. Transform me by renewing my mind."
         }
       ]
     }

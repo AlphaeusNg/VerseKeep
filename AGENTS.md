@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Christian **Scripture memory** by theme: study and drill modes, worship music (Spotify/YouTube), calm wallpapers, live Bible text (bible-api), device-local progress.
+Christian **Scripture meditation** first (verse · context · application · prayer), with optional **memory drill** by topic. Worship music, calm wallpapers, live verse text, device-local progress.
 
 ## Structure
 
@@ -16,19 +16,27 @@ Christian **Scripture memory** by theme: study and drill modes, worship music (S
 index.html
 css/style.css
 js/
-  app.js            # Themes, modes, practice stage, stats, phone header hide
-  ambient.js        # Music: autoplay, left player, bottom-left dock
+  meditate.js       # Primary UX: daily/topic meditation card
+  app.js            # Topics, memory modes, practice stage, stats, phone header hide
+  ambient.js        # Music: autoplay, left-edge dock
   wallpapers.js     # Daily remote + bundled classics + hearts
   bible-live.js
   bible-config.js
 data/
-  verses.json       # Themes + verse payloads (edit content here)
+  verses.json       # Themes + verses with context/application/prayer
   playlists.json    # Spotify / YouTube stations
   wallpapers.json
   remote-wallpapers.json
 assets/wallpapers/
 manifest.webmanifest
 ```
+
+## Meditation
+
+- On load: today’s verse (date-seeded) with context, application, prayer.
+- Topic chips + topic cards filter meditation; **Drill** on a card opens memory practice.
+- Live text toggle/translations refresh the meditation card when available.
+- Do **not** surface third-party content-source branding in the UI.
 
 ## Practice modes
 

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VerseKeep — Scripture memory by theme</title>
-  <meta name="description" content="Christian verse memory games by theme: trust, God's character, sin, gospel, marriage, apologetics. Store the Word in your heart." />
+  <title>VerseKeep — Meditate on Scripture</title>
+  <meta name="description" content="Open and meditate: verse, context, application, and prayer — by topic. Scripture memory practice when you want to go deeper." />
   <meta name="theme-color" content="#0A0F1C" />
   <meta name="author" content="Alphaeus Ng" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="canonical" href="https://alphaeusng.github.io/VerseKeep/" />
   <meta property="og:title" content="VerseKeep" />
-  <meta property="og:description" content="Memorize Scripture by theme — free browser games." />
+  <meta property="og:description" content="Meditate on Scripture with low friction — verse, context, application, prayer." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://alphaeusng.github.io/VerseKeep/" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230A0F1C'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='28'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <a class="skip" href="#themes">Skip to themes</a>
+  <a class="skip" href="#meditate">Skip to meditation</a>
 
   <!-- Left music dock — uses empty side space; tab opens/closes the panel -->
   <aside class="music-dock" id="worship" aria-label="Worship music">
@@ -74,49 +74,49 @@
       <span class="brand-mark" aria-hidden="true">VK</span>
       <span>
         <strong>VerseKeep</strong>
-        <small>store the Word</small>
+        <small>meditate · remember</small>
       </span>
     </a>
     <nav class="top-nav" aria-label="Primary">
-      <a href="#themes">Themes</a>
+      <a href="#meditate">Meditate</a>
+      <a href="#topics">Topics</a>
+      <a href="#themes">Memorize</a>
       <a href="#worship" id="nav-music" title="Open or close music dock">Music</a>
       <a href="#wallpapers">Wallpapers</a>
-      <a href="https://alphaeusng.github.io/pages/seeking-biblical-truth/" target="_blank" rel="noopener">Biblical Truth ↗</a>
-      <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener">AlpArcade ↗</a>
-      <a href="https://alphaeusng.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
+      <a class="nav-extra" href="https://alphaeusng.github.io/pages/seeking-biblical-truth/" target="_blank" rel="noopener">Biblical Truth ↗</a>
+      <a class="nav-extra" href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener">AlpArcade ↗</a>
+      <a class="nav-extra" href="https://alphaeusng.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
     </nav>
   </header>
 
   <main>
-    <section class="hero">
-      <p class="eyebrow">Christian · Scripture memory</p>
-      <h1>Keep the Word where it belongs.</h1>
-      <p>
-        Memorise by theme. Open the left <strong>Music</strong> tab for Alphaeus’s playlists, CityAlight, hymns, and a cappella.
-        Live verse text and calm wallpapers while you train.
+    <section class="hero hero-compact">
+      <p class="eyebrow">Open · sit with the Word</p>
+      <h1>Meditate without friction.</h1>
+      <p class="hero-lead">
+        A verse, its context, a clear application, and a prayer — ready when you arrive.
+        Pick a topic below, or keep going with next.
       </p>
       <p id="resume-hint" class="resume-hint" hidden></p>
-      <div class="stats-bar mono" id="stats-bar" aria-label="Your progress"></div>
-      <div id="wp-hero-loved" class="wp-hero-loved" hidden></div>
     </section>
 
     <p id="load-error" class="panel" hidden style="border-color: rgba(224,122,122,.45); color: #f0b4b4"></p>
     <p id="ambient-error" class="panel" hidden style="border-color: rgba(224,122,122,.45); color: #f0b4b4"></p>
 
-    <section class="panel" id="themes">
-      <div class="panel-head-row">
+    <section class="panel meditate-panel" id="meditate" aria-label="Today’s meditation">
+      <div class="panel-head-row med-head">
         <div>
-          <h2>Themes</h2>
-          <p class="hint">Choose what you want hidden in your heart today. Progress is saved on this device.</p>
+          <h2>Meditate</h2>
+          <p class="hint">Start here. Next verse is one tap away.</p>
         </div>
-        <div class="theme-tools">
+        <div class="theme-tools med-tools">
           <label class="live-bible-toggle">
             <input type="checkbox" id="live-bible" checked />
-            <span>Live verse text <small id="live-bible-label">(bible-api WEB)</small></span>
+            <span>Live text <small id="live-bible-label">(WEB)</small></span>
           </label>
           <label class="tr-select-label">
             <span class="sr-only">Translation</span>
-            <select id="tr-select" class="tr-select" title="bible-api translation">
+            <select id="tr-select" class="tr-select" title="Translation">
               <option value="web">WEB</option>
               <option value="kjv">KJV</option>
               <option value="asv">ASV</option>
@@ -125,12 +125,53 @@
           </label>
         </div>
       </div>
+
+      <div class="med-topics" id="med-topics" role="listbox" aria-label="Topics"></div>
+
+      <div id="meditate-card" class="meditate-card" aria-live="polite">
+        <p class="hint">Loading…</p>
+      </div>
+      <p id="med-feedback" class="med-feedback" hidden></p>
+
+      <div class="actions med-actions">
+        <button type="button" class="btn ghost" id="med-prev" title="Previous">← Prev</button>
+        <button type="button" class="btn primary" id="med-next" title="Next verse">Next</button>
+        <button type="button" class="btn" id="med-today" title="Today’s pick">Today</button>
+        <button type="button" class="btn ghost" id="med-shuffle" title="Another verse">Shuffle</button>
+        <button type="button" class="btn ghost" id="med-copy" title="Copy">Copy</button>
+        <button type="button" class="btn ghost" id="med-listen" title="Read aloud">Listen</button>
+      </div>
+    </section>
+
+    <section class="panel topics-panel" id="topics">
+      <div class="panel-head-row">
+        <div>
+          <h2>Topics</h2>
+          <p class="hint">Browse by theme — same topics power meditation and memory practice.</p>
+        </div>
+      </div>
       <div class="theme-filter-row">
-        <input type="search" id="theme-search" class="theme-search" placeholder="Filter themes…" autocomplete="off" />
+        <input type="search" id="theme-search" class="theme-search" placeholder="Filter topics…" autocomplete="off" />
         <button type="button" class="btn primary" id="btn-practice-weak" title="Drill verses you have not gotten right yet">Practice weak</button>
         <button type="button" class="btn ghost" id="btn-reset-stats" title="Clear mastery and stats on this device">Reset progress</button>
       </div>
+      <div class="stats-bar mono" id="stats-bar" aria-label="Your progress"></div>
       <div class="theme-grid" id="theme-grid"></div>
+    </section>
+
+    <section class="panel" id="themes">
+      <div class="panel-head-row">
+        <div>
+          <h2>Memorize</h2>
+          <p class="hint">
+            When you want to hide the Word deeper: study, blanks, type, order, and quiz.
+            On a topic card, tap <strong>Drill</strong> to practice that set.
+          </p>
+        </div>
+      </div>
+      <p class="hint" style="margin-bottom:0">
+        Topic cards open meditation · Drill opens memory practice · progress stays on this device.
+      </p>
     </section>
 
     <section class="panel" id="play-panel" hidden>
@@ -176,12 +217,9 @@
     <section class="panel ambient-panel" id="wallpapers">
       <div class="panel-head-row">
         <div>
-          <h2>Wallpaper · daily light</h2>
+          <h2>Wallpapers</h2>
           <p class="hint">
-            Daily Unsplash picks, your Windows classics, and faith scenes in three styles —
-            <strong>lo-fi</strong>, <strong>minimal</strong>, and <strong>masculine</strong> — grouped by theme.
-            <strong>Open HD</strong> opens a new tab; the ↓ beside ♥ downloads when the browser allows.
-            Heart favourites — the most-loved wallpaper is featured for everyone who visits.
+            Calm backgrounds while you meditate — scroll the gallery; click to apply.
           </p>
         </div>
         <div class="wp-tools">
@@ -196,7 +234,7 @@
             type="search"
             id="wp-search"
             class="wp-search-input"
-            placeholder="Search tags, titles, themes…  e.g. baptism, Jesus, cosmos, minimal"
+            placeholder="Search tags, titles, themes…"
             autocomplete="off"
             spellcheck="false"
           />
@@ -205,10 +243,13 @@
         <p class="wp-search-meta mono" id="wp-search-meta" aria-live="polite"></p>
         <div class="wp-search-chips" id="wp-search-chips" aria-label="Quick filters"></div>
       </div>
-      <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
-      <div class="wallpaper-grid" id="wallpaper-grid"></div>
+      <div id="wp-hero-loved" class="wp-hero-loved" hidden></div>
+      <div class="wallpaper-scroll" id="wallpaper-scroll">
+        <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
+        <div class="wallpaper-grid" id="wallpaper-grid"></div>
+      </div>
       <p class="hint wp-credit">
-        Daily photos via Unsplash CDN · bundled classics always available offline · hearts sync when the counter service is reachable.
+        Daily picks and bundled classics · hearts when the counter is reachable.
       </p>
     </section>
 
@@ -235,6 +276,7 @@
   <script src="js/bible-live.js" defer></script>
   <script src="js/ambient.js" defer></script>
   <script src="js/wallpapers.js" defer></script>
+  <script src="js/meditate.js" defer></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

@@ -174,12 +174,32 @@
           </span>
           <span class="theme-bar" aria-hidden="true"><span style="width:${m}%"></span></span>
         </button>
+        <button type="button" class="theme-drill-btn" data-drill="${escapeHtml(t.id)}" title="Open memory practice for this topic">Drill</button>
         <button type="button" class="fav-btn${fav ? " is-on" : ""}" data-fav="${escapeHtml(t.id)}" title="${fav ? "Unfavorite" : "Favorite"}" aria-label="${fav ? "Unfavorite" : "Favorite"} ${escapeHtml(t.title)}">${fav ? "★" : "☆"}</button>
       </div>`;
       })
       .join("");
+    // Primary: open meditation on this topic (low friction)
     host.querySelectorAll("[data-theme]").forEach((btn) => {
-      btn.addEventListener("click", () => selectTheme(btn.dataset.theme));
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.theme;
+        state.themeId = id;
+        paintThemes();
+        if (window.VerseKeepMeditate?.setTopic) {
+          try {
+            await window.VerseKeepMeditate.setTopic(id);
+          } catch {
+            /* ignore */
+          }
+        }
+        $("#meditate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    host.querySelectorAll("[data-drill]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectTheme(btn.dataset.drill);
+      });
     });
     host.querySelectorAll("[data-fav]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -284,6 +304,14 @@
       return;
     }
     paintThemes();
+    // Align meditation topic with memory theme when user picks a card
+    if (window.VerseKeepMeditate?.setTopic) {
+      try {
+        await window.VerseKeepMeditate.setTopic(id);
+      } catch {
+        /* ignore */
+      }
+    }
 
     stats.themePlays[id] = (stats.themePlays[id] || 0) + 1;
     stats.lastTheme = id;
@@ -840,6 +868,10 @@
       paintThemes();
       paintStatsBar();
       $("#load-error").hidden = true;
+      // Meditation is primary: start as soon as data is ready
+      if (window.VerseKeepMeditate?.bootWithData) {
+        await window.VerseKeepMeditate.bootWithData(state.data);
+      }
     } catch (err) {
       console.error(err);
       $("#load-error").hidden = false;
@@ -886,7 +918,14 @@
         window.VERSEKEEP_BIBLE.bibleApiTranslation = trSelect.value;
         savePrefs({ translation: trSelect.value });
         const lbl = $("#live-bible-label");
-        if (lbl && state.liveBible) lbl.textContent = `(bible-api ${trSelect.value.toUpperCase()})`;
+        if (lbl && state.liveBible) lbl.textContent = `(${trSelect.value.toUpperCase()})`;
+        if (window.VerseKeepMeditate?.refresh) {
+          try {
+            await window.VerseKeepMeditate.refresh();
+          } catch {
+            /* ignore */
+          }
+        }
         if (state.themeId && state.liveBible && state.queue.length) {
           $("#stage").innerHTML = `<p class="hint">Fetching ${trSelect.value.toUpperCase()}…</p>`;
           state.queue = await hydrateQueueFromLive(
@@ -924,8 +963,15 @@
         const lbl = $("#live-bible-label");
         if (lbl) {
           lbl.textContent = liveToggle.checked
-            ? "(bible-api WEB · live)"
-            : "(bundled JSON only)";
+            ? `(${($("#tr-select")?.value || "web").toUpperCase()})`
+            : "(bundled)";
+        }
+        if (window.VerseKeepMeditate?.refresh) {
+          try {
+            await window.VerseKeepMeditate.refresh();
+          } catch {
+            /* ignore */
+          }
         }
         // Re-hydrate current theme queue when toggled mid-session
         if (state.themeId && state.queue.length) {
@@ -1021,7 +1067,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.19.2";
+    if (ver) ver.textContent = "v2026.07.19.3";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {

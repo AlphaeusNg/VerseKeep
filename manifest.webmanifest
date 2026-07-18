@@ -1,7 +1,7 @@
 {
   "name": "VerseKeep",
   "short_name": "VerseKeep",
-  "description": "Christian Scripture memory games by theme",
+  "description": "Meditate on Scripture by topic — verse, context, application, prayer",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0c1210",
