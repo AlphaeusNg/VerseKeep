@@ -34,8 +34,11 @@ manifest.webmanifest
 ## Meditation
 
 - On load: today’s verse (date-seeded) with context, application, prayer.
-- Topic chips + topic cards filter meditation; **Drill** on a card opens memory practice.
-- Live text toggle/translations refresh the meditation card when available.
+- Topic chips + topic cards filter meditation; **Drill** opens memory practice.
+- **Amen** tracks a local daily streak; **Focus** dims the rest of the page.
+- Keys (when not in practice): `←`/`→` · `S` shuffle · `C` copy · `L` listen · `F` focus · `A` Amen.
+- Swipe the card (touch): left = next, right = prev.
+- Live text: ESV / NIV / NKJV with session cache + prefetch; bundled JSON fallback.
 - Do **not** surface third-party content-source branding in the UI.
 
 ## Practice modes

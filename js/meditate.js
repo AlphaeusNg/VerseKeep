@@ -442,10 +442,43 @@
       if (typeof window.VerseKeepPractice?.selectTheme === "function") {
         window.VerseKeepPractice.selectTheme(id);
       } else {
-        // Fallback: scroll to topics; app wires drill buttons
         document.querySelector(`[data-drill="${CSS.escape(id)}"]`)?.click();
       }
     });
+
+    // Swipe on card: left = next, right = prev (touch)
+    const card = $("#meditate-card");
+    if (card) {
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+      card.addEventListener(
+        "touchstart",
+        (e) => {
+          const t = e.changedTouches?.[0];
+          if (!t) return;
+          startX = t.clientX;
+          startY = t.clientY;
+          tracking = true;
+        },
+        { passive: true }
+      );
+      card.addEventListener(
+        "touchend",
+        (e) => {
+          if (!tracking) return;
+          tracking = false;
+          const t = e.changedTouches?.[0];
+          if (!t) return;
+          const dx = t.clientX - startX;
+          const dy = t.clientY - startY;
+          if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+          if (dx < 0) next(1);
+          else next(-1);
+        },
+        { passive: true }
+      );
+    }
 
     document.addEventListener("keydown", (e) => {
       const tag = e.target?.tagName;

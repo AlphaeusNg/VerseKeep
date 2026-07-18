@@ -1993,6 +1993,8 @@ kbd {
   background: rgba(6, 10, 9, 0.5);
   padding: 1.1rem 1.15rem 1.2rem;
   margin-bottom: 0.85rem;
+  touch-action: pan-y;
+  user-select: text;
 }
 
 .med-card-top {
