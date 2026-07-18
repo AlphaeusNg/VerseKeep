@@ -194,6 +194,39 @@
     };
   }
 
+  const memCache = new Map(); // key -> { text, reference, translation, source, ts }
+  const inflight = new Map(); // key -> Promise
+  const CACHE_TTL_MS = 1000 * 60 * 60 * 12; // 12h
+  const CACHE_PREFIX = "vk-bible-v1:";
+
+  function cacheKey(slug, ref) {
+    return `${slug}|${cleanRef(ref).toLowerCase()}`;
+  }
+
+  function readSessionCache(key) {
+    try {
+      const raw = sessionStorage.getItem(CACHE_PREFIX + key);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data?.text || !data.ts) return null;
+      if (Date.now() - data.ts > CACHE_TTL_MS) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeSessionCache(key, payload) {
+    try {
+      sessionStorage.setItem(
+        CACHE_PREFIX + key,
+        JSON.stringify({ ...payload, ts: Date.now() })
+      );
+    } catch {
+      /* quota / private mode */
+    }
+  }
+
   async function fetchLive(ref, translationSlug) {
     const slug = normalizeTranslation(translationSlug);
     const meta = TRANSLATIONS[slug];
@@ -226,6 +259,7 @@
 
   /**
    * Prefer selected translation; fall back to local text on failure.
+   * Session + memory cache; in-flight requests are de-duped.
    * @returns {Promise<{text, reference, translation, source, fromCache?: boolean}>}
    */
   async function resolveVerse(ref, localText) {
@@ -241,11 +275,42 @@
     }
 
     const slug = normalizeTranslation(cfg().bibleApiTranslation || preferred);
+    const key = cacheKey(slug, ref);
 
+    const mem = memCache.get(key);
+    if (mem && Date.now() - mem.ts < CACHE_TTL_MS) {
+      return { ...mem, fromCache: true };
+    }
+
+    const sess = readSessionCache(key);
+    if (sess) {
+      memCache.set(key, sess);
+      return { ...sess, fromCache: true };
+    }
+
+    if (inflight.has(key)) {
+      try {
+        return await inflight.get(key);
+      } catch {
+        /* fall through to local */
+      }
+    }
+
+    const job = (async () => {
+      const live = await fetchLive(ref, slug);
+      const stored = { ...live, ts: Date.now() };
+      memCache.set(key, stored);
+      writeSessionCache(key, stored);
+      return live;
+    })();
+
+    inflight.set(key, job);
     try {
-      return await fetchLive(ref, slug);
+      return await job;
     } catch (err) {
       console.warn("[bible-live]", slug, err.message);
+    } finally {
+      inflight.delete(key);
     }
 
     return {
@@ -257,8 +322,20 @@
     };
   }
 
+  /** Warm cache for a ref without throwing (used to prefetch next/prev). */
+  function prefetch(ref, translationSlug) {
+    if (!ref) return;
+    const slug = normalizeTranslation(
+      translationSlug || cfg().bibleApiTranslation || "esv"
+    );
+    const key = cacheKey(slug, ref);
+    if (memCache.has(key) || inflight.has(key) || readSessionCache(key)) return;
+    resolveVerse(ref, "").catch(() => {});
+  }
+
   global.VerseKeepBible = {
     resolveVerse,
+    prefetch,
     parseRef,
     normalizeTranslation,
     TRANSLATIONS,
