@@ -37,14 +37,12 @@ Curated **YouTube** and **Spotify** embeds in the Worship section — tap a stat
 
 ## Live Bible text
 
-| Source | Status on static GitHub Pages |
-|--------|--------------------------------|
-| **bible-api.com** (WEB/KJV/…) | Works in-browser, no key, CORS OK — default |
-| **Bundled** `data/verses.json` | Always available offline |
-| **ESV API** | Free key at [api.esv.org](https://api.esv.org/) — often **blocked by CORS** in pure browser apps; needs a tiny proxy/server to use reliably |
-| **YouVersion** | Official API needs an app key from [platform.youversion.com](https://platform.youversion.com/) — not suitable for a public static client key |
+| Option | Notes |
+|--------|--------|
+| **ESV** (default), **NIV**, **NKJV** | Live text via `js/bible-live.js` when “Live text” is on |
+| **Bundled** `data/verses.json` | Always available offline / if live fetch fails |
 
-Optional: set `esvApiKey` and `preferred: "esv"` in `js/bible-config.js` if you add a proxy.
+Optional: set `esvApiKey` in `js/bible-config.js` if you route official ESV API through a proxy.
 
 ## Wallpapers
 

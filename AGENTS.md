@@ -66,9 +66,9 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 
 ## Live Bible
 
-- Default: **bible-api.com** (WEB/KJV/ASV/BBE) — no key, CORS OK.
-- Bundled text always available from `data/verses.json`.
-- ESV/YouVersion need keys/proxy — not for pure static client secrets (see README / `bible-config.js`).
+- Default translation: **ESV** (also **NIV**, **NKJV** in the UI select).
+- Live fetch in `js/bible-live.js`; bundled `data/verses.json` is always the offline fallback.
+- Optional official ESV API key in `js/bible-config.js` (`esvApiKey`) if you add a proxy.
 
 ## Phone UX
 

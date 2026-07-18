@@ -911,14 +911,26 @@
 
     const trSelect = $("#tr-select");
     if (trSelect && window.VERSEKEEP_BIBLE) {
-      const savedTr = loadPrefs().translation || window.VERSEKEEP_BIBLE.bibleApiTranslation || "web";
+      const allowed = new Set(["esv", "niv", "nkjv"]);
+      let savedTr = (
+        loadPrefs().translation ||
+        window.VERSEKEEP_BIBLE.bibleApiTranslation ||
+        "esv"
+      ).toLowerCase();
+      if (!allowed.has(savedTr)) savedTr = "esv";
       trSelect.value = savedTr;
       window.VERSEKEEP_BIBLE.bibleApiTranslation = savedTr;
+      window.VERSEKEEP_BIBLE.preferred = savedTr;
+      const lbl0 = $("#live-bible-label");
+      if (lbl0 && state.liveBible) lbl0.textContent = `(${savedTr.toUpperCase()})`;
       trSelect.addEventListener("change", async () => {
-        window.VERSEKEEP_BIBLE.bibleApiTranslation = trSelect.value;
-        savePrefs({ translation: trSelect.value });
+        const tr = allowed.has(trSelect.value) ? trSelect.value : "esv";
+        trSelect.value = tr;
+        window.VERSEKEEP_BIBLE.bibleApiTranslation = tr;
+        window.VERSEKEEP_BIBLE.preferred = tr;
+        savePrefs({ translation: tr });
         const lbl = $("#live-bible-label");
-        if (lbl && state.liveBible) lbl.textContent = `(${trSelect.value.toUpperCase()})`;
+        if (lbl && state.liveBible) lbl.textContent = `(${tr.toUpperCase()})`;
         if (window.VerseKeepMeditate?.refresh) {
           try {
             await window.VerseKeepMeditate.refresh();
@@ -927,7 +939,7 @@
           }
         }
         if (state.themeId && state.liveBible && state.queue.length) {
-          $("#stage").innerHTML = `<p class="hint">Fetching ${trSelect.value.toUpperCase()}…</p>`;
+          $("#stage").innerHTML = `<p class="hint">Fetching ${tr.toUpperCase()}…</p>`;
           state.queue = await hydrateQueueFromLive(
             state.queue.map((v) => ({ ...v, text: v.localText || v.text }))
           );
@@ -952,18 +964,19 @@
 
     const liveToggle = $("#live-bible");
     if (liveToggle) {
-      const pref = window.VERSEKEEP_BIBLE?.preferred || "web";
+      const pref = window.VERSEKEEP_BIBLE?.preferred || "esv";
       liveToggle.checked = pref !== "local";
       state.liveBible = liveToggle.checked;
       liveToggle.addEventListener("change", async () => {
         state.liveBible = liveToggle.checked;
         if (window.VERSEKEEP_BIBLE) {
-          window.VERSEKEEP_BIBLE.preferred = liveToggle.checked ? "web" : "local";
+          const tr = $("#tr-select")?.value || "esv";
+          window.VERSEKEEP_BIBLE.preferred = liveToggle.checked ? tr : "local";
         }
         const lbl = $("#live-bible-label");
         if (lbl) {
           lbl.textContent = liveToggle.checked
-            ? `(${($("#tr-select")?.value || "web").toUpperCase()})`
+            ? `(${($("#tr-select")?.value || "esv").toUpperCase()})`
             : "(bundled)";
         }
         if (window.VerseKeepMeditate?.refresh) {
@@ -1067,7 +1080,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.19.3";
+    if (ver) ver.textContent = "v2026.07.19.4";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {
