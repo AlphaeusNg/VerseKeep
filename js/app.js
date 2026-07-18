@@ -1080,7 +1080,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.19.6";
+    if (ver) ver.textContent = "v2026.07.19.7";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {
@@ -1127,18 +1127,22 @@
       });
     })();
 
-    // Resume last theme if present
+    // Soft resume hint for last memory theme
     if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {
-      // Soft hint only — don't auto-start (can be surprising)
       const hint = $("#resume-hint");
       if (hint) {
         const t = state.data.themes.find((x) => x.id === stats.lastTheme);
         hint.hidden = false;
-        hint.innerHTML = `Last theme: <button type="button" class="linkish" id="btn-resume">${escapeHtml(t.emoji + " " + t.title)}</button>`;
+        hint.innerHTML = `Last drill: <button type="button" class="linkish" id="btn-resume">${escapeHtml(t.emoji + " " + t.title)}</button>`;
         $("#btn-resume")?.addEventListener("click", () => selectTheme(stats.lastTheme));
       }
     }
   }
+
+  window.VerseKeepPractice = {
+    selectTheme,
+    practiceWeak,
+  };
 
   boot();
 })();

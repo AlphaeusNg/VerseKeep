@@ -174,6 +174,22 @@
       : `Streak ${count} day${count === 1 ? "" : "s"} · mark Amen to continue`;
   }
 
+  function paintDrillBtn() {
+    const btn = $("#med-drill");
+    if (!btn) return;
+    const topic = state.topicId && state.topicId !== "all" ? state.topicId : current()?.themeId;
+    if (!topic) {
+      btn.hidden = true;
+      return;
+    }
+    btn.hidden = false;
+    btn.dataset.theme = topic;
+    const title =
+      state.data?.themes?.find((t) => t.id === topic)?.title || "topic";
+    btn.textContent = `Drill · ${title}`;
+    btn.title = `Open memory practice for ${title}`;
+  }
+
   function paintCard(v, meta) {
     const host = $("#meditate-card");
     if (!host) return;
@@ -260,6 +276,7 @@
     saveMed({ topicId: state.topicId, ref: current()?.ref, day: daySeed() });
     await hydrateCurrent();
     paintStreak();
+    paintDrillBtn();
   }
 
   async function setTopic(id) {
@@ -419,6 +436,16 @@
       // Today's pick always from full pool when on "all"; else within topic
       await showIndex(seededIndex(state.pool.length, seed));
     });
+    $("#med-drill")?.addEventListener("click", () => {
+      const id = $("#med-drill")?.dataset.theme;
+      if (!id) return;
+      if (typeof window.VerseKeepPractice?.selectTheme === "function") {
+        window.VerseKeepPractice.selectTheme(id);
+      } else {
+        // Fallback: scroll to topics; app wires drill buttons
+        document.querySelector(`[data-drill="${CSS.escape(id)}"]`)?.click();
+      }
+    });
 
     document.addEventListener("keydown", (e) => {
       const tag = e.target?.tagName;
@@ -481,6 +508,7 @@
     state.pool = buildPool(data, state.topicId);
     paintTopics();
     paintStreak();
+    paintDrillBtn();
 
     if (prefs.medFocus) setFocusMode(true);
 
