@@ -1931,15 +1931,37 @@ kbd {
 
 .med-topics {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
   margin: 0 0 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0.15rem 0.1rem 0.45rem;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.med-topics::-webkit-scrollbar {
+  height: 6px;
+}
+
+.med-topics::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.35);
+  border-radius: 999px;
+}
+
+@media (min-width: 900px) {
+  .med-topics {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 .med-topic-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  flex: 0 0 auto;
   border: 1px solid var(--line);
   background: rgba(8, 12, 10, 0.45);
   color: var(--muted);
@@ -1949,6 +1971,7 @@ kbd {
   font-size: 0.78rem;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
 }
 
 .med-topic-chip:hover,
@@ -2052,12 +2075,96 @@ kbd {
 
 .med-actions {
   flex-wrap: wrap;
+  position: sticky;
+  bottom: 0.5rem;
+  z-index: 8;
+  padding: 0.55rem 0.15rem 0.15rem;
+  margin-top: 0.25rem;
+  background: linear-gradient(180deg, transparent, rgba(10, 14, 12, 0.92) 28%);
 }
 
 .med-feedback {
   margin: 0 0 0.5rem;
   font-size: 0.82rem;
   color: var(--gold);
+}
+
+.med-streak {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.med-verse.is-loading {
+  opacity: 0.72;
+}
+
+/* Focus mode: dim chrome, center the meditation */
+body.med-focus .hero,
+body.med-focus .topics-panel,
+body.med-focus #themes,
+body.med-focus #play-panel,
+body.med-focus #wallpapers,
+body.med-focus main > .panel:not(.meditate-panel),
+body.med-focus .footer {
+  display: none !important;
+}
+
+body.med-focus .topbar {
+  opacity: 0.55;
+}
+
+body.med-focus .topbar:hover,
+body.med-focus .topbar:focus-within {
+  opacity: 1;
+}
+
+body.med-focus main {
+  max-width: 42rem;
+  padding-top: 0.75rem;
+}
+
+body.med-focus .meditate-panel {
+  margin-bottom: 0;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+body.med-focus .med-topics {
+  max-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#med-amen {
+  border-color: rgba(212, 175, 55, 0.45);
+  color: var(--cream);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+#med-amen:hover,
+#med-amen:focus-visible {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.2);
+}
+
+#med-focus[aria-pressed="true"] {
+  border-color: var(--gold);
+  color: var(--cream);
+  background: var(--gold-soft);
+}
+
+.med-head .hint kbd {
+  font-family: var(--mono);
+  font-size: 0.68em;
+  padding: 0.08rem 0.28rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--dim);
 }
 
 .topics-panel .stats-bar {

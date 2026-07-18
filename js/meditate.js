@@ -10,6 +10,7 @@
 
   const PREFS_KEY = "versekeep-prefs-v1";
   const MED_KEY = "versekeep-meditate-v1";
+  const STREAK_KEY = "versekeep-med-streak-v1";
 
   const state = {
     data: null,
@@ -17,6 +18,8 @@
     index: 0,
     topicId: "all",
     loading: false,
+    hydrateToken: 0,
+    focusMode: false,
   };
 
   function loadPrefs() {
@@ -51,6 +54,22 @@
     }
   }
 
+  function loadStreak() {
+    try {
+      return JSON.parse(localStorage.getItem(STREAK_KEY) || "{}") || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveStreak(data) {
+    try {
+      localStorage.setItem(STREAK_KEY, JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }
+
   function escapeHtml(s) {
     return String(s ?? "")
       .replace(/&/g, "&amp;")
@@ -62,6 +81,13 @@
   function daySeed() {
     const d = new Date();
     return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  }
+
+  function dayKey() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${m}-${day}`;
   }
 
   function seededIndex(len, seed) {
@@ -98,6 +124,12 @@
     return state.pool[state.index] || null;
   }
 
+  function neighbor(delta) {
+    if (!state.pool.length) return null;
+    const i = ((state.index + delta) % state.pool.length + state.pool.length) % state.pool.length;
+    return state.pool[i] || null;
+  }
+
   function paintTopics() {
     const host = $("#med-topics");
     if (!host || !state.data) return;
@@ -120,6 +152,26 @@
     host.querySelectorAll("[data-topic]").forEach((btn) => {
       btn.addEventListener("click", () => setTopic(btn.dataset.topic));
     });
+    // Keep active chip in view on horizontal scroll rows
+    const active = host.querySelector(".med-topic-chip.is-active");
+    active?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  }
+
+  function paintStreak() {
+    const el = $("#med-streak");
+    if (!el) return;
+    const s = loadStreak();
+    const count = s.count || 0;
+    const today = dayKey();
+    const didToday = s.lastDay === today;
+    if (!count) {
+      el.hidden = true;
+      return;
+    }
+    el.hidden = false;
+    el.textContent = didToday
+      ? `Streak ${count} day${count === 1 ? "" : "s"} · Amen today`
+      : `Streak ${count} day${count === 1 ? "" : "s"} · mark Amen to continue`;
   }
 
   function paintCard(v, meta) {
@@ -130,15 +182,16 @@
       return;
     }
     const tr = meta?.translation || "";
+    const loading = !!meta?.loading;
     const n = state.pool.length;
     const pos = state.index + 1;
     host.innerHTML = `
       <div class="med-card-top">
         <span class="med-topic-pill mono">${escapeHtml(v.themeEmoji || "")} ${escapeHtml(v.themeTitle || "")}</span>
-        <span class="med-pos mono" aria-live="polite">${pos} / ${n}${tr ? ` · ${escapeHtml(tr)}` : ""}</span>
+        <span class="med-pos mono" aria-live="polite">${pos} / ${n}${tr ? ` · ${escapeHtml(tr)}` : ""}${loading ? " · …" : ""}</span>
       </div>
       <p class="med-ref">${escapeHtml(v.ref)}</p>
-      <blockquote class="med-verse">${escapeHtml(v.text)}</blockquote>
+      <blockquote class="med-verse${loading ? " is-loading" : ""}">${escapeHtml(v.text)}</blockquote>
       <div class="med-block">
         <h3 class="med-label">Context</h3>
         <p>${escapeHtml(v.context || "Sit with this passage in its place in the whole counsel of God.")}</p>
@@ -154,31 +207,46 @@
     `;
   }
 
+  function prefetchNeighbors() {
+    if (!window.VerseKeepBible?.prefetch) return;
+    const a = neighbor(1);
+    const b = neighbor(-1);
+    if (a?.ref) window.VerseKeepBible.prefetch(a.ref);
+    if (b?.ref) window.VerseKeepBible.prefetch(b.ref);
+  }
+
   async function hydrateCurrent() {
     const v = current();
     if (!v) {
       paintCard(null);
       return;
     }
+    const token = ++state.hydrateToken;
     const liveOn = $("#live-bible")?.checked !== false;
     if (!liveOn) {
       v.text = v.localText || v.text;
       paintCard(v, {});
       return;
     }
-    paintCard(v, { translation: "…" });
+    // Show local text immediately, then upgrade if live arrives
+    paintCard(
+      { ...v, text: v.localText || v.text },
+      { translation: "…", loading: true }
+    );
     if (window.VerseKeepBible?.resolveVerse) {
       try {
         const live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text);
-        if (current()?.ref !== v.ref) return;
+        if (token !== state.hydrateToken || current()?.ref !== v.ref) return;
         v.text = live.text || v.localText || v.text;
         v.liveTranslation = live.translation;
         paintCard(v, { translation: live.translation || "" });
+        prefetchNeighbors();
         return;
       } catch {
         /* fall through */
       }
     }
+    if (token !== state.hydrateToken) return;
     v.text = v.localText || v.text;
     paintCard(v, {});
   }
@@ -191,21 +259,27 @@
     state.index = ((i % state.pool.length) + state.pool.length) % state.pool.length;
     saveMed({ topicId: state.topicId, ref: current()?.ref, day: daySeed() });
     await hydrateCurrent();
+    paintStreak();
   }
 
   async function setTopic(id) {
     if (state.loading) return;
-    state.topicId = id || "all";
-    state.pool = buildPool(state.data, state.topicId);
-    paintTopics();
-    const seed = daySeed() + (state.topicId === "all" ? 0 : state.topicId.length * 17);
-    const start = seededIndex(state.pool.length, seed);
-    await showIndex(start);
-    savePrefs({ lastMedTopic: state.topicId });
+    state.loading = true;
+    try {
+      state.topicId = id || "all";
+      state.pool = buildPool(state.data, state.topicId);
+      paintTopics();
+      const seed = daySeed() + (state.topicId === "all" ? 0 : state.topicId.length * 17);
+      const start = seededIndex(state.pool.length, seed);
+      await showIndex(start);
+      savePrefs({ lastMedTopic: state.topicId });
+    } finally {
+      state.loading = false;
+    }
   }
 
   async function next(delta = 1) {
-    if (!state.pool.length) return;
+    if (!state.pool.length || state.loading) return;
     await showIndex(state.index + delta);
   }
 
@@ -214,6 +288,17 @@
     let n = Math.floor(Math.random() * state.pool.length);
     if (n === state.index) n = (n + 1) % state.pool.length;
     await showIndex(n);
+  }
+
+  function flashFeedback(msg) {
+    const note = $("#med-feedback");
+    if (!note) return;
+    note.hidden = false;
+    note.textContent = msg;
+    clearTimeout(flashFeedback._t);
+    flashFeedback._t = setTimeout(() => {
+      note.hidden = true;
+    }, 2000);
   }
 
   async function copyMeditation() {
@@ -229,22 +314,39 @@
     ].join("\n");
     try {
       await navigator.clipboard.writeText(text);
-      const note = $("#med-feedback");
-      if (note) {
-        note.hidden = false;
-        note.textContent = "Copied meditation.";
-        setTimeout(() => {
-          note.hidden = true;
-        }, 1800);
-      }
+      flashFeedback("Copied meditation.");
     } catch {
       prompt("Copy meditation:", text);
     }
   }
 
+  async function shareMeditation() {
+    const v = current();
+    if (!v) return;
+    const text = `${v.ref}\n${v.text}\n\n— VerseKeep`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: v.ref, text });
+        flashFeedback("Shared.");
+        return;
+      }
+    } catch (err) {
+      if (err?.name === "AbortError") return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      flashFeedback("Copied verse to share.");
+    } catch {
+      prompt("Share:", text);
+    }
+  }
+
   function readAloud() {
     const v = current();
-    if (!v || !window.speechSynthesis) return;
+    if (!v || !window.speechSynthesis) {
+      flashFeedback("Speech not available.");
+      return;
+    }
     try {
       window.speechSynthesis.cancel();
     } catch {
@@ -256,6 +358,47 @@
     const u = new SpeechSynthesisUtterance(parts);
     u.rate = 0.92;
     window.speechSynthesis.speak(u);
+    flashFeedback("Reading aloud…");
+  }
+
+  function markAmen() {
+    const today = dayKey();
+    const s = loadStreak();
+    if (s.lastDay === today) {
+      flashFeedback("Amen already marked today.");
+      paintStreak();
+      return;
+    }
+    // Yesterday?
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    const yKey = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
+    let count = 1;
+    if (s.lastDay === yKey) count = (s.count || 0) + 1;
+    else if (s.lastDay && s.lastDay !== today) count = 1;
+    else if (!s.lastDay) count = 1;
+
+    const v = current();
+    const history = Array.isArray(s.history) ? s.history.slice(-29) : [];
+    if (v?.ref) history.push({ day: today, ref: v.ref });
+
+    saveStreak({ count, lastDay: today, history });
+    flashFeedback(count === 1 ? "Amen. Streak started." : `Amen. ${count}-day streak.`);
+    paintStreak();
+  }
+
+  function setFocusMode(on) {
+    state.focusMode = !!on;
+    document.body.classList.toggle("med-focus", state.focusMode);
+    const btn = $("#med-focus");
+    if (btn) {
+      btn.setAttribute("aria-pressed", state.focusMode ? "true" : "false");
+      btn.textContent = state.focusMode ? "Exit focus" : "Focus";
+    }
+    savePrefs({ medFocus: state.focusMode });
+    if (state.focusMode) {
+      $("#meditate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   function bindUi() {
@@ -265,28 +408,66 @@
     $("#med-copy")?.addEventListener("click", () => {
       copyMeditation().catch(() => {});
     });
+    $("#med-share")?.addEventListener("click", () => {
+      shareMeditation().catch(() => {});
+    });
     $("#med-listen")?.addEventListener("click", readAloud);
+    $("#med-amen")?.addEventListener("click", markAmen);
+    $("#med-focus")?.addEventListener("click", () => setFocusMode(!state.focusMode));
     $("#med-today")?.addEventListener("click", async () => {
       const seed = daySeed();
+      // Today's pick always from full pool when on "all"; else within topic
       await showIndex(seededIndex(state.pool.length, seed));
     });
-    $("#theme-search")?.addEventListener("input", () => {
-      /* themes section still filtered by app.js */
-    });
 
-    // Keyboard when focused in meditate region or page-level shortcuts not typing
     document.addEventListener("keydown", (e) => {
       const tag = e.target?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target?.isContentEditable) {
+        return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const playOpen = $("#play-panel") && !$("#play-panel").hidden;
+      if (playOpen) return;
+
       if (e.key === "ArrowRight" || e.key === "n" || e.key === "N") {
-        if (e.metaKey || e.ctrlKey || e.altKey) return;
-        const medVisible = $("#meditate");
-        if (!medVisible) return;
-        // Only steal N when play panel is closed / not primary
-        if (!$("#play-panel") || $("#play-panel").hidden) {
-          e.preventDefault();
-          next(1);
-        }
+        e.preventDefault();
+        next(1);
+        return;
+      }
+      if (e.key === "ArrowLeft" || e.key === "b" || e.key === "B" || e.key === "p" || e.key === "P") {
+        e.preventDefault();
+        next(-1);
+        return;
+      }
+      if (e.key === "s" || e.key === "S") {
+        e.preventDefault();
+        shuffleOne();
+        return;
+      }
+      if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        copyMeditation().catch(() => {});
+        return;
+      }
+      if (e.key === "l" || e.key === "L") {
+        e.preventDefault();
+        readAloud();
+        return;
+      }
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        setFocusMode(!state.focusMode);
+        return;
+      }
+      if (e.key === "a" || e.key === "A") {
+        e.preventDefault();
+        markAmen();
+        return;
+      }
+      if (e.key === "Escape" && state.focusMode) {
+        e.preventDefault();
+        setFocusMode(false);
       }
     });
   }
@@ -299,8 +480,10 @@
     state.topicId = topic;
     state.pool = buildPool(data, state.topicId);
     paintTopics();
+    paintStreak();
 
-    // Prefer today's meditation when topic is "all" and same day; else daily seed
+    if (prefs.medFocus) setFocusMode(true);
+
     let idx = seededIndex(state.pool.length, daySeed());
     if (med.ref && med.day === daySeed() && med.topicId === state.topicId) {
       const found = state.pool.findIndex((v) => v.ref === med.ref);
@@ -315,10 +498,9 @@
     next,
     current,
     refresh: hydrateCurrent,
+    setFocusMode,
   };
 
-  // If verses already loaded by app, it will call bootWithData.
-  // Standalone fallback if app loads after us with data event.
   document.addEventListener("DOMContentLoaded", () => {
     bindUi();
   });

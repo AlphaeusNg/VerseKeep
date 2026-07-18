@@ -107,7 +107,8 @@
       <div class="panel-head-row med-head">
         <div>
           <h2>Meditate</h2>
-          <p class="hint">Start here. Next verse is one tap away.</p>
+          <p class="hint">Start here. Next is one tap · <kbd>←</kbd><kbd>→</kbd> · <kbd>F</kbd> focus · <kbd>A</kbd> Amen</p>
+          <p id="med-streak" class="med-streak mono" hidden></p>
         </div>
         <div class="theme-tools med-tools">
           <label class="live-bible-toggle">
@@ -132,13 +133,16 @@
       </div>
       <p id="med-feedback" class="med-feedback" hidden></p>
 
-      <div class="actions med-actions">
-        <button type="button" class="btn ghost" id="med-prev" title="Previous">← Prev</button>
-        <button type="button" class="btn primary" id="med-next" title="Next verse">Next</button>
-        <button type="button" class="btn" id="med-today" title="Today’s pick">Today</button>
-        <button type="button" class="btn ghost" id="med-shuffle" title="Another verse">Shuffle</button>
-        <button type="button" class="btn ghost" id="med-copy" title="Copy">Copy</button>
-        <button type="button" class="btn ghost" id="med-listen" title="Read aloud">Listen</button>
+      <div class="actions med-actions" id="med-actions">
+        <button type="button" class="btn ghost" id="med-prev" title="Previous (←)">← Prev</button>
+        <button type="button" class="btn primary" id="med-next" title="Next verse (→)">Next</button>
+        <button type="button" class="btn" id="med-amen" title="Mark Amen for today (A)">Amen</button>
+        <button type="button" class="btn ghost" id="med-today" title="Today’s pick">Today</button>
+        <button type="button" class="btn ghost" id="med-shuffle" title="Another verse (S)">Shuffle</button>
+        <button type="button" class="btn ghost" id="med-focus" title="Focus mode (F)" aria-pressed="false">Focus</button>
+        <button type="button" class="btn ghost" id="med-copy" title="Copy (C)">Copy</button>
+        <button type="button" class="btn ghost" id="med-share" title="Share">Share</button>
+        <button type="button" class="btn ghost" id="med-listen" title="Read aloud (L)">Listen</button>
       </div>
     </section>
 
