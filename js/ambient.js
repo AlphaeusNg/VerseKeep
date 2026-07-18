@@ -218,6 +218,7 @@
   function setDockOpen(open, { persist = true } = {}) {
     dockOpen = !!open;
     const d = dockRoot();
+    const p = $("#music-dock-panel");
     const t = tab();
     const sc = scrim();
     if (d) {
@@ -226,12 +227,16 @@
       d.classList.toggle("is-tab", !dockOpen);
       d.classList.toggle("is-playing", playing);
     }
+    if (p) {
+      p.classList.toggle("is-open", dockOpen);
+      p.setAttribute("aria-hidden", dockOpen ? "false" : "true");
+    }
     if (t) {
       t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
       t.classList.toggle("is-active-tab", dockOpen);
     }
     if (sc) {
-      const narrow = window.matchMedia("(max-width: 820px)").matches;
+      const narrow = window.matchMedia("(max-width: 720px)").matches;
       sc.hidden = !(dockOpen && narrow);
       sc.setAttribute("aria-hidden", sc.hidden ? "true" : "false");
     }
@@ -437,7 +442,7 @@
     window.addEventListener("resize", () => {
       const sc = scrim();
       if (sc) {
-        const narrow = window.matchMedia("(max-width: 820px)").matches;
+        const narrow = window.matchMedia("(max-width: 720px)").matches;
         sc.hidden = !(dockOpen && narrow);
         sc.setAttribute("aria-hidden", sc.hidden ? "true" : "false");
       }

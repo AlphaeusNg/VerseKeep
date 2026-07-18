@@ -632,12 +632,7 @@ main {
   box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35);
 }
 
-.music-dock.is-float .music-dock-tab {
-  left: 0;
-  color: var(--gold);
-}
-
-.music-dock[data-playing="1"] .music-dock-tab-icon {
+.music-dock.is-playing .music-dock-tab-icon {
   animation: music-tab-pulse 1.6s ease-in-out infinite;
 }
 
