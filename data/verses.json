@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "translationNote": "Study wording for meditation and memory; live text can refresh from the web when available.",
   "themes": [
     {
@@ -614,6 +614,178 @@
           "context": "After eleven chapters of mercy, Paul calls for living sacrifice and mind-renewal against world-conformity.",
           "application": "Present your body today as worship. Renew your mind with truth where the world squeezes hardest.",
           "prayer": "By Your mercies I present myself a living sacrifice. Transform me by renewing my mind."
+        }
+      ]
+    },
+    {
+      "id": "assurance-salvation",
+      "title": "Assurance of Salvation",
+      "emoji": "⚓",
+      "blurb": "Rest in Christ alone — kept by His hand, not your grip.",
+      "verses": [
+        {
+          "ref": "John 10:28–29",
+          "text": "I give them eternal life, and they will never perish, and no one will snatch them out of my hand. My Father, who has given them to me, is greater than all, and no one is able to snatch them out of the Father’s hand.",
+          "context": "Jesus describes His sheep: He gives eternal life, and the double grip of Son and Father means no one can snatch them away.",
+          "application": "When doubt says you must hold on tighter, look to the hands that hold you — Christ’s and the Father’s.",
+          "prayer": "Jesus, You give eternal life. Keep me in Your hand and the Father’s; quiet every fear of being lost."
+        },
+        {
+          "ref": "Romans 8:38–39",
+          "text": "For I am sure that neither death nor life, nor angels nor rulers, nor things present nor things to come, nor powers, nor height nor depth, nor anything else in all creation, will be able to separate us from the love of God in Christ Jesus our Lord.",
+          "context": "Paul stacks the universe’s threats and concludes none can separate believers from God’s love in Christ.",
+          "application": "Name what feels most separating today — then place it under this list. It cannot cut you off from His love.",
+          "prayer": "Father, nothing in all creation can separate me from Your love in Christ. Anchor me in that certainty."
+        },
+        {
+          "ref": "1 John 5:13",
+          "text": "I write these things to you who believe in the name of the Son of God, that you may know that you have eternal life.",
+          "context": "John writes so believers may know they have eternal life — assurance is a gift of the gospel, not presumption.",
+          "application": "Assurance grows by looking to the Son’s name, not by inventorying your spiritual performance.",
+          "prayer": "Lord, I believe in the name of Your Son. Let me know that I have eternal life."
+        },
+        {
+          "ref": "Philippians 1:6",
+          "text": "And I am sure of this, that he who began a good work in you will bring it to completion at the day of Jesus Christ.",
+          "context": "Paul’s confidence for the Philippians rests on God’s finishing work, not their unfinished progress.",
+          "application": "God started the good work. Trust Him to finish it when you feel incomplete or stuck.",
+          "prayer": "God who began a good work in me, bring it to completion at the day of Christ. I trust Your finishing grace."
+        },
+        {
+          "ref": "Jude 24–25",
+          "text": "Now to him who is able to keep you from stumbling and to present you blameless before the presence of his glory with great joy, to the only God, our Savior, through Jesus Christ our Lord, be glory, majesty, dominion, and authority, before all time and now and forever. Amen.",
+          "context": "Jude ends with doxology: God is able to keep and present His people blameless with joy.",
+          "application": "Your perseverance is God’s ability before it is your effort. Worship the Keeper.",
+          "prayer": "Able God, keep me from stumbling and present me blameless with joy. Glory to You forever. Amen."
+        }
+      ]
+    },
+    {
+      "id": "holy-spirit",
+      "title": "The Holy Spirit",
+      "emoji": "🕊️",
+      "blurb": "The Spirit who seals, helps, convicts, and bears fruit in us.",
+      "verses": [
+        {
+          "ref": "John 14:26",
+          "text": "But the Helper, the Holy Spirit, whom the Father will send in my name, he will teach you all things and bring to your remembrance all that I have said to you.",
+          "context": "Jesus promises the Helper after His departure: the Spirit teaches and reminds of Christ’s words.",
+          "application": "Before you open Scripture, ask the Helper to teach and bring Christ’s words to mind today.",
+          "prayer": "Holy Spirit, Helper sent in Jesus’ name, teach me and bring His words to my remembrance."
+        },
+        {
+          "ref": "Romans 8:26",
+          "text": "Likewise the Spirit helps us in our weakness. For we do not know what to pray for as we ought, but the Spirit himself intercedes for us with groanings too deep for words.",
+          "context": "In weakness and wordless prayer, the Spirit Himself intercedes — help that meets us when we cannot form requests.",
+          "application": "When prayer feels empty, still come. The Spirit is already helping in your weakness.",
+          "prayer": "Spirit of God, help me in my weakness. Intercede when I do not know how to pray."
+        },
+        {
+          "ref": "Ephesians 1:13–14",
+          "text": "In him you also, when you heard the word of truth, the gospel of your salvation, and believed in him, were sealed with the promised Holy Spirit, who is the guarantee of our inheritance until we acquire possession of it, to the praise of his glory.",
+          "context": "Belief in the gospel brings the Spirit’s seal — a down payment guaranteeing the inheritance.",
+          "application": "You are sealed, not provisional. Live as someone already claimed for glory.",
+          "prayer": "Father, thank You for sealing me with the promised Spirit, the guarantee of my inheritance."
+        },
+        {
+          "ref": "Galatians 5:22–23",
+          "text": "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, self-control; against such things there is no law.",
+          "context": "Paul contrasts works of the flesh with the Spirit’s singular fruit expressed in many virtues.",
+          "application": "Pick one fruit that is thin in you today. Depend on the Spirit, not white-knuckle willpower.",
+          "prayer": "Holy Spirit, bear Your fruit in me — especially where love, patience, or self-control run thin."
+        },
+        {
+          "ref": "2 Corinthians 3:17",
+          "text": "Now the Lord is the Spirit, and where the Spirit of the Lord is, there is freedom.",
+          "context": "Turning to the Lord removes the veil; the Spirit brings freedom, not bondage under the old covenant.",
+          "application": "Freedom is presence of the Spirit, not absence of constraint. Walk unveiled before the Lord.",
+          "prayer": "Lord who is the Spirit, free me where I still live veiled. Let Your presence be my freedom."
+        }
+      ]
+    },
+    {
+      "id": "worship-adoration",
+      "title": "Worship & Adoration",
+      "emoji": "🙌",
+      "blurb": "Behold His worth — praise that reorders the heart.",
+      "verses": [
+        {
+          "ref": "Psalm 95:6–7",
+          "text": "Oh come, let us worship and bow down; let us kneel before the Lord, our Maker! For he is our God, and we are the people of his pasture, and the sheep of his hand.",
+          "context": "A call to corporate worship: bowing before the Maker who shepherds His people.",
+          "application": "Physically or inwardly bow today — worship as creature before Creator, sheep before Shepherd.",
+          "prayer": "Lord our Maker, I worship and bow down. You are my God; I am a sheep of Your hand."
+        },
+        {
+          "ref": "Psalm 29:2",
+          "text": "Ascribe to the Lord the glory due his name; worship the Lord in the splendor of holiness.",
+          "context": "David summons glory to be given to Yahweh — worship fitting His holy splendor.",
+          "application": "Ascribe glory deliberately: speak out one attribute of God and praise Him for it.",
+          "prayer": "I ascribe to You the glory due Your name. Let me worship You in the splendor of holiness."
+        },
+        {
+          "ref": "Revelation 4:11",
+          "text": "Worthy are you, our Lord and God, to receive glory and honor and power, for you created all things, and by your will they existed and were created.",
+          "context": "Heaven’s elders cast crowns before the throne: worthiness rests on God as Creator by His will.",
+          "application": "Join heaven’s logic: He is worthy because He made all things. Let creation fuel adoration.",
+          "prayer": "Worthy are You, our Lord and God. Receive glory and honor — by Your will I exist."
+        },
+        {
+          "ref": "Hebrews 13:15",
+          "text": "Through him then let us continually offer up a sacrifice of praise to God, that is, the fruit of lips that acknowledge his name.",
+          "context": "After the once-for-all sacrifice of Christ, praise becomes the continual sacrifice of the lips.",
+          "application": "Offer praise even when it costs — lips that acknowledge His name when feelings lag.",
+          "prayer": "Through Jesus I offer a sacrifice of praise. Put His name on my lips continually."
+        },
+        {
+          "ref": "Psalm 103:1–2",
+          "text": "Bless the Lord, O my soul, and all that is within me, bless his holy name! Bless the Lord, O my soul, and forget not all his benefits.",
+          "context": "David commands his own soul to bless the Lord and remember benefits — worship against forgetfulness.",
+          "application": "List three benefits you must not forget. Bless His name for each.",
+          "prayer": "Bless the Lord, O my soul. I will not forget Your benefits — holy is Your name."
+        }
+      ]
+    },
+    {
+      "id": "humility-service",
+      "title": "Humility & Service",
+      "emoji": "🧺",
+      "blurb": "The mind of Christ — lowliness that lifts others.",
+      "verses": [
+        {
+          "ref": "Philippians 2:3–4",
+          "text": "Do nothing from selfish ambition or conceit, but in humility count others more significant than yourselves. Let each of you look not only to his own interests, but also to the interests of others.",
+          "context": "Paul shapes church unity: humility counts others above self and looks to their interests.",
+          "application": "Today, put one person’s interests ahead of your convenience on purpose.",
+          "prayer": "Lord, kill selfish ambition in me. In humility help me count others more significant than myself."
+        },
+        {
+          "ref": "Philippians 2:5–7",
+          "text": "Have this mind among yourselves, which is yours in Christ Jesus, who, though he was in the form of God, did not count equality with God a thing to be grasped, but emptied himself, by taking the form of a servant, being born in the likeness of men.",
+          "context": "The Christ hymn: the eternal Son empties Himself into servant form — the pattern for the church’s mind.",
+          "application": "Ask where you are grasping status. Choose the servant form of Christ instead.",
+          "prayer": "Jesus, give me Your mind. You emptied Yourself as a servant — form that lowliness in me."
+        },
+        {
+          "ref": "Mark 10:45",
+          "text": "For even the Son of Man came not to be served but to serve, and to give his life as a ransom for many.",
+          "context": "Jesus redefines greatness against the disciples’ power-grab: the Son of Man serves and ransoms.",
+          "application": "Greatness is service and self-giving. Look for one ransom-shaped act of love.",
+          "prayer": "Son of Man, You came to serve and give Your life. Make me a servant after Your pattern."
+        },
+        {
+          "ref": "1 Peter 5:5–6",
+          "text": "Clothe yourselves, all of you, with humility toward one another, for “God opposes the proud but gives grace to the humble.” Humble yourselves, therefore, under the mighty hand of God so that at the proper time he may exalt you.",
+          "context": "Peter ties mutual humility to God’s opposition of pride and gift of grace; exaltation waits on His timing.",
+          "application": "Wear humility like clothing toward someone you find difficult. Trust God’s timing for honor.",
+          "prayer": "I humble myself under Your mighty hand. Clothe me with humility; give grace, not opposition."
+        },
+        {
+          "ref": "Micah 6:8",
+          "text": "He has told you, O man, what is good; and what does the Lord require of you but to do justice, and to love kindness, and to walk humbly with your God?",
+          "context": "Against empty ritual, Micah summarizes the Lord’s requirement: justice, steadfast love, and humble walk with God.",
+          "application": "Check your day against three words: justice, kindness, humble walk. Adjust one concrete step.",
+          "prayer": "Lord, what You require is good. Help me do justice, love kindness, and walk humbly with You."
         }
       ]
     }

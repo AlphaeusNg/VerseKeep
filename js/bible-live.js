@@ -108,26 +108,65 @@
       .trim();
   }
 
+  /** Single-chapter books often cited as "Jude 24–25" (verse only). */
+  const SINGLE_CHAPTER_BOOKS = new Set([
+    "obadiah",
+    "philemon",
+    "2 john",
+    "3 john",
+    "jude",
+  ]);
+
   /**
-   * Parse "John 3:16", "1 John 3:1", "Proverbs 3:5-6", "Ephesians 5:28–29"
+   * Parse "John 3:16", "1 John 3:1", "Proverbs 3:5-6", "Jude 24-25"
    * @returns {{ bookId: number, chapter: number, verseStart: number, verseEnd: number } | null}
    */
   function parseRef(ref) {
     const s = cleanRef(ref);
-    const m = s.match(
+
+    // Standard Book Chapter:Verse[-Verse]
+    let m = s.match(
       /^((?:[123]|I{1,3})\s+)?([A-Za-z]+(?:\s+[A-Za-z]+)?)\s+(\d+)\s*:\s*(\d+)(?:\s*-\s*(\d+))?$/
     );
-    if (!m) return null;
-    const prefix = (m[1] || "").trim().replace(/^III$/i, "3").replace(/^II$/i, "2").replace(/^I$/i, "1");
-    const name = (prefix ? prefix + " " : "") + m[2];
-    const key = name.toLowerCase().replace(/\./g, "").trim();
-    const bookId = BOOK_IDS[key];
-    if (!bookId) return null;
-    const chapter = parseInt(m[3], 10);
-    const verseStart = parseInt(m[4], 10);
-    const verseEnd = m[5] ? parseInt(m[5], 10) : verseStart;
-    if (!chapter || !verseStart || verseEnd < verseStart) return null;
-    return { bookId, chapter, verseStart, verseEnd };
+    if (m) {
+      const prefix = (m[1] || "")
+        .trim()
+        .replace(/^III$/i, "3")
+        .replace(/^II$/i, "2")
+        .replace(/^I$/i, "1");
+      const name = (prefix ? prefix + " " : "") + m[2];
+      const key = name.toLowerCase().replace(/\./g, "").trim();
+      const bookId = BOOK_IDS[key];
+      if (!bookId) return null;
+      const chapter = parseInt(m[3], 10);
+      const verseStart = parseInt(m[4], 10);
+      const verseEnd = m[5] ? parseInt(m[5], 10) : verseStart;
+      if (!chapter || !verseStart || verseEnd < verseStart) return null;
+      return { bookId, chapter, verseStart, verseEnd };
+    }
+
+    // Single-chapter: "Jude 24" / "Jude 24-25" / "3 John 2"
+    m = s.match(
+      /^((?:[123]|I{1,3})\s+)?([A-Za-z]+(?:\s+[A-Za-z]+)?)\s+(\d+)(?:\s*-\s*(\d+))?$/
+    );
+    if (m) {
+      const prefix = (m[1] || "")
+        .trim()
+        .replace(/^III$/i, "3")
+        .replace(/^II$/i, "2")
+        .replace(/^I$/i, "1");
+      const name = (prefix ? prefix + " " : "") + m[2];
+      const key = name.toLowerCase().replace(/\./g, "").trim();
+      if (!SINGLE_CHAPTER_BOOKS.has(key)) return null;
+      const bookId = BOOK_IDS[key];
+      if (!bookId) return null;
+      const verseStart = parseInt(m[3], 10);
+      const verseEnd = m[4] ? parseInt(m[4], 10) : verseStart;
+      if (!verseStart || verseEnd < verseStart) return null;
+      return { bookId, chapter: 1, verseStart, verseEnd };
+    }
+
+    return null;
   }
 
   function normalizeTranslation(slug) {

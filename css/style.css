@@ -2098,6 +2098,23 @@ kbd {
 
 .med-verse.is-loading {
   opacity: 0.72;
+  animation: med-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes med-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .med-verse.is-loading {
+    animation: none;
+  }
 }
 
 /* Focus mode: dim chrome, center the meditation */
