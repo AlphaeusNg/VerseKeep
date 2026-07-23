@@ -35,6 +35,39 @@
 
   const MODE_ORDER = ["study", "blank", "type", "order", "quiz"];
 
+  function bindBackgroundView() {
+    const enter = $("#background-view-toggle");
+    const exit = $("#background-view-exit");
+    if (!enter || !exit) return;
+
+    let savedScrollY = 0;
+
+    function setBackgroundView(active) {
+      if (active) savedScrollY = window.scrollY || 0;
+      document.body.classList.toggle("is-background-view", active);
+      enter.setAttribute("aria-pressed", active ? "true" : "false");
+      exit.hidden = !active;
+
+      if (active) {
+        exit.focus({ preventScroll: true });
+      } else {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, savedScrollY);
+          enter.focus({ preventScroll: true });
+        });
+      }
+    }
+
+    enter.addEventListener("click", () => setBackgroundView(true));
+    exit.addEventListener("click", () => setBackgroundView(false));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && document.body.classList.contains("is-background-view")) {
+        event.preventDefault();
+        setBackgroundView(false);
+      }
+    });
+  }
+
   function defaultStats() {
     return {
       checks: 0,
@@ -1080,7 +1113,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.24.7";
+    if (ver) ver.textContent = "v2026.07.24.8";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {
@@ -1144,5 +1177,6 @@
     practiceWeak,
   };
 
+  bindBackgroundView();
   boot();
 })();

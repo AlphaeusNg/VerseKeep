@@ -2556,3 +2556,273 @@ body.med-focus .med-topics {
     height: 8.75rem;
   }
 }
+
+/* —— Compact page rhythm + distraction-free background view —— */
+.topbar {
+  gap: 0.3rem 0.6rem;
+  padding: 0.32rem 0.8rem;
+}
+
+.brand {
+  gap: 0.5rem;
+}
+
+.top-nav {
+  gap: 0.25rem 0.65rem;
+  font-size: 0.76rem;
+}
+
+.top-nav button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.top-nav button:hover,
+.top-nav button:focus-visible,
+.nav-background-toggle[aria-pressed="true"] {
+  color: var(--cream);
+  outline: none;
+}
+
+.nav-background-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-background-short {
+  display: none;
+}
+
+main {
+  padding: 0.75rem 1rem 2rem;
+}
+
+.hero {
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.1rem;
+}
+
+.panel {
+  padding: 0.95rem 1rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.panel h2 {
+  margin-bottom: 0.2rem;
+  font-size: 1.28rem;
+}
+
+.panel > .hint,
+.panel .hint {
+  margin-bottom: 0.65rem;
+  line-height: 1.42;
+}
+
+.panel-head-row {
+  gap: 0.45rem;
+  margin-bottom: 0.1rem;
+}
+
+.mode-row {
+  gap: 0.35rem;
+  margin-bottom: 0.7rem;
+}
+
+.chip {
+  padding: 0.34rem 0.72rem;
+}
+
+.btn {
+  padding: 0.46rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.actions {
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+}
+
+.theme-filter-row {
+  gap: 0.4rem;
+  margin: 0.55rem 0 0.65rem;
+}
+
+.topics-panel .stats-bar {
+  margin: 0.5rem 0 0.6rem;
+  padding: 0.5rem 0.7rem;
+}
+
+.topics-panel .theme-grid {
+  grid-auto-rows: 10rem;
+  gap: 0.55rem;
+  max-height: calc(20rem + 0.55rem);
+}
+
+.topics-panel .theme-card-wrap {
+  height: 10rem;
+}
+
+.med-head {
+  margin-bottom: 0.4rem;
+}
+
+.med-topics {
+  gap: 0.32rem;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.3rem;
+}
+
+.med-topic-chip {
+  padding: 0.24rem 0.6rem;
+  font-size: 0.74rem;
+}
+
+.meditate-card {
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.med-card-top {
+  margin-bottom: 0.45rem;
+}
+
+.med-ref {
+  margin-bottom: 0.35rem;
+}
+
+.med-verse {
+  margin-bottom: 0.8rem;
+}
+
+.med-block {
+  margin-bottom: 0.6rem;
+  padding-top: 0.55rem;
+}
+
+.med-block-prayer {
+  padding: 0.6rem 0.7rem 0.65rem;
+}
+
+.wp-details-body {
+  margin-top: 0.6rem;
+}
+
+.wp-search-bar {
+  margin-bottom: 0.6rem;
+}
+
+.wallpaper-scroll {
+  padding: 0.7rem 0.75rem 0.85rem;
+}
+
+.footer {
+  padding: 0.8rem 1rem 1.25rem;
+}
+
+.background-view-exit {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+  z-index: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(243, 234, 215, 0.28);
+  border-radius: 999px;
+  padding: 0.45rem 0.7rem;
+  background: rgba(8, 12, 10, 0.7);
+  color: var(--cream);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0.82;
+  transition: opacity 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.background-view-exit:hover,
+.background-view-exit:focus-visible {
+  opacity: 1;
+  border-color: var(--gold-line);
+  background: rgba(8, 12, 10, 0.9);
+  outline: none;
+}
+
+body.is-background-view {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body.is-background-view > .topbar,
+body.is-background-view > main,
+body.is-background-view > .footer,
+body.is-background-view > .music-dock {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.has-wallpaper.is-background-view {
+  background-image: var(--wallpaper) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    padding: 0.28rem 0.62rem;
+  }
+
+  .top-nav {
+    gap: 0.22rem 0.48rem;
+    font-size: 0.71rem;
+  }
+
+  .nav-background-label {
+    display: none;
+  }
+
+  .nav-background-toggle > span[aria-hidden="true"]:first-child {
+    display: none;
+  }
+
+  .nav-background-short {
+    display: inline;
+  }
+
+  main {
+    padding: 0.6rem 0.7rem 1.5rem;
+  }
+
+  .panel {
+    padding: 0.8rem 0.72rem 0.85rem;
+    margin-bottom: 0.58rem;
+  }
+
+  .topics-panel {
+    padding: 0.8rem 0.72rem 0.85rem;
+  }
+
+  .topics-panel .theme-grid {
+    grid-auto-rows: 8.6rem;
+    gap: 0.42rem;
+    max-height: calc(25.8rem + 0.84rem);
+  }
+
+  .topics-panel .theme-card-wrap {
+    height: 8.6rem;
+  }
+
+  .wallpaper-scroll {
+    padding: 0.55rem;
+  }
+}

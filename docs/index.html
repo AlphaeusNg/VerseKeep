@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css?v=2026.07.24.7" />
+  <link rel="stylesheet" href="assets/css/style.css?v=2026.07.24.8" />
 </head>
 <body>
   <a class="skip" href="#meditate">Skip to meditation</a>
@@ -82,6 +82,11 @@
       <a href="#themes">Memorize</a>
       <a href="#worship" id="nav-music" title="Open or close music dock">Music</a>
       <a href="#wallpapers">Wallpapers</a>
+      <button type="button" class="nav-background-toggle" id="background-view-toggle" aria-label="View current background" aria-pressed="false" title="Minimize the page and view the current background">
+        <span aria-hidden="true">▣</span>
+        <span class="nav-background-label">Background</span>
+        <span class="nav-background-short" aria-hidden="true">BG</span>
+      </button>
       <a class="nav-extra" href="https://alphaeusng.github.io/pages/seeking-biblical-truth/" target="_blank" rel="noopener">Biblical Truth ↗</a>
       <a class="nav-extra" href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener">AlpArcade ↗</a>
       <a class="nav-extra" href="https://alphaeusng.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
@@ -292,11 +297,16 @@
     </p>
   </footer>
 
+  <button type="button" class="background-view-exit" id="background-view-exit" hidden>
+    <span aria-hidden="true">▤</span>
+    Show page
+  </button>
+
   <script src="assets/js/bible-config.js" defer></script>
   <script src="assets/js/bible-live.js" defer></script>
   <script src="assets/js/ambient.js" defer></script>
   <script src="assets/js/wallpapers.js?v=2026.07.24.7" defer></script>
   <script src="assets/js/meditate.js" defer></script>
-  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/app.js?v=2026.07.24.8" defer></script>
 </body>
 </html>
