@@ -748,7 +748,7 @@
       (w.tags || []).forEach(bump);
       if (w.style) {
         const pretty =
-          w.style === "lofi" ? "Lo-fi" : w.style === "minimal" ? "Minimal" : w.style === "masculine" ? "Masculine" : w.style;
+          w.style === "lofi" ? "Lo-fi" : w.style === "minimal" ? "Minimal" : w.style === "realistic" ? "Realistic" : w.style;
         bump(pretty);
       }
       if (w.themeTitle) bump(w.themeTitle);
@@ -767,7 +767,7 @@
       "Word",
       "Lo-fi",
       "Minimal",
-      "Masculine",
+      "Realistic",
       "Yours",
       "Cross",
       "Hope",
