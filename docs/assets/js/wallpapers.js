@@ -778,6 +778,17 @@
     return out.slice(0, 12);
   }
 
+  function nextChipSelection(tokens, token, additive = false) {
+    const current = [...tokens];
+    const index = current.indexOf(token);
+    if (additive) {
+      if (index >= 0) current.splice(index, 1);
+      else current.push(token);
+      return current;
+    }
+    return current.length === 1 && index === 0 ? [] : [token];
+  }
+
   function paintSearchChips() {
     const host = $("#wp-search-chips");
     if (!host) return;
@@ -786,19 +797,17 @@
     host.innerHTML = chips
       .map((label) => {
         const on = active.has(label.toLowerCase());
-        return `<button type="button" class="wp-chip${on ? " is-on" : ""}" data-wp-chip="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+        return `<button type="button" class="wp-chip${on ? " is-on" : ""}" data-wp-chip="${escapeHtml(label)}" aria-pressed="${on ? "true" : "false"}" title="Click to filter · Shift-click to combine tags">${escapeHtml(label)}</button>`;
       })
       .join("");
     host.querySelectorAll("[data-wp-chip]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (event) => {
         const token = btn.dataset.wpChip || "";
         const tokens = parseSearchQuery(searchQuery);
         const lower = token.toLowerCase();
-        const idx = tokens.indexOf(lower);
-        if (idx >= 0) tokens.splice(idx, 1);
-        else tokens.push(lower);
+        const nextTokens = nextChipSelection(tokens, lower, event.shiftKey);
         // Prefer readable casing for known chips
-        const next = tokens
+        const next = nextTokens
           .map((t) => {
             const hit = chips.find((c) => c.toLowerCase() === t);
             return hit || t;
