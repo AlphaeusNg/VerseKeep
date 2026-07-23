@@ -151,23 +151,13 @@
     return s;
   }
 
-  function ensureStopButton() {
+  /** Strip legacy chrome (drag / mini / stop ×) from older builds. */
+  function stripLegacyPlayerChrome() {
     const bar = shell()?.querySelector(".music-player-bar");
     if (!bar) return;
     $("#music-player-grip")?.remove();
     $("#music-player-min")?.remove();
-    if (!$("#music-player-close")) {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.id = "music-player-close";
-      b.className = "music-player-close";
-      b.title = "Stop music";
-      b.setAttribute("aria-label", "Stop music");
-      b.textContent = "×";
-      bar.appendChild(b);
-    }
-    const closeB = $("#music-player-close");
-    if (closeB) closeB.hidden = false;
+    $("#music-player-close")?.remove();
   }
 
   function updateLabels() {
@@ -236,9 +226,9 @@
       t.classList.toggle("is-active-tab", dockOpen);
     }
     if (sc) {
-      const narrow = window.matchMedia("(max-width: 720px)").matches;
-      sc.hidden = !(dockOpen && narrow);
-      sc.setAttribute("aria-hidden", sc.hidden ? "true" : "false");
+      // Any viewport: scrim catches outside clicks to minimize the dock
+      sc.hidden = !dockOpen;
+      sc.setAttribute("aria-hidden", dockOpen ? "false" : "true");
     }
     updateLabels();
     if (persist) persistUi();
@@ -283,7 +273,7 @@
   function selectMusic(id, embed, title, { forceReload = false } = {}) {
     if (!embed) return;
     ensureShellInSlot();
-    ensureStopButton();
+    stripLegacyPlayerChrome();
     const f = frame();
     const s = shell();
     const e = empty();
@@ -415,14 +405,16 @@
     });
     scrim()?.addEventListener("click", () => setDockOpen(false));
 
+    // Outside the open dock panel → minimize
     document.addEventListener(
       "click",
       (e) => {
-        if (e.target.closest?.("#music-player-close")) {
-          e.preventDefault();
-          e.stopPropagation();
-          stopMusic();
-        }
+        if (!dockOpen) return;
+        if (e.target.closest?.("#music-dock-tab, .music-dock-tab")) return;
+        if (e.target.closest?.("#music-dock-panel, .music-dock-panel")) return;
+        if (e.target.closest?.("#nav-music")) return;
+        if (e.target.closest?.("#music-dock-scrim")) return; // scrim handler already closes
+        setDockOpen(false);
       },
       true
     );
@@ -439,19 +431,11 @@
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && dockOpen) setDockOpen(false);
     });
-    window.addEventListener("resize", () => {
-      const sc = scrim();
-      if (sc) {
-        const narrow = window.matchMedia("(max-width: 720px)").matches;
-        sc.hidden = !(dockOpen && narrow);
-        sc.setAttribute("aria-hidden", sc.hidden ? "true" : "false");
-      }
-    });
   }
 
   async function boot() {
     ensureShellInSlot();
-    ensureStopButton();
+    stripLegacyPlayerChrome();
     $("#music-mini-tab")?.remove();
     restoreUi();
     autoStartMusic();
