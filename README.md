@@ -47,7 +47,8 @@ Optional: set `esvApiKey` in `js/bible-config.js` if you route official ESV API 
 ## Wallpapers
 
 - **Daily suggestions** — six calm creation photos each day (Unsplash CDN; no API key), plus **New suggestions** to reshuffle.
-- **Classics** — bundled HD images under `assets/wallpapers/` (work offline).
+- **Desktop / phone formats** — switch previews and downloads between 4K landscape (3840 × 2160) and HD portrait (1080 × 1920).
+- **Classics** — bundled desktop images under `assets/wallpapers/` and phone editions under `assets/wallpapers/phone/` (work offline).
 - **Hearts** — ♥ a wallpaper; counts try to sync globally (counter API, best-effort). The **most loved** wallpaper is featured in the hero and wallpaper section.
 - First visit / “Use today’s” follows the daily wallpaper; picking one locks your choice until you change it.
 

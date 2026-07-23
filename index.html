@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=2026.07.23.4" />
+  <link rel="stylesheet" href="css/style.css?v=2026.07.23.5" />
 </head>
 <body>
   <a class="skip" href="#meditate">Skip to meditation</a>
@@ -146,7 +146,7 @@
       <div class="panel-head-row">
         <div>
           <h2>Topics</h2>
-          <p class="hint">Browse by theme — same topics power meditation and memory practice.</p>
+          <p class="hint">Browse by theme — scroll the cards for more topics.</p>
         </div>
       </div>
       <div class="theme-filter-row">
@@ -155,7 +155,7 @@
         <button type="button" class="btn ghost" id="btn-reset-stats" title="Clear mastery and stats on this device">Reset progress</button>
       </div>
       <div class="stats-bar mono" id="stats-bar" aria-label="Your progress"></div>
-      <div class="theme-grid" id="theme-grid"></div>
+      <div class="theme-grid" id="theme-grid" tabindex="0" aria-label="Topics. Scroll for more."></div>
     </section>
 
     <section class="panel" id="themes">
@@ -218,18 +218,29 @@
         <summary class="wp-summary">
           <span>
             <strong>Wallpapers</strong>
-            <small class="hint">Calm backgrounds · expand to browse</small>
+            <small class="hint">Large previews · expand to browse and compare</small>
           </span>
         </summary>
         <div class="wp-details-body">
           <div class="panel-head-row">
             <p class="hint" style="margin:0">
-              Scroll the gallery; click to apply. Hearts when the counter is reachable.
+              Browse the large previews; click one to apply. Hearts sync when the counter is reachable.
             </p>
             <div class="wp-tools">
               <button type="button" class="btn ghost" id="wp-use-daily">Use today’s</button>
               <button type="button" class="btn primary" id="wp-new-suggestions">New suggestions</button>
             </div>
+          </div>
+          <div class="wp-format-picker" role="group" aria-label="Wallpaper preview and download dimensions">
+            <span class="wp-format-label mono">Preview &amp; download</span>
+            <button type="button" class="wp-format-option" data-wp-format="desktop" aria-pressed="true">
+              <strong>Desktop 4K</strong>
+              <small>3840 × 2160</small>
+            </button>
+            <button type="button" class="wp-format-option" data-wp-format="phone" aria-pressed="false">
+              <strong>Phone HD</strong>
+              <small>1080 × 1920</small>
+            </button>
           </div>
           <div class="wp-search-bar" role="search">
             <label class="wp-search-label" for="wp-search">
@@ -248,6 +259,12 @@
             <div class="wp-search-chips" id="wp-search-chips" aria-label="Quick filters"></div>
           </div>
           <div id="wp-hero-loved" class="wp-hero-loved" hidden></div>
+          <nav class="wp-gallery-nav" id="wp-gallery-nav" aria-label="Jump to wallpaper collection">
+            <span class="wp-gallery-nav-label mono">Jump to</span>
+            <button type="button" class="wp-gallery-jump" data-wp-jump="#wp-daily-section">Today</button>
+            <button type="button" class="wp-gallery-jump" data-wp-jump="#wp-pc-section">Alp’s PC</button>
+            <button type="button" class="wp-gallery-jump" data-wp-jump="#wp-all-section">All wallpapers</button>
+          </nav>
           <div class="wallpaper-scroll" id="wallpaper-scroll">
             <div id="wp-featured" class="wp-featured" aria-label="Featured wallpapers"></div>
             <div class="wallpaper-grid" id="wallpaper-grid"></div>

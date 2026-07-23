@@ -14,6 +14,7 @@
   const HEARTS_KEY = "versekeep-wallpaper-hearts-v1";
   const CATALOG_KEY = "versekeep-wallpaper-catalog-v1";
   const SALT_KEY = "versekeep-wallpaper-salt-v1";
+  const FORMAT_KEY = "versekeep-wallpaper-format-v1";
   const DEFAULT_ID = "dawn-hills";
   const DAILY_COUNT = 6;
   const COUNTER_NS = "versekeepwp";
@@ -27,6 +28,7 @@
   let salt = 0;
   let applying = false;
   let searchQuery = "";
+  let wallpaperFormat = "desktop";
 
   function escapeHtml(s) {
     return String(s)
@@ -53,11 +55,34 @@
     return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&w=${w}&h=${h}&q=${q}`;
   }
 
-  /** Full-res-ish URL for Open HD / download (same for classic + daily). */
-  function hdUrl(w) {
+  function phoneAssetPath(src) {
+    const value = String(src || "");
+    const match = value.match(/^assets\/wallpapers\/([^/]+)\.jpg$/i);
+    return match ? `assets/wallpapers/phone/${match[1]}-phone.jpg` : "";
+  }
+
+  function wallpaperAsset(w, format = wallpaperFormat, { download = false } = {}) {
     if (!w) return "";
-    if (w.unsplash) return unsplashUrl(w.unsplash, { w: 2400, h: 1350, q: 90 });
-    return w.download || w.src || "";
+    if (format === "phone") {
+      if (w.unsplash) {
+        return unsplashUrl(w.unsplash, download ? { w: 1080, h: 1920, q: 90 } : { w: 540, h: 960, q: 80 });
+      }
+      return (
+        (download ? w.phoneDownload : w.phoneSrc) ||
+        w.phoneSrc ||
+        w.phoneDownload ||
+        phoneAssetPath(w.src) ||
+        w.src ||
+        ""
+      );
+    }
+    if (w.unsplash && download) return unsplashUrl(w.unsplash, { w: 3840, h: 2160, q: 90 });
+    return (download ? w.download : w.src) || w.src || w.download || "";
+  }
+
+  /** Selected full-resolution URL for Open HD / download. */
+  function hdUrl(w) {
+    return wallpaperAsset(w, wallpaperFormat, { download: true });
   }
 
   /**
@@ -90,8 +115,8 @@
     }
   }
 
-  function picsumUrl(seed) {
-    return `https://picsum.photos/seed/${encodeURIComponent(seed)}/1920/1080`;
+  function picsumUrl(seed, { w = 1920, h = 1080 } = {}) {
+    return `https://picsum.photos/seed/${encodeURIComponent(seed)}/${w}/${h}`;
   }
 
   function loadJson(path) {
@@ -137,6 +162,9 @@
       blurb: w.blurb || "",
       src: w.src || "",
       download: w.download || w.src || "",
+      phoneSrc: w.phoneSrc || phoneAssetPath(w.src),
+      phoneDownload: w.phoneDownload || w.phoneSrc || phoneAssetPath(w.src),
+      unsplash: w.unsplash || "",
       tags: normalizeTags(w.tags || w.tag),
       tone: w.tone || "",
       theme: w.theme || "",
@@ -168,6 +196,60 @@
     }
   }
 
+  function loadFormatPreference() {
+    try {
+      const stored = localStorage.getItem(FORMAT_KEY);
+      if (stored === "desktop" || stored === "phone") return stored;
+    } catch {
+      /* ignore */
+    }
+    return window.matchMedia("(max-width: 720px)").matches ? "phone" : "desktop";
+  }
+
+  function syncFormatUi() {
+    document.documentElement.dataset.wallpaperFormat = wallpaperFormat;
+    document.querySelectorAll("[data-wp-format]").forEach((btn) => {
+      const active = btn.dataset.wpFormat === wallpaperFormat;
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.classList.toggle("is-active", active);
+    });
+  }
+
+  function setWallpaperFormat(format) {
+    if (format !== "desktop" && format !== "phone") return;
+    wallpaperFormat = format;
+    try {
+      localStorage.setItem(FORMAT_KEY, format);
+    } catch {
+      /* ignore */
+    }
+    syncFormatUi();
+
+    const pref = loadPref();
+    const current = pref?.id ? findWallpaper(pref.id) : getTodayFeatured();
+    if (current) {
+      const src = wallpaperAsset(current);
+      applyVisual(src);
+      if (pref) {
+        savePref({
+          ...pref,
+          src,
+          format,
+          desktopSrc: current.src || pref.desktopSrc || "",
+          desktopDownload: current.download || pref.desktopDownload || current.src || "",
+          phoneSrc: current.phoneSrc || pref.phoneSrc || phoneAssetPath(current.src),
+          phoneDownload:
+            current.phoneDownload ||
+            pref.phoneDownload ||
+            current.phoneSrc ||
+            phoneAssetPath(current.src),
+          unsplash: current.unsplash || pref.unsplash || "",
+        });
+      }
+    }
+    paintAll();
+  }
+
   function normalizeTags(raw) {
     if (Array.isArray(raw)) {
       return raw.map((t) => String(t || "").trim()).filter(Boolean).slice(0, 3);
@@ -177,10 +259,13 @@
   }
 
   function normalizeClassic(w) {
+    const phoneSrc = w.phoneSrc || phoneAssetPath(w.src);
     return {
       ...w,
       kind: "classic",
       download: w.download || w.src || "",
+      phoneSrc,
+      phoneDownload: w.phoneDownload || phoneSrc,
       tags: normalizeTags(w.tags || w.tag),
       tone: w.tone || "",
       theme: w.theme || "",
@@ -194,7 +279,13 @@
     const src = photo
       ? unsplashUrl(photo)
       : picsumUrl(`versekeep-${day}-${item.id}-${index}`);
-    const download = photo ? unsplashUrl(photo, { w: 2400, h: 1350, q: 90 }) : src;
+    const download = photo ? unsplashUrl(photo, { w: 3840, h: 2160, q: 90 }) : src;
+    const phoneSrc = photo
+      ? unsplashUrl(photo, { w: 540, h: 960, q: 80 })
+      : picsumUrl(`versekeep-${day}-${item.id}-${index}`, { w: 540, h: 960 });
+    const phoneDownload = photo
+      ? unsplashUrl(photo, { w: 1080, h: 1920, q: 90 })
+      : picsumUrl(`versekeep-${day}-${item.id}-${index}`, { w: 1080, h: 1920 });
     const tags = normalizeTags(item.tags || item.tag);
     if (!tags.length) tags.push("Today’s light");
     return {
@@ -203,6 +294,8 @@
       blurb: item.blurb || "Today’s suggestion",
       src,
       download,
+      phoneSrc,
+      phoneDownload,
       kind: "daily",
       unsplash: photo,
       tags,
@@ -327,14 +420,20 @@
   function applyWallpaper(w, { mode = "manual", persist = true } = {}) {
     if (!w) return;
     applying = true;
-    const src = w.src || "";
+    const src = wallpaperAsset(w);
     applyVisual(src);
-    rememberCatalog({ ...w, src, download: w.download || src });
+    rememberCatalog(w);
     if (persist) {
       savePref({
         mode,
         id: w.id,
         src,
+        desktopSrc: w.src || "",
+        desktopDownload: w.download || w.src || "",
+        phoneSrc: w.phoneSrc || phoneAssetPath(w.src),
+        phoneDownload: w.phoneDownload || w.phoneSrc || phoneAssetPath(w.src),
+        unsplash: w.unsplash || "",
+        format: wallpaperFormat,
         title: w.title || w.id,
         day: dayKey(),
         at: Date.now(),
@@ -456,27 +555,32 @@
     const active = current?.id === w.id;
     const hearted = !!heartsLocal[w.id];
     const count = Number(heartCounts[w.id] || 0);
-    const thumb = w.src
-      ? `<img src="${escapeHtml(w.src)}" alt="" loading="lazy" width="320" height="180" referrerpolicy="no-referrer" />`
+    const formatName = wallpaperFormat === "phone" ? "Phone HD" : "Desktop 4K";
+    const dimensions = wallpaperFormat === "phone" ? "1080 × 1920" : "3840 × 2160";
+    const dimensionSlug = wallpaperFormat === "phone" ? "1080x1920" : "3840x2160";
+    const thumbSrc = wallpaperAsset(w);
+    const thumb = thumbSrc
+      ? `<img src="${escapeHtml(thumbSrc)}" alt="" loading="lazy" width="${wallpaperFormat === "phone" ? "540" : "320"}" height="${wallpaperFormat === "phone" ? "960" : "180"}" referrerpolicy="no-referrer" />`
       : `<div class="wp-none">Default dark</div>`;
     const open = hdUrl(w);
     // Open HD: always open in a new tab
     const openHd = open
-      ? `<a class="wp-open-hd" href="${escapeHtml(open)}" target="_blank" rel="noopener noreferrer" title="Open HD in a new tab">Open HD</a>`
+      ? `<a class="wp-open-hd" href="${escapeHtml(open)}" target="_blank" rel="noopener noreferrer" title="View ${formatName} in a new tab">View ${formatName}</a>`
       : "";
     // Mini download beside heart — uses blob fetch so daily/remote actually downloads
     const dlMini = open
-      ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}.jpg" title="Download HD" aria-label="Download HD wallpaper">⬇</button>`
+      ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}-${wallpaperFormat}-${dimensionSlug}.jpg" title="Download ${formatName}" aria-label="Download ${formatName} wallpaper at ${dimensions}">⬇</button>`
       : "";
     const badge = badgeHtml(w, { showDailyBadge });
 
     return `
       <article class="wp-card${active ? " is-active" : ""}${hearted ? " is-hearted" : ""}" data-wp-id="${escapeHtml(w.id)}">
-        <button type="button" class="wp-main" data-apply="${escapeHtml(w.id)}" aria-label="Use wallpaper ${escapeHtml(w.title)}">
+        <button type="button" class="wp-main" data-apply="${escapeHtml(w.id)}" aria-label="Use ${formatName} wallpaper ${escapeHtml(w.title)}">
           <div class="wp-thumb">${thumb}${badge}</div>
           <div class="wp-meta">
             <strong>${escapeHtml(w.title)}</strong>
             <small>${escapeHtml(w.blurb || "")}</small>
+            <span class="wp-format-meta mono">${formatName} · ${dimensions}</span>
             ${openHd}
           </div>
         </button>
@@ -501,7 +605,7 @@
       ? `
       <button type="button" class="wp-feature-card" data-apply="${escapeHtml(today.id)}">
         <div class="wp-feature-thumb">
-          ${today.src ? `<img src="${escapeHtml(today.src)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}
+          ${wallpaperAsset(today) ? `<img src="${escapeHtml(wallpaperAsset(today))}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}
         </div>
         <div class="wp-feature-body">
           <span class="wp-feature-label mono">Today’s light · ${escapeHtml(dayKey())}</span>
@@ -516,7 +620,7 @@
       ? `
       <button type="button" class="wp-feature-card wp-feature-loved" data-apply="${escapeHtml(top.id)}">
         <div class="wp-feature-thumb">
-          ${top.src ? `<img src="${escapeHtml(top.src)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}
+          ${wallpaperAsset(top) ? `<img src="${escapeHtml(wallpaperAsset(top))}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}
           <span class="wp-feature-heart-badge">♥ ${topCount}</span>
         </div>
         <div class="wp-feature-body">
@@ -575,8 +679,6 @@
       }
     });
   }
-
-  const STYLE_ORDER = { lofi: 0, minimal: 1, masculine: 2 };
 
   /** Search haystack: title, blurb, tags, theme, style, id */
   function wallpaperSearchText(w) {
@@ -726,91 +828,30 @@
     if (focus) input?.focus();
   }
 
-  function themedSetsHtml(list) {
-    const withTheme = list.filter((w) => w.theme);
-    if (!withTheme.length) return "";
-    const byTheme = new Map();
-    withTheme.forEach((w) => {
-      const key = w.theme;
-      if (!byTheme.has(key)) byTheme.set(key, []);
-      byTheme.get(key).push(w);
-    });
-    // Preserve first-seen theme order from catalog
-    const order = [];
-    withTheme.forEach((w) => {
-      if (!order.includes(w.theme)) order.push(w.theme);
-    });
-
-    return `
-      <div class="wp-section-label mono">Faith scenes · lo-fi · minimal · masculine</div>
-      <div class="wp-theme-sets" id="wp-theme-sets">
-        ${order
-          .map((themeKey) => {
-            const items = (byTheme.get(themeKey) || []).slice().sort((a, b) => {
-              const sa = STYLE_ORDER[a.style] ?? 9;
-              const sb = STYLE_ORDER[b.style] ?? 9;
-              return sa - sb;
-            });
-            const title = items[0]?.themeTitle || items[0]?.title || themeKey;
-            const blurb = items.find((i) => i.style === "lofi")?.blurb?.replace(/^Lo-fi ·\s*/i, "") || "";
-            const cols = Math.min(3, Math.max(1, items.length));
-            return `
-          <section class="wp-theme-set" data-theme="${escapeHtml(themeKey)}">
-            <header class="wp-theme-set-head">
-              <h3 class="wp-theme-set-title">${escapeHtml(title)}</h3>
-              ${blurb ? `<p class="wp-theme-set-blurb">${escapeHtml(blurb)}</p>` : ""}
-              <p class="wp-theme-set-styles mono">${items.map((i) => (i.style === "lofi" ? "Lo-fi" : i.style === "minimal" ? "Minimal" : i.style === "masculine" ? "Masculine" : i.style || "")).filter(Boolean).join(" · ")}</p>
-            </header>
-            <div class="wallpaper-grid-inner wp-theme-set-grid" style="--wp-theme-cols:${cols}">
-              ${items.map((w) => cardHtml(w)).join("")}
-            </div>
-          </section>`;
-          })
-          .join("")}
-      </div>`;
-  }
-
   function paintGrid() {
     const host = $("#wallpaper-grid");
     if (!host) return;
     const tokens = parseSearchQuery(searchQuery);
-    const classicList = classics.filter((w) => w.id !== "none");
-    const none = classics.find((w) => w.id === "none");
-    const searchable = [...daily, ...classicList, ...(none ? [none] : [])];
+    const fromPc = classics.filter((w) => String(w.id || "").startsWith("win-"));
+    const allWallpapers = classics.filter(
+      (w) => !String(w.id || "").startsWith("win-")
+    );
+    const searchable = [...daily, ...fromPc, ...allWallpapers];
     const totalCount = searchable.length;
-
-    const fromPc = filterList(
-      classicList.filter((w) => String(w.id || "").startsWith("win-")),
-      tokens
-    );
-    const themed = filterList(
-      classicList.filter((w) => w.theme),
-      tokens
-    );
-    const sanctuary = filterList(
-      classicList.filter(
-        (w) =>
-          !String(w.id || "").startsWith("win-") &&
-          !w.theme &&
-          !String(w.id || "").startsWith("lofi-") &&
-          !String(w.id || "").startsWith("min-") &&
-          !String(w.id || "").startsWith("masc-")
-      ),
-      tokens
-    );
-    const dailyFiltered = filterList(daily, tokens);
-    const noneList = none && matchesSearch(none, tokens) ? [none] : [];
-
-    const matchCount =
-      dailyFiltered.length + fromPc.length + themed.length + sanctuary.length + noneList.length;
+    const matches = filterList(searchable, tokens);
+    const matchCount = matches.length;
     updateSearchChrome(matchCount, totalCount, tokens);
 
-    const section = (label, list, gridId) =>
+    const cardsHtml = (list) =>
+      list
+        .map((w) => cardHtml(w, { showDailyBadge: w.kind === "daily" }))
+        .join("");
+    const section = (label, list, gridId, sectionId) =>
       list.length
         ? `
-      <div class="wp-section-label mono">${label}</div>
+      <div class="wp-section-label mono" id="${sectionId}">${label}</div>
       <div class="wallpaper-grid-inner" id="${gridId}">
-        ${list.map((w) => cardHtml(w)).join("")}
+        ${cardsHtml(list)}
       </div>`
         : "";
 
@@ -819,36 +860,24 @@
         ? `<p class="wp-search-empty hint">No wallpapers match <strong>${escapeHtml(tokens.join(" "))}</strong>. Try a tag like <em>baptism</em>, <em>Jesus</em>, <em>minimal</em>, or <em>cosmos</em>.</p>`
         : "";
 
-    host.innerHTML = `
+    host.innerHTML = tokens.length
+      ? `
       ${emptyFilter}
-      ${
-        dailyFiltered.length || !tokens.length
-          ? `
-      <div class="wp-section-label mono">Today’s suggestions</div>
+      ${section("Matching wallpapers", matches, "wp-all-grid", "wp-all-section")}
+    `
+      : `
+      <div class="wp-section-label mono" id="wp-daily-section">Today’s suggestion</div>
       <div class="wallpaper-grid-inner" id="wp-daily-grid">
         ${
-          dailyFiltered.length
-            ? dailyFiltered.map((w) => cardHtml(w, { showDailyBadge: true })).join("")
-            : !tokens.length
-              ? `<p class="hint">Could not load daily images — classics still work.</p>`
-              : ""
+          daily.length
+            ? cardsHtml(daily)
+            : `<p class="hint">Could not load daily images — the main collection still works.</p>`
         }
-      </div>`
-          : ""
-      }
-      ${section("From your PC", fromPc, "wp-pc-grid")}
-      ${themedSetsHtml(themed)}
-      ${section("Sanctuary classics", sanctuary, "wp-classic-grid")}
-      ${
-        noneList.length
-          ? `
-      <div class="wp-section-label mono">Theme only</div>
-      <div class="wallpaper-grid-inner" id="wp-none-grid">
-        ${noneList.map((w) => cardHtml(w)).join("")}
-      </div>`
-          : ""
-      }
+      </div>
+      ${section("Alp’s PC", fromPc, "wp-pc-grid", "wp-pc-section")}
+      ${section("All wallpapers", allWallpapers, "wp-all-grid", "wp-all-section")}
     `;
+    updateGalleryNav();
 
     host.querySelectorAll("[data-apply]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -884,6 +913,33 @@
     });
   }
 
+  function updateGalleryNav() {
+    const nav = $("#wp-gallery-nav");
+    if (!nav) return;
+    let visible = 0;
+    nav.querySelectorAll("[data-wp-jump]").forEach((btn) => {
+      const target = document.querySelector(btn.dataset.wpJump || "");
+      btn.hidden = !target;
+      if (target) visible += 1;
+    });
+    nav.hidden = visible === 0;
+  }
+
+  function jumpToGallerySection(selector) {
+    const scroller = $("#wallpaper-scroll");
+    const target = selector ? document.querySelector(selector) : null;
+    if (!scroller || !target) return;
+    const top =
+      target.getBoundingClientRect().top -
+      scroller.getBoundingClientRect().top +
+      scroller.scrollTop;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    scroller.scrollTo({
+      top: Math.max(0, top - 10),
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }
+
   function paintAll() {
     paintFeatured();
     paintHeroLoved();
@@ -913,11 +969,14 @@
       const w = findWallpaper(pref.id) || {
         id: pref.id,
         title: pref.title || pref.id,
-        src: pref.src || "",
-        download: pref.src || "",
+        src: pref.desktopSrc || pref.src || "",
+        download: pref.desktopDownload || pref.desktopSrc || pref.src || "",
+        phoneSrc: pref.phoneSrc || "",
+        phoneDownload: pref.phoneDownload || pref.phoneSrc || "",
+        unsplash: pref.unsplash || "",
         blurb: "",
       };
-      applyVisual(w.src || "");
+      applyVisual(wallpaperAsset(w));
       return;
     }
 
@@ -933,6 +992,13 @@
   }
 
   function bindUi() {
+    syncFormatUi();
+    document.querySelector(".wp-format-picker")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-wp-format]");
+      if (!btn) return;
+      setWallpaperFormat(btn.dataset.wpFormat);
+    });
+
     const searchInput = $("#wp-search");
     let searchTimer = null;
     searchInput?.addEventListener("input", () => {
@@ -949,6 +1015,11 @@
     });
     $("#wp-search-clear")?.addEventListener("click", () => {
       setSearchQuery("", { focus: true });
+    });
+    $("#wp-gallery-nav")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-wp-jump]");
+      if (!btn) return;
+      jumpToGallerySection(btn.dataset.wpJump);
     });
 
     $("#wp-new-suggestions")?.addEventListener("click", async () => {
@@ -998,6 +1069,7 @@
 
   async function boot() {
     loadHearts();
+    wallpaperFormat = loadFormatPreference();
     bindDetailsMemory();
     try {
       const [local, remote] = await Promise.all([

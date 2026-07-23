@@ -108,6 +108,12 @@ git commit -m "Describe VerseKeep change"
 git push origin main
 ```
 
+## Commit and push discipline
+
+- Commit and push every completed user-requested change promptly after validation; do not leave finished work only in the local checkout.
+- During longer work, make and push coherent checkpoint commits regularly so progress is safely available on the remote.
+- Keep commits scoped and descriptive. If a push is blocked by authentication, failing checks, or an explicit local-only request, report that clearly instead of silently leaving changes unpushed.
+
 ## Agent checklist
 
 1. Confirm change is VerseKeep (not portfolio vault viewer or AlpArcade).
