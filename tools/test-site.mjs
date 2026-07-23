@@ -52,6 +52,13 @@ if (existsSync(indexPath)) {
     const absolutePath = resolve(siteRoot, localPath);
     if (!existsSync(absolutePath)) failures.push(`Broken HTML reference: ${reference}`);
   }
+  if (!html.includes('id="wp-grid-density"')) {
+    failures.push("Missing wallpaper grid density control");
+  }
+  const densityOptions = [...html.matchAll(/\bdata-wp-grid="([1-4])"/g)].map((match) => match[1]);
+  if (densityOptions.join(",") !== "1,2,3,4") {
+    failures.push("Expected wallpaper grid density options 1x1 through 4x4");
+  }
 }
 
 for (const filename of readdirSync(resolve(siteRoot, "data"))) {

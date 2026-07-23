@@ -3,7 +3,7 @@
  * - Daily remote suggestions (curated Unsplash CDN, no API key)
  * - Manual "New suggestions" reshuffle
  * - Hearts (local + best-effort global counters)
- * - Featured strip: today's pick + most-hearted
+ * - Responsive grid density + scrollable tag filters
  */
 (function () {
   "use strict";
@@ -15,9 +15,11 @@
   const CATALOG_KEY = "versekeep-wallpaper-catalog-v1";
   const SALT_KEY = "versekeep-wallpaper-salt-v1";
   const FORMAT_KEY = "versekeep-wallpaper-format-v1";
+  const GRID_KEY = "versekeep-wallpaper-grid-v1";
   const DEFAULT_ID = "dawn-hills";
   const DAILY_COUNT = 6;
   const COUNTER_NS = "versekeepwp";
+  const PHONE_MEDIA = window.matchMedia("(max-width: 720px)");
 
   let classics = [];
   let remotePool = [];
@@ -29,6 +31,7 @@
   let applying = false;
   let searchQuery = "";
   let wallpaperFormat = "desktop";
+  let gridPreferences = { desktop: 3, phone: 1 };
 
   function escapeHtml(s) {
     return String(s)
@@ -248,6 +251,54 @@
       }
     }
     paintAll();
+  }
+
+  function loadGridPreferences() {
+    const defaults = { desktop: 3, phone: 1 };
+    try {
+      const stored = JSON.parse(localStorage.getItem(GRID_KEY) || "null");
+      if (!stored || typeof stored !== "object") return defaults;
+      const desktop = Number(stored.desktop);
+      const phone = Number(stored.phone);
+      return {
+        desktop: Number.isInteger(desktop) && desktop >= 1 && desktop <= 4 ? desktop : defaults.desktop,
+        phone: Number.isInteger(phone) && phone >= 1 && phone <= 2 ? phone : defaults.phone,
+      };
+    } catch {
+      return defaults;
+    }
+  }
+
+  function syncGridUi() {
+    const viewport = PHONE_MEDIA.matches ? "phone" : "desktop";
+    const max = viewport === "phone" ? 2 : 4;
+    const density = gridPreferences[viewport];
+    const root = document.documentElement;
+    root.dataset.wallpaperGrid = String(density);
+    root.dataset.wallpaperGridViewport = viewport;
+    root.style.setProperty("--wp-grid-columns", String(density));
+
+    document.querySelectorAll("[data-wp-grid]").forEach((btn) => {
+      const value = Number(btn.dataset.wpGrid);
+      const active = value === density;
+      btn.hidden = value > max;
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.classList.toggle("is-active", active);
+    });
+  }
+
+  function setGridDensity(value) {
+    const viewport = PHONE_MEDIA.matches ? "phone" : "desktop";
+    const max = viewport === "phone" ? 2 : 4;
+    const density = Number(value);
+    if (!Number.isInteger(density) || density < 1 || density > max) return;
+    gridPreferences[viewport] = density;
+    try {
+      localStorage.setItem(GRID_KEY, JSON.stringify(gridPreferences));
+    } catch {
+      /* ignore */
+    }
+    syncGridUi();
   }
 
   function normalizeTags(raw) {
@@ -877,11 +928,23 @@
 
   function bindUi() {
     syncFormatUi();
+    syncGridUi();
     document.querySelector(".wp-format-picker")?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-wp-format]");
       if (!btn) return;
       setWallpaperFormat(btn.dataset.wpFormat);
     });
+    $("#wp-grid-density")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-wp-grid]");
+      if (!btn) return;
+      setGridDensity(btn.dataset.wpGrid);
+    });
+    const handleViewportChange = () => syncGridUi();
+    if (typeof PHONE_MEDIA.addEventListener === "function") {
+      PHONE_MEDIA.addEventListener("change", handleViewportChange);
+    } else {
+      PHONE_MEDIA.addListener(handleViewportChange);
+    }
 
     const searchInput = $("#wp-search");
     let searchTimer = null;
@@ -948,6 +1011,7 @@
   async function boot() {
     loadHearts();
     wallpaperFormat = loadFormatPreference();
+    gridPreferences = loadGridPreferences();
     bindDetailsMemory();
     try {
       const [local, remote] = await Promise.all([

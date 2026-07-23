@@ -1162,12 +1162,32 @@ main {
 
 .wp-search-chips {
   grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 0.7rem) / 3);
   gap: 0.35rem;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 0.3rem;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+}
+
+.wp-search-chips::-webkit-scrollbar {
+  height: 4px;
+}
+
+.wp-search-chips::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.3);
 }
 
 .wp-chip {
+  width: 100%;
+  min-width: 0;
   border: 1px solid var(--line);
   background: rgba(0, 0, 0, 0.4);
   color: var(--muted);
@@ -1176,7 +1196,11 @@ main {
   font: inherit;
   font-size: 0.72rem;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
+  scroll-snap-align: start;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
@@ -1198,6 +1222,52 @@ main {
   border: 1px dashed var(--line);
   border-radius: 0.75rem;
   background: rgba(0, 0, 0, 0.25);
+}
+
+.wp-grid-density {
+  display: flex;
+  align-items: center;
+  gap: 0.12rem;
+  width: max-content;
+  max-width: 100%;
+  margin: -0.25rem 0 0.2rem auto;
+  padding: 0.16rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.wp-grid-density-label {
+  padding: 0 0.42rem 0 0.35rem;
+  color: var(--dim);
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.wp-grid-density-option {
+  min-width: 2.35rem;
+  padding: 0.28rem 0.42rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.wp-grid-density-option:hover,
+.wp-grid-density-option:focus-visible {
+  color: var(--cream);
+}
+
+.wp-grid-density-option.is-active,
+.wp-grid-density-option[aria-pressed="true"] {
+  background: var(--gold-soft);
+  color: #f0d878;
 }
 
 .wp-hero-loved {
@@ -1244,7 +1314,8 @@ main {
 .wallpaper-grid-inner {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(var(--wp-grid-columns, 3), minmax(0, 1fr));
+  transition: grid-template-columns 0.18s ease;
 }
 
 .wp-card {
@@ -1493,6 +1564,52 @@ html[data-wallpaper-format="phone"] .wp-thumb {
   align-items: center;
   gap: 0.25rem;
   z-index: 2;
+}
+
+html[data-wallpaper-grid="3"] .wallpaper-grid-inner {
+  gap: 0.75rem;
+}
+
+html[data-wallpaper-grid="4"] .wallpaper-grid-inner {
+  gap: 0.55rem;
+}
+
+html[data-wallpaper-grid="4"] .wp-card {
+  border-radius: 0.65rem;
+}
+
+html[data-wallpaper-grid="4"] .wp-meta {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1.5rem 3.65rem 0.42rem 0.55rem;
+  background: linear-gradient(transparent, rgba(4, 7, 6, 0.94));
+  pointer-events: none;
+}
+
+html[data-wallpaper-grid="4"] .wp-meta strong {
+  overflow: hidden;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+html[data-wallpaper-grid="4"] .wp-meta small,
+html[data-wallpaper-grid="4"] .wp-format-meta,
+html[data-wallpaper-grid="4"] .wp-open-hd {
+  display: none;
+}
+
+html[data-wallpaper-grid="4"] .wp-side-actions {
+  bottom: 0.3rem;
+}
+
+html[data-wallpaper-grid="4"] .wp-badge {
+  max-width: 5.5rem;
+  font-size: 0.5rem;
+  padding: 0.1rem 0.28rem;
 }
 
 /* Compact pill — smaller than heart, fully rounded */
@@ -2345,7 +2462,64 @@ body.med-focus .med-topics {
   }
 
   .wallpaper-grid-inner {
-    grid-template-columns: 1fr;
+    gap: 0.55rem;
+    grid-template-columns: repeat(var(--wp-grid-columns, 1), minmax(0, 1fr));
+  }
+
+  html[data-wallpaper-grid="2"] .wp-card {
+    border-radius: 0.65rem;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-meta {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1.6rem 3.3rem 0.4rem 0.48rem;
+    background: linear-gradient(transparent, rgba(4, 7, 6, 0.94));
+    pointer-events: none;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-meta strong {
+    overflow: hidden;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-meta small,
+  html[data-wallpaper-grid="2"] .wp-format-meta,
+  html[data-wallpaper-grid="2"] .wp-open-hd {
+    display: none;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-badges {
+    gap: 0.15rem;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-badge {
+    max-width: 4.7rem;
+    font-size: 0.48rem;
+    padding: 0.1rem 0.25rem;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-side-actions {
+    right: 0.25rem;
+    bottom: 0.25rem;
+    gap: 0.15rem;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-dl-mini {
+    width: 1.25rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  html[data-wallpaper-grid="2"] .wp-heart {
+    height: 1.3rem;
+    padding: 0 0.3rem;
+    font-size: 0.62rem;
   }
 
   .meditate-card {
