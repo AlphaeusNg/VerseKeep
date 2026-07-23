@@ -1200,115 +1200,6 @@ main {
   background: rgba(0, 0, 0, 0.25);
 }
 
-.wp-featured {
-  margin: 0.85rem 0 1rem;
-}
-
-.wp-feature-row {
-  display: grid;
-  gap: 0.65rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.wp-feature-card {
-  display: grid;
-  grid-template-columns: 8.5rem 1fr;
-  gap: 0.85rem;
-  align-items: stretch;
-  text-align: left;
-  border: 1px solid var(--gold-line);
-  background: linear-gradient(145deg, rgba(40, 48, 38, 0.65), rgba(12, 16, 14, 0.75));
-  border-radius: 0.9rem;
-  padding: 0.45rem;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  min-height: 7rem;
-  transition: border-color 0.15s, transform 0.15s;
-}
-
-.wp-feature-card:hover {
-  border-color: var(--gold);
-  transform: translateY(-1px);
-}
-
-.wp-feature-card.wp-feature-empty {
-  cursor: default;
-  opacity: 0.85;
-  grid-template-columns: 1fr;
-  padding: 0.75rem 0.9rem;
-}
-
-.wp-feature-loved {
-  border-color: rgba(224, 122, 140, 0.45);
-}
-
-.wp-feature-thumb {
-  position: relative;
-  border-radius: 0.65rem;
-  overflow: hidden;
-  background: var(--bg-deep);
-  min-height: 6rem;
-}
-
-.wp-feature-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  min-height: 6rem;
-}
-
-.wp-feature-heart-badge {
-  position: absolute;
-  left: 0.3rem;
-  bottom: 0.3rem;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  padding: 0.12rem 0.35rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.65);
-  color: #f0b4c0;
-}
-
-.wp-feature-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  padding-right: 0.25rem;
-}
-
-.wp-feature-label {
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.15rem;
-}
-
-.wp-feature-loved .wp-feature-label {
-  color: #e8a0ae;
-}
-
-.wp-feature-body strong {
-  font-size: 0.95rem;
-  color: var(--cream);
-  line-height: 1.25;
-}
-
-.wp-feature-body small {
-  color: var(--dim);
-  font-size: 0.75rem;
-  margin-top: 0.15rem;
-}
-
-.wp-feature-status {
-  margin: 0.5rem 0 0;
-  font-size: 0.72rem;
-  color: var(--dim);
-}
-
 .wp-hero-loved {
   margin-top: 0.75rem;
 }
@@ -1333,16 +1224,6 @@ main {
 
 .wp-hero-loved-icon {
   color: #e8a0ae;
-}
-
-.wp-section-label {
-  grid-column: 1 / -1;
-  margin: 0.65rem 0 0.25rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  scroll-margin-top: 0.75rem;
 }
 
 @media (max-width: 720px) {
@@ -2319,64 +2200,6 @@ body.med-focus .med-topics {
   margin-top: 0.85rem;
 }
 
-html[data-wallpaper-format="phone"] .wp-feature-card {
-  grid-template-columns: 6.25rem 1fr;
-  min-height: 11.8rem;
-}
-
-html[data-wallpaper-format="phone"] .wp-feature-thumb {
-  min-height: 10.8rem;
-  aspect-ratio: 9 / 16;
-}
-
-html[data-wallpaper-format="phone"] .wp-feature-thumb img {
-  min-height: 10.8rem;
-}
-
-/* Large wallpaper browser with quick collection jumps */
-.wp-gallery-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0.8rem 0 0.55rem;
-  padding-bottom: 0.1rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.wp-gallery-nav-label {
-  flex: 0 0 auto;
-  color: var(--dim);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-right: 0.1rem;
-}
-
-.wp-gallery-jump {
-  flex: 0 0 auto;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-  background: rgba(0, 0, 0, 0.32);
-  color: var(--muted);
-  font: inherit;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-
-.wp-gallery-jump:hover,
-.wp-gallery-jump:focus-visible {
-  border-color: var(--gold-line);
-  background: var(--gold-soft);
-  color: var(--cream);
-}
-
-.wp-gallery-jump[hidden] {
-  display: none;
-}
-
 .wallpaper-scroll {
   max-height: min(52rem, 72vh);
   overflow-y: auto;
@@ -2390,8 +2213,7 @@ html[data-wallpaper-format="phone"] .wp-feature-thumb img {
   scroll-behavior: smooth;
 }
 
-.wallpaper-scroll .wallpaper-grid,
-.wallpaper-scroll .wp-featured {
+.wallpaper-scroll .wallpaper-grid {
   margin: 0;
 }
 
@@ -2524,31 +2346,6 @@ html[data-wallpaper-format="phone"] .wp-feature-thumb img {
 
   .wallpaper-grid-inner {
     grid-template-columns: 1fr;
-  }
-
-  .wp-feature-card {
-    grid-template-columns: 7.5rem 1fr;
-    min-height: 6.25rem;
-  }
-
-  .wp-feature-thumb,
-  .wp-feature-thumb img {
-    min-height: 5.35rem;
-  }
-
-  html[data-wallpaper-format="phone"] .wp-feature-card {
-    grid-template-columns: 5.5rem 1fr;
-    min-height: 10rem;
-  }
-
-  html[data-wallpaper-format="phone"] .wp-feature-thumb,
-  html[data-wallpaper-format="phone"] .wp-feature-thumb img {
-    min-height: 9.25rem;
-  }
-
-  .wp-gallery-nav {
-    margin-inline: -0.1rem;
-    padding-inline: 0.1rem;
   }
 
   .meditate-card {

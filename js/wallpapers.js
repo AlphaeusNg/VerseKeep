@@ -594,67 +594,6 @@
       </article>`;
   }
 
-  function paintFeatured() {
-    const host = $("#wp-featured");
-    if (!host) return;
-    const today = getTodayFeatured();
-    const top = getTopHearted();
-    const pref = loadPref();
-
-    const todayHtml = today
-      ? `
-      <button type="button" class="wp-feature-card" data-apply="${escapeHtml(today.id)}">
-        <div class="wp-feature-thumb">
-          ${wallpaperAsset(today) ? `<img src="${escapeHtml(wallpaperAsset(today))}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}
-        </div>
-        <div class="wp-feature-body">
-          <span class="wp-feature-label mono">Today’s light · ${escapeHtml(dayKey())}</span>
-          <strong>${escapeHtml(today.title)}</strong>
-          <small>${escapeHtml(today.blurb || "Daily suggestion")}</small>
-        </div>
-      </button>`
-      : "";
-
-    const topCount = top ? Number(heartCounts[top.id] || 0) : 0;
-    const topHtml = top
-      ? `
-      <button type="button" class="wp-feature-card wp-feature-loved" data-apply="${escapeHtml(top.id)}">
-        <div class="wp-feature-thumb">
-          ${wallpaperAsset(top) ? `<img src="${escapeHtml(wallpaperAsset(top))}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}
-          <span class="wp-feature-heart-badge">♥ ${topCount}</span>
-        </div>
-        <div class="wp-feature-body">
-          <span class="wp-feature-label mono">Most loved</span>
-          <strong>${escapeHtml(top.title)}</strong>
-          <small>Community hearts · tap to use</small>
-        </div>
-      </button>`
-      : `
-      <div class="wp-feature-card wp-feature-empty">
-        <div class="wp-feature-body">
-          <span class="wp-feature-label mono">Most loved</span>
-          <strong>No hearts yet</strong>
-          <small>Heart a wallpaper below — the favorite shows here.</small>
-        </div>
-      </div>`;
-
-    const mode = pref?.mode === "daily" ? "Following daily wallpaper" : pref?.id ? `Using: ${pref.title || pref.id}` : "Pick a wallpaper";
-    host.innerHTML = `
-      <div class="wp-feature-row">
-        ${todayHtml}
-        ${topHtml}
-      </div>
-      <p class="wp-feature-status mono">${escapeHtml(mode)}</p>
-    `;
-
-    host.querySelectorAll("[data-apply]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const w = findWallpaper(btn.dataset.apply);
-        if (w) applyWallpaper(w, { mode: w.kind === "daily" ? "daily" : "manual" });
-      });
-    });
-  }
-
   function paintHeroLoved() {
     const el = $("#wp-hero-loved");
     if (!el) return;
@@ -832,52 +771,25 @@
     const host = $("#wallpaper-grid");
     if (!host) return;
     const tokens = parseSearchQuery(searchQuery);
-    const fromPc = classics.filter((w) => String(w.id || "").startsWith("win-"));
-    const allWallpapers = classics.filter(
-      (w) => !String(w.id || "").startsWith("win-")
-    );
-    const searchable = [...daily, ...fromPc, ...allWallpapers];
-    const totalCount = searchable.length;
-    const matches = filterList(searchable, tokens);
-    const matchCount = matches.length;
+    const allWallpapers = [...daily, ...classics];
+    const visibleWallpapers = filterList(allWallpapers, tokens);
+    const totalCount = allWallpapers.length;
+    const matchCount = visibleWallpapers.length;
     updateSearchChrome(matchCount, totalCount, tokens);
-
-    const cardsHtml = (list) =>
-      list
-        .map((w) => cardHtml(w, { showDailyBadge: w.kind === "daily" }))
-        .join("");
-    const section = (label, list, gridId, sectionId) =>
-      list.length
-        ? `
-      <div class="wp-section-label mono" id="${sectionId}">${label}</div>
-      <div class="wallpaper-grid-inner" id="${gridId}">
-        ${cardsHtml(list)}
-      </div>`
-        : "";
 
     const emptyFilter =
       tokens.length && matchCount === 0
         ? `<p class="wp-search-empty hint">No wallpapers match <strong>${escapeHtml(tokens.join(" "))}</strong>. Try a tag like <em>baptism</em>, <em>Jesus</em>, <em>minimal</em>, or <em>cosmos</em>.</p>`
         : "";
 
-    host.innerHTML = tokens.length
-      ? `
+    host.innerHTML = `
       ${emptyFilter}
-      ${section("Matching wallpapers", matches, "wp-all-grid", "wp-all-section")}
-    `
-      : `
-      <div class="wp-section-label mono" id="wp-daily-section">Today’s suggestion</div>
-      <div class="wallpaper-grid-inner" id="wp-daily-grid">
-        ${
-          daily.length
-            ? cardsHtml(daily)
-            : `<p class="hint">Could not load daily images — the main collection still works.</p>`
-        }
+      <div class="wallpaper-grid-inner" id="wp-all-grid">
+        ${visibleWallpapers
+          .map((w) => cardHtml(w, { showDailyBadge: w.kind === "daily" }))
+          .join("")}
       </div>
-      ${section("Alp’s PC", fromPc, "wp-pc-grid", "wp-pc-section")}
-      ${section("All wallpapers", allWallpapers, "wp-all-grid", "wp-all-section")}
     `;
-    updateGalleryNav();
 
     host.querySelectorAll("[data-apply]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -913,35 +825,7 @@
     });
   }
 
-  function updateGalleryNav() {
-    const nav = $("#wp-gallery-nav");
-    if (!nav) return;
-    let visible = 0;
-    nav.querySelectorAll("[data-wp-jump]").forEach((btn) => {
-      const target = document.querySelector(btn.dataset.wpJump || "");
-      btn.hidden = !target;
-      if (target) visible += 1;
-    });
-    nav.hidden = visible === 0;
-  }
-
-  function jumpToGallerySection(selector) {
-    const scroller = $("#wallpaper-scroll");
-    const target = selector ? document.querySelector(selector) : null;
-    if (!scroller || !target) return;
-    const top =
-      target.getBoundingClientRect().top -
-      scroller.getBoundingClientRect().top +
-      scroller.scrollTop;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    scroller.scrollTo({
-      top: Math.max(0, top - 10),
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
-  }
-
   function paintAll() {
-    paintFeatured();
     paintHeroLoved();
     paintGrid();
     paintSearchChips();
@@ -1016,12 +900,6 @@
     $("#wp-search-clear")?.addEventListener("click", () => {
       setSearchQuery("", { focus: true });
     });
-    $("#wp-gallery-nav")?.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-wp-jump]");
-      if (!btn) return;
-      jumpToGallerySection(btn.dataset.wpJump);
-    });
-
     $("#wp-new-suggestions")?.addEventListener("click", async () => {
       rebuildDaily({ reshuffle: true });
       const btn = $("#wp-new-suggestions");
