@@ -374,7 +374,7 @@
   }
 
   /**
-   * CSS custom properties resolve url() against the stylesheet (css/style.css),
+   * CSS custom properties resolve url() against the stylesheet (assets/css/style.css),
    * not the page — so relative classic paths like assets/wallpapers/x.jpg 404.
    * Always absolutize before putting into --wallpaper.
    */

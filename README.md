@@ -18,7 +18,7 @@ Christian **Scripture memory** games in the browser — by theme.
 - Strength in trials  
 - Identity in Christ  
 
-Edit / extend verses in `data/verses.json`. Progress (mastery, streaks, accuracy) is stored in `localStorage` on this device.
+Edit / extend verses in `docs/data/verses.json`. Progress (mastery, streaks, accuracy) is stored in `localStorage` on this device.
 
 ## Modes
 
@@ -39,34 +39,48 @@ Curated **YouTube** and **Spotify** embeds in the Worship section — tap a stat
 
 | Option | Notes |
 |--------|--------|
-| **ESV** (default), **NIV**, **NKJV** | Live text via `js/bible-live.js` when “Live text” is on |
-| **Bundled** `data/verses.json` | Always available offline / if live fetch fails |
+| **ESV** (default), **NIV**, **NKJV** | Live text via `docs/assets/js/bible-live.js` when “Live text” is on |
+| **Bundled** `docs/data/verses.json` | Always available offline / if live fetch fails |
 
-Optional: set `esvApiKey` in `js/bible-config.js` if you route official ESV API through a proxy.
+Optional: set `esvApiKey` in `docs/assets/js/bible-config.js` if you route official ESV API through a proxy.
 
 ## Wallpapers
 
 - **Daily suggestions** — six calm creation photos each day (Unsplash CDN; no API key), plus **New suggestions** to reshuffle.
 - **One gallery** — every wallpaper appears in a single grid; search and tag chips provide filtering without separate collections.
 - **Desktop / phone formats** — switch previews and downloads between 4K landscape (3840 × 2160) and HD portrait (1080 × 1920).
-- **Classics** — bundled desktop images under `assets/wallpapers/` and reference-guided, vertically recomposed phone editions under `assets/wallpapers/phone/` (work offline).
+- **Classics** — bundled desktop images under `docs/assets/wallpapers/` and reference-guided, vertically recomposed phone editions under `docs/assets/wallpapers/phone/` (work offline).
 - **Hearts** — ♥ a wallpaper; counts try to sync globally (counter API, best-effort). The **most loved** wallpaper is highlighted above the gallery.
 - First visit / “Use today’s” follows the daily wallpaper; picking one locks your choice until you change it.
 
 ## Stack
 
-Static HTML / CSS / JS. No build step. GitHub Pages from `main` root.
+Static HTML / CSS / JS with no build step. The deployable site is isolated under `docs/`:
+
+```text
+docs/
+  index.html
+  404.html
+  assets/
+    css/
+    js/
+    wallpapers/
+  data/
+  manifest.webmanifest
+```
 
 ## Local
 
 ```bash
-python3 -m http.server 8080
+python3 -m http.server 8080 --directory docs
 # http://127.0.0.1:8080/
+
+node tools/test-site.mjs
 ```
 
 ## GitHub Pages
 
-Repo **Settings → Pages → Deploy from branch → `main` / root**
+Repo **Settings → Pages → Deploy from branch → `main` / `docs`**
 
 ## Note on translation
 

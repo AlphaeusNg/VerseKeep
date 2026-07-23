@@ -13,22 +13,26 @@ Christian **Scripture meditation** first (verse · context · application · pra
 ## Structure
 
 ```text
-index.html
-css/style.css
-js/
-  meditate.js       # Primary UX: daily/topic meditation card
-  app.js            # Topics, memory modes, practice stage, stats, phone header hide
-  ambient.js        # Music: autoplay, left-edge dock
-  wallpapers.js     # Daily remote + bundled classics + hearts
-  bible-live.js
-  bible-config.js
-data/
-  verses.json       # Themes + verses with context/application/prayer
-  playlists.json    # Spotify / YouTube stations
-  wallpapers.json
-  remote-wallpapers.json
-assets/wallpapers/
-manifest.webmanifest
+docs/                       # GitHub Pages deployment root
+  index.html
+  404.html
+  assets/
+    css/style.css
+    js/
+      meditate.js           # Primary UX: daily/topic meditation card
+      app.js                # Topics, memory modes, practice stage, stats
+      ambient.js            # Music: autoplay, left-edge dock
+      wallpapers.js         # Daily remote + bundled classics + hearts
+      bible-live.js
+      bible-config.js
+    wallpapers/
+  data/
+    verses.json             # Themes + verses with context/application/prayer
+    playlists.json          # Spotify / YouTube stations
+    wallpapers.json
+    remote-wallpapers.json
+  manifest.webmanifest
+tools/test-site.mjs         # Structural and local-reference validation
 ```
 
 ## Meditation
@@ -60,18 +64,18 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 - Autoplay on load: last station (`versekeep-music`) or default Spotify **God’s encouragement** (`alph-gods-encouragement`).
 - **Left-edge dock** (`#worship`): vertical tab opens/closes the panel; open state in `versekeep-music-ui-v5`.
 - Player shell stays **inside the dock slot only** (no free-float / drag). Iframe stays mounted when closed so audio never cuts. Nav **Music** toggles the dock.
-- Playlist metadata: `data/playlists.json` (categories; “From Alphaeus” first).
+- Playlist metadata: `docs/data/playlists.json` (categories; “From Alphaeus” first).
 
 ## Wallpapers
 
 - Daily Unsplash CDN suggestions + bundled offline classics.
-- Hearts / most-loved: best-effort remote counter (see `js/wallpapers.js`).
+- Hearts / most-loved: best-effort remote counter (see `docs/assets/js/wallpapers.js`).
 
 ## Live Bible
 
 - Default translation: **ESV** (also **NIV**, **NKJV** in the UI select).
-- Live fetch in `js/bible-live.js`; bundled `data/verses.json` is always the offline fallback.
-- Optional official ESV API key in `js/bible-config.js` (`esvApiKey`) if you add a proxy.
+- Live fetch in `docs/assets/js/bible-live.js`; bundled `docs/data/verses.json` is always the offline fallback.
+- Optional official ESV API key in `docs/assets/js/bible-config.js` (`esvApiKey`) if you add a proxy.
 
 ## Phone UX
 
@@ -81,26 +85,27 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 
 ```bash
 cd /home/alph/projects/VerseKeep
-python3 -m http.server 8081
+python3 -m http.server 8081 --directory docs
 # http://127.0.0.1:8081/
 
-node --check js/app.js
-node --check js/ambient.js
-node --check js/wallpapers.js
+node tools/test-site.mjs
+node --check docs/assets/js/app.js
+node --check docs/assets/js/ambient.js
+node --check docs/assets/js/wallpapers.js
 ```
 
-Footer version string is set in `js/app.js` (e.g. `v2026.07.18.1`) — **bump on deploy**.
+Footer version string is set in `docs/assets/js/app.js` (e.g. `v2026.07.18.1`) — **bump on deploy**.
 
 ## Conventions
 
 - Zero-build static site; gold/cream dark theme.
-- Prefer editing `data/verses.json` / `data/playlists.json` for content, not hardcoding lists in JS.
+- Prefer editing `docs/data/verses.json` / `docs/data/playlists.json` for content, not hardcoding lists in JS.
 - Keep music dock independent of practice; closed dock must not stop audio.
 - Don’t commit API keys.
 
 ## Deploy
 
-GitHub Pages: **`main` / root**.
+GitHub Pages: **`main` / `docs`**.
 
 ```bash
 git add -A && git status

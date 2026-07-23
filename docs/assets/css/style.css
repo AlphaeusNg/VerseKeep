@@ -45,7 +45,7 @@ body {
 
 /* Image URL is set via --wallpaper AND body inline styles (see wallpapers.js).
    Relative classic paths must be absolutized in JS — CSS var url() resolves
-   against css/style.css, which breaks assets/wallpapers/*.jpg. */
+   against assets/css/style.css, which breaks assets/wallpapers/*.jpg. */
 body.has-wallpaper {
   background-color: var(--bg-deep);
   background-image:
