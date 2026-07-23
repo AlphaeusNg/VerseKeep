@@ -31,7 +31,7 @@
   let applying = false;
   let searchQuery = "";
   let wallpaperFormat = "desktop";
-  let gridPreferences = { desktop: 3, phone: 1 };
+  let gridPreferences = { desktop: 4, phone: 2 };
 
   function escapeHtml(s) {
     return String(s)
@@ -254,7 +254,7 @@
   }
 
   function loadGridPreferences() {
-    const defaults = { desktop: 3, phone: 1 };
+    const defaults = { desktop: 4, phone: 2 };
     try {
       const stored = JSON.parse(localStorage.getItem(GRID_KEY) || "null");
       if (!stored || typeof stored !== "object") return defaults;
