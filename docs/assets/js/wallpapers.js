@@ -1043,7 +1043,9 @@
       BACKGROUND_PHONE_MEDIA.addListener(handleBackgroundViewportChange);
     }
     window.addEventListener("versekeep:background-view-change", (event) => {
-      syncBackgroundPreview(!!event.detail?.active);
+      const active = !!event.detail?.active;
+      if (!active) lastWallpaperTap = { id: "", at: 0 };
+      syncBackgroundPreview(active);
     });
 
     const searchInput = $("#wp-search");

@@ -43,12 +43,18 @@
     let savedScrollY = 0;
     let lastEnter = enterButtons[0] || null;
     let enteredAt = 0;
+    let suppressPageClicksUntil = 0;
 
     function setBackgroundView(active, trigger = lastEnter) {
+      const wasActive = document.body.classList.contains("is-background-view");
       if (active) {
         savedScrollY = window.scrollY || 0;
         lastEnter = trigger || lastEnter;
         enteredAt = performance.now();
+      } else if (wasActive) {
+        // Consume the click generated after pointerup and any second tap in the
+        // same gesture so the restored wallpaper cards cannot reopen the view.
+        suppressPageClicksUntil = performance.now() + 700;
       }
       document.body.classList.toggle("is-background-view", active);
       enterButtons.forEach((button) => {
@@ -78,10 +84,20 @@
     window.addEventListener("versekeep:background-view-enter", (event) => {
       setBackgroundView(true, event.detail?.trigger || lastEnter);
     });
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (performance.now() >= suppressPageClicksUntil) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },
+      true
+    );
     document.addEventListener("pointerup", (event) => {
       if (!document.body.classList.contains("is-background-view")) return;
       if (event.target.closest?.("#background-view-exit")) return;
       if (performance.now() - enteredAt < 250) return;
+      event.preventDefault();
       setBackgroundView(false);
     });
     document.addEventListener("keydown", (event) => {
@@ -1137,7 +1153,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.24.15";
+    if (ver) ver.textContent = "v2026.07.24.16";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {
