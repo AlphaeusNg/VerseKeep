@@ -88,6 +88,11 @@
     return (download ? w.download : w.src) || w.src || w.download || "";
   }
 
+  /** Full-screen/page backgrounds need the HD portrait source, not the card thumbnail. */
+  function wallpaperDisplayAsset(w, format = wallpaperFormat) {
+    return wallpaperAsset(w, format, { download: format === "phone" });
+  }
+
   /** Selected full-resolution URL for Open HD / download. */
   function hdUrl(w) {
     return wallpaperAsset(w, wallpaperFormat, { download: true });
@@ -236,7 +241,7 @@
     const pref = loadPref();
     const current = pref?.id ? findWallpaper(pref.id) : getTodayFeatured();
     if (current) {
-      const src = wallpaperAsset(current);
+      const src = wallpaperDisplayAsset(current);
       applyVisual(src);
       if (pref) {
         savePref({
@@ -491,7 +496,7 @@
   function applyWallpaper(w, { mode = "manual", persist = true } = {}) {
     if (!w) return;
     applying = true;
-    const src = wallpaperAsset(w);
+    const src = wallpaperDisplayAsset(w);
     applyVisual(src);
     rememberCatalog(w);
     if (persist) {
@@ -522,7 +527,7 @@
         ? "phone"
         : "desktop"
       : wallpaperFormat;
-    applyVisual(wallpaperAsset(current, format));
+    applyVisual(wallpaperDisplayAsset(current, format));
     if (active) {
       document.documentElement.dataset.backgroundPreviewFormat = format;
     } else {
@@ -990,7 +995,7 @@
         unsplash: pref.unsplash || "",
         blurb: "",
       };
-      applyVisual(wallpaperAsset(w));
+      applyVisual(wallpaperDisplayAsset(w));
       return;
     }
 
