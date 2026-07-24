@@ -392,7 +392,6 @@
 
     if (!chips.length) return "";
     return `<div class="wp-badges">${chips
-      .slice(0, 3)
       .map(
         (c) =>
           `<span class="wp-badge wp-badge-${escapeHtml(c.tone)}">${escapeHtml(c.label)}</span>`
