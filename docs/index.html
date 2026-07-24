@@ -82,7 +82,7 @@
       <a href="#themes">Memorize</a>
       <a href="#worship" id="nav-music" title="Open or close music dock">Music</a>
       <a href="#wallpapers">Wallpapers</a>
-      <button type="button" class="nav-background-toggle" id="background-view-toggle" aria-label="View current background" aria-pressed="false" title="Minimize the page and view the current background">
+      <button type="button" class="nav-background-toggle" id="background-view-toggle" data-background-view-enter aria-label="View current background" aria-pressed="false" title="Minimize the page and view the current background">
         <span aria-hidden="true">▣</span>
         <span class="nav-background-label">Background</span>
         <span class="nav-background-short" aria-hidden="true">BG</span>
@@ -232,6 +232,9 @@
               Browse every wallpaper together; search or filter by tag, then click one to apply.
             </p>
             <div class="wp-tools">
+              <button type="button" class="btn ghost" id="wp-view-background" data-background-view-enter aria-pressed="false" title="Minimize all page elements and view the selected background">
+                ▣ View background
+              </button>
               <button type="button" class="btn ghost" id="wp-use-daily">Use today’s</button>
               <button type="button" class="btn primary" id="wp-new-suggestions">New suggestions</button>
             </div>
@@ -308,6 +311,6 @@
   <script src="assets/js/ambient.js" defer></script>
   <script src="assets/js/wallpapers.js?v=2026.07.24.9" defer></script>
   <script src="assets/js/meditate.js" defer></script>
-  <script src="assets/js/app.js?v=2026.07.24.12" defer></script>
+  <script src="assets/js/app.js?v=2026.07.24.13" defer></script>
 </body>
 </html>

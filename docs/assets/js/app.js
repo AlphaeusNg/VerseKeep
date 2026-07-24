@@ -36,16 +36,22 @@
   const MODE_ORDER = ["study", "blank", "type", "order", "quiz"];
 
   function bindBackgroundView() {
-    const enter = $("#background-view-toggle");
+    const enterButtons = $$("[data-background-view-enter]");
     const exit = $("#background-view-exit");
-    if (!enter || !exit) return;
+    if (!enterButtons.length || !exit) return;
 
     let savedScrollY = 0;
+    let lastEnter = enterButtons[0];
 
-    function setBackgroundView(active) {
-      if (active) savedScrollY = window.scrollY || 0;
+    function setBackgroundView(active, trigger = lastEnter) {
+      if (active) {
+        savedScrollY = window.scrollY || 0;
+        lastEnter = trigger || lastEnter;
+      }
       document.body.classList.toggle("is-background-view", active);
-      enter.setAttribute("aria-pressed", active ? "true" : "false");
+      enterButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
       exit.hidden = !active;
 
       if (active) {
@@ -53,12 +59,14 @@
       } else {
         requestAnimationFrame(() => {
           window.scrollTo(0, savedScrollY);
-          enter.focus({ preventScroll: true });
+          lastEnter.focus({ preventScroll: true });
         });
       }
     }
 
-    enter.addEventListener("click", () => setBackgroundView(true));
+    enterButtons.forEach((button) => {
+      button.addEventListener("click", () => setBackgroundView(true, button));
+    });
     exit.addEventListener("click", () => setBackgroundView(false));
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && document.body.classList.contains("is-background-view")) {
@@ -1113,7 +1121,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.24.12";
+    if (ver) ver.textContent = "v2026.07.24.13";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {
