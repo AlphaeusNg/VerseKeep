@@ -20,6 +20,10 @@
   const DAILY_COUNT = 6;
   const COUNTER_NS = "versekeepwp";
   const PHONE_MEDIA = window.matchMedia("(max-width: 720px)");
+  const BACKGROUND_PHONE_MEDIA = window.matchMedia(
+    "(max-width: 720px) and (orientation: portrait)"
+  );
+  const DOUBLE_TAP_MS = 500;
 
   let classics = [];
   let remotePool = [];
@@ -32,6 +36,7 @@
   let searchQuery = "";
   let wallpaperFormat = "desktop";
   let gridPreferences = { desktop: 4, phone: 2 };
+  let lastWallpaperTap = { id: "", at: 0 };
 
   function escapeHtml(s) {
     return String(s)
@@ -424,6 +429,21 @@
     return allKnownWallpapers().find((w) => w.id === id) || catalog[id] || null;
   }
 
+  function selectedWallpaper() {
+    const pref = loadPref();
+    if (!pref?.id) return getTodayFeatured();
+    return findWallpaper(pref.id) || {
+      id: pref.id,
+      title: pref.title || pref.id,
+      src: pref.desktopSrc || pref.src || "",
+      download: pref.desktopDownload || pref.desktopSrc || pref.src || "",
+      phoneSrc: pref.phoneSrc || "",
+      phoneDownload: pref.phoneDownload || pref.phoneSrc || "",
+      unsplash: pref.unsplash || "",
+      blurb: "",
+    };
+  }
+
   /**
    * CSS custom properties resolve url() against the stylesheet (assets/css/style.css),
    * not the page — so relative classic paths like assets/wallpapers/x.jpg 404.
@@ -492,6 +512,35 @@
     }
     applying = false;
     paintAll();
+  }
+
+  function syncBackgroundPreview(active) {
+    const current = selectedWallpaper();
+    if (!current) return;
+    const format = active
+      ? BACKGROUND_PHONE_MEDIA.matches
+        ? "phone"
+        : "desktop"
+      : wallpaperFormat;
+    applyVisual(wallpaperAsset(current, format));
+    if (active) {
+      document.documentElement.dataset.backgroundPreviewFormat = format;
+    } else {
+      delete document.documentElement.dataset.backgroundPreviewFormat;
+    }
+  }
+
+  function enterBackgroundView(w) {
+    if (!w) return;
+    applyWallpaper(w, { mode: "manual" });
+    const trigger = [...document.querySelectorAll("[data-view-background]")].find(
+      (button) => button.dataset.viewBackground === w.id
+    );
+    window.dispatchEvent(
+      new CustomEvent("versekeep:background-view-enter", {
+        detail: { trigger },
+      })
+    );
   }
 
   function getTodayFeatured() {
@@ -622,6 +671,7 @@
     const dlMini = open
       ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}-${wallpaperFormat}-${dimensionSlug}.jpg" title="Download ${formatName}" aria-label="Download ${formatName} wallpaper at ${dimensions}">⬇</button>`
       : "";
+    const viewMini = `<button type="button" class="wp-view-mini" data-view-background="${escapeHtml(w.id)}" title="View this wallpaper with the page minimized" aria-label="View ${escapeHtml(w.title)} as a clean background">▣</button>`;
     const badge = badgeHtml(w, { showDailyBadge });
 
     return `
@@ -636,6 +686,7 @@
           </div>
         </button>
         <div class="wp-side-actions">
+          ${viewMini}
           ${dlMini}
           <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
             <span class="wp-heart-icon" aria-hidden="true">${hearted ? "♥" : "♡"}</span>
@@ -856,7 +907,26 @@
         // don't apply when using Open HD / download controls
         if (e.target.closest("a, .wp-side-actions")) return;
         const w = findWallpaper(btn.dataset.apply);
-        if (w) applyWallpaper(w, { mode: "manual" });
+        if (!w) return;
+        const now = performance.now();
+        const isDoubleTap =
+          lastWallpaperTap.id === w.id &&
+          now - lastWallpaperTap.at <= DOUBLE_TAP_MS;
+        lastWallpaperTap = isDoubleTap ? { id: "", at: 0 } : { id: w.id, at: now };
+        if (isDoubleTap) {
+          e.preventDefault();
+          enterBackgroundView(w);
+          return;
+        }
+        applyWallpaper(w, { mode: "manual" });
+      });
+    });
+    host.querySelectorAll("[data-view-background]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        lastWallpaperTap = { id: "", at: 0 };
+        enterBackgroundView(findWallpaper(btn.dataset.viewBackground));
       });
     });
     host.querySelectorAll(".wp-open-hd").forEach((a) => {
@@ -954,6 +1024,22 @@
     } else {
       PHONE_MEDIA.addListener(handleViewportChange);
     }
+    const handleBackgroundViewportChange = () => {
+      if (document.body.classList.contains("is-background-view")) {
+        syncBackgroundPreview(true);
+      }
+    };
+    if (typeof BACKGROUND_PHONE_MEDIA.addEventListener === "function") {
+      BACKGROUND_PHONE_MEDIA.addEventListener(
+        "change",
+        handleBackgroundViewportChange
+      );
+    } else {
+      BACKGROUND_PHONE_MEDIA.addListener(handleBackgroundViewportChange);
+    }
+    window.addEventListener("versekeep:background-view-change", (event) => {
+      syncBackgroundPreview(!!event.detail?.active);
+    });
 
     const searchInput = $("#wp-search");
     let searchTimer = null;

@@ -38,28 +38,35 @@
   function bindBackgroundView() {
     const enterButtons = $$("[data-background-view-enter]");
     const exit = $("#background-view-exit");
-    if (!enterButtons.length || !exit) return;
+    if (!exit) return;
 
     let savedScrollY = 0;
-    let lastEnter = enterButtons[0];
+    let lastEnter = enterButtons[0] || null;
+    let enteredAt = 0;
 
     function setBackgroundView(active, trigger = lastEnter) {
       if (active) {
         savedScrollY = window.scrollY || 0;
         lastEnter = trigger || lastEnter;
+        enteredAt = performance.now();
       }
       document.body.classList.toggle("is-background-view", active);
       enterButtons.forEach((button) => {
         button.setAttribute("aria-pressed", active ? "true" : "false");
       });
       exit.hidden = !active;
+      window.dispatchEvent(
+        new CustomEvent("versekeep:background-view-change", {
+          detail: { active },
+        })
+      );
 
       if (active) {
         exit.focus({ preventScroll: true });
       } else {
         requestAnimationFrame(() => {
           window.scrollTo(0, savedScrollY);
-          lastEnter.focus({ preventScroll: true });
+          if (lastEnter?.isConnected) lastEnter.focus({ preventScroll: true });
         });
       }
     }
@@ -68,6 +75,15 @@
       button.addEventListener("click", () => setBackgroundView(true, button));
     });
     exit.addEventListener("click", () => setBackgroundView(false));
+    window.addEventListener("versekeep:background-view-enter", (event) => {
+      setBackgroundView(true, event.detail?.trigger || lastEnter);
+    });
+    document.addEventListener("pointerup", (event) => {
+      if (!document.body.classList.contains("is-background-view")) return;
+      if (event.target.closest?.("#background-view-exit")) return;
+      if (performance.now() - enteredAt < 250) return;
+      setBackgroundView(false);
+    });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && document.body.classList.contains("is-background-view")) {
         event.preventDefault();
@@ -1121,7 +1137,7 @@
     const y = $("#year");
     if (y) y.textContent = String(new Date().getFullYear());
     const ver = $("#site-version");
-    if (ver) ver.textContent = "v2026.07.24.13";
+    if (ver) ver.textContent = "v2026.07.24.14";
 
     // Phone: hide sticky topbar while scrolling down; show on scroll up / near top
     (function bindPhoneHeaderHide() {
