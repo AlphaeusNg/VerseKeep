@@ -4,7 +4,7 @@
 **Repo:** https://github.com/AlphaeusNg/VerseKeep  
 **Local:** `/home/alph/projects/VerseKeep`  
 **Hub:** `/home/alph/projects/AGENTS.md`  
-**Related:** Biblical Truth viewer on portfolio · AlpArcade
+**Related faith projects:** ChristoDay · Biblical Truth viewer on portfolio
 
 ## Purpose
 
@@ -103,6 +103,8 @@ Footer version string comes from `docs/assets/js/version.js` — bump its
 - Prefer editing `docs/data/verses.json` / `docs/data/playlists.json` for content, not hardcoding lists in JS.
 - Keep music dock independent of practice; closed dock must not stop audio.
 - Don’t commit API keys.
+- Keep header cross-links limited to ChristoDay, Biblical Truth, and the
+  portfolio. Source code stays in the footer.
 
 ## Deploy
 

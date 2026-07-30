@@ -4,7 +4,7 @@ Christian **Scripture memory** games in the browser — by theme.
 
 **Play:** https://alphaeusng.github.io/VerseKeep/  
 **Portfolio:** https://alphaeusng.github.io/  
-**Related:** [Seeking Biblical Truth](https://alphaeusng.github.io/pages/seeking-biblical-truth/) · [AlpArcade](https://alphaeusng.github.io/AlpArcade/)
+**Related faith projects:** [ChristoDay](https://alphaeusng.github.io/ChristoDay/) · [Seeking Biblical Truth](https://alphaeusng.github.io/pages/seeking-biblical-truth/)
 
 ## Themes
 
