@@ -34,6 +34,7 @@ function readJson(relativePath) {
   "assets/js/bible-config.js",
   "assets/js/bible-live.js",
   "assets/js/meditate.js",
+  "assets/js/version.js",
   "assets/js/wallpapers.js",
   "data/playlists.json",
   "data/remote-wallpapers.json",

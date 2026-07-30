@@ -94,7 +94,8 @@ node --check docs/assets/js/ambient.js
 node --check docs/assets/js/wallpapers.js
 ```
 
-Footer version string is set in `docs/assets/js/app.js` (e.g. `v2026.07.18.1`) — **bump on deploy**.
+Footer version string comes from `docs/assets/js/version.js` — bump its
+`SITE_VERSION.id` once per deploy.
 
 ## Conventions
 
