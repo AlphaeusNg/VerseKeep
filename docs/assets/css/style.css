@@ -98,7 +98,7 @@ a:hover {
   min-height: 0;
 }
 
-/* Phone: hide sticky section header while scrolling down to free space */
+/* Hide sticky section header while scrolling down to free space. */
 .topbar.is-scroll-hidden {
   transform: translateY(-110%);
   opacity: 0;
@@ -648,21 +648,9 @@ main {
 
 }
 
-@media (min-width: 721px) {
-  .topbar.is-scroll-hidden {
-    transform: none;
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .topbar,
-  .topbar.is-scroll-hidden {
+  .topbar {
     transition: none;
-    transform: none;
-    opacity: 1;
-    pointer-events: auto;
   }
 }
 

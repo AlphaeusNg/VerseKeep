@@ -77,9 +77,9 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 - Live fetch in `docs/assets/js/bible-live.js`; bundled `docs/data/verses.json` is always the offline fallback.
 - Optional official ESV API key in `docs/assets/js/bible-config.js` (`esvApiKey`) if you add a proxy.
 
-## Phone UX
+## Header UX
 
-- Sticky `.topbar` auto-hides on scroll-down (≤720px); external http nav links hidden on small screens.
+- Sticky `.topbar` auto-hides on scroll-down at every viewport size and returns on scroll-up; external http nav links remain hidden on small screens.
 
 ## Commands
 
