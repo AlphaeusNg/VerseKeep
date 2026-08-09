@@ -178,10 +178,10 @@
     return "esv";
   }
 
-  async function fetchBollsRange(trId, bookId, chapter, verseStart, verseEnd) {
+  async function fetchBollsRange(trId, bookId, chapter, verseStart, verseEnd, signal) {
     if (verseStart === verseEnd) {
       const url = `https://bolls.life/get-verse/${encodeURIComponent(trId)}/${bookId}/${chapter}/${verseStart}/`;
-      const res = await fetch(url);
+      const res = await fetch(url, { signal });
       if (!res.ok) throw new Error(`verse ${res.status}`);
       const data = await res.json();
       const text = stripHtml(data.text);
@@ -189,7 +189,7 @@
       return text;
     }
     const url = `https://bolls.life/get-text/${encodeURIComponent(trId)}/${bookId}/${chapter}/`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal });
     if (!res.ok) throw new Error(`chapter ${res.status}`);
     const rows = await res.json();
     if (!Array.isArray(rows)) throw new Error("Bad chapter payload");
@@ -202,7 +202,7 @@
     return text;
   }
 
-  async function fetchOfficialEsv(ref) {
+  async function fetchOfficialEsv(ref, signal) {
     const key = cfg().esvApiKey;
     if (!key) throw new Error("No ESV API key");
     const url =
@@ -218,6 +218,7 @@
       });
     const res = await fetch(url, {
       headers: { Authorization: `Token ${key}` },
+      signal,
     });
     if (!res.ok) throw new Error(`ESV ${res.status}`);
     const data = await res.json();
@@ -237,6 +238,12 @@
   const inflight = new Map(); // key -> Promise
   const CACHE_TTL_MS = 1000 * 60 * 60 * 12; // 12h
   const CACHE_PREFIX = "vk-bible-v1:";
+
+  function requestTimeoutMs() {
+    const configured = Number(cfg().requestTimeoutMs);
+    if (!Number.isFinite(configured) || configured <= 0) return 8000;
+    return Math.min(30000, Math.max(1, Math.floor(configured)));
+  }
 
   function cacheKey(slug, ref) {
     return `${slug}|${cleanRef(ref).toLowerCase()}`;
@@ -266,7 +273,7 @@
     }
   }
 
-  async function fetchLive(ref, translationSlug) {
+  async function fetchLive(ref, translationSlug, signal) {
     const slug = normalizeTranslation(translationSlug);
     const meta = TRANSLATIONS[slug];
     const parsed = parseRef(ref);
@@ -275,9 +282,10 @@
     // Optional official ESV key path first when slug is esv
     if (slug === "esv" && cfg().esvApiKey) {
       try {
-        return await fetchOfficialEsv(ref);
+        return await fetchOfficialEsv(ref, signal);
       } catch (err) {
         console.warn("[bible-live] official ESV", err.message);
+        if (signal?.aborted) throw err;
       }
     }
 
@@ -286,7 +294,8 @@
       parsed.bookId,
       parsed.chapter,
       parsed.verseStart,
-      parsed.verseEnd
+      parsed.verseEnd,
+      signal
     );
     return {
       text,
@@ -304,13 +313,7 @@
   async function resolveVerse(ref, localText) {
     const preferred = String(cfg().preferred || "esv").toLowerCase();
     if (preferred === "local") {
-      return {
-        text: localText || "",
-        reference: ref,
-        translation: "LOCAL",
-        source: "bundled JSON",
-        fromCache: true,
-      };
+      return bundledFallback(ref, localText, false);
     }
 
     const slug = normalizeTranslation(cfg().bibleApiTranslation || preferred);
@@ -331,16 +334,22 @@
       try {
         return await inflight.get(key);
       } catch {
-        /* fall through to local */
+        return bundledFallback(ref, localText, true);
       }
     }
 
     const job = (async () => {
-      const live = await fetchLive(ref, slug);
-      const stored = { ...live, ts: Date.now() };
-      memCache.set(key, stored);
-      writeSessionCache(key, stored);
-      return live;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), requestTimeoutMs());
+      try {
+        const live = await fetchLive(ref, slug, controller.signal);
+        const stored = { ...live, ts: Date.now() };
+        memCache.set(key, stored);
+        writeSessionCache(key, stored);
+        return live;
+      } finally {
+        clearTimeout(timer);
+      }
     })();
 
     inflight.set(key, job);
@@ -352,11 +361,15 @@
       inflight.delete(key);
     }
 
+    return bundledFallback(ref, localText, true);
+  }
+
+  function bundledFallback(ref, localText, failed) {
     return {
       text: localText || "",
       reference: ref,
       translation: "LOCAL",
-      source: "bundled JSON (live fetch failed)",
+      source: failed ? "bundled JSON (live fetch failed)" : "bundled JSON",
       fromCache: true,
     };
   }

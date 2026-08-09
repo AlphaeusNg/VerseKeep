@@ -19,6 +19,8 @@ jobs:
           node-version: "20"
       - name: Practice scoring
         run: node tools/test-practice-core.mjs
+      - name: Live Bible requests
+        run: node tools/test-bible-live.mjs
       - name: Site structure
         run: node tools/test-site.mjs
       - name: JavaScript syntax

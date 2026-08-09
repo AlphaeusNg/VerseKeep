@@ -9,9 +9,11 @@
     preferred: "esv",
     /** Active translation slug used by the UI select */
     bibleApiTranslation: "esv",
+    /** Abort a stalled live lookup so bundled text can render promptly. */
+    requestTimeoutMs: 8000,
     /**
      * Optional official ESV API token (https://api.esv.org/).
-     * Used only as a secondary path for ESV when set; browser CORS may block it.
+     * Tried first for ESV when set; browser CORS may block it.
      */
     esvApiKey: "",
   };
