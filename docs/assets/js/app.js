@@ -906,7 +906,12 @@
     try {
       const res = await fetch("data/verses.json", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      state.data = await res.json();
+      const catalog = await res.json();
+      const validation = window.VerseKeepPracticeCore.validateVerseCatalog(catalog);
+      if (!validation.valid) {
+        throw new Error(`Invalid verse catalog: ${validation.errors.join("; ")}`);
+      }
+      state.data = catalog;
       paintThemes();
       paintStatsBar();
       $("#load-error").hidden = true;
@@ -915,9 +920,9 @@
         await window.VerseKeepMeditate.bootWithData(state.data);
       }
     } catch (err) {
-      console.error(err);
+      console.error("[VerseKeep] Verse catalog startup failed", err);
       $("#load-error").hidden = false;
-      $("#load-error").textContent = `Could not load verses: ${err.message}`;
+      $("#load-error").textContent = "Could not load verses. Please refresh or try again later.";
     }
 
     $$("#play-panel [data-mode]").forEach((chip) => {

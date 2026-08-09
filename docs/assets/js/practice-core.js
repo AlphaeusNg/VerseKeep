@@ -6,6 +6,7 @@
   const MODES = new Set(["study", "blank", "type", "order", "quiz"]);
   const TRANSLATIONS = new Set(["esv", "niv", "nkjv"]);
   const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+  const VERSE_FIELDS = ["ref", "text", "context", "application", "prayer"];
 
   function isRecord(value) {
     return !!value && typeof value === "object" && !Array.isArray(value);
@@ -91,6 +92,82 @@
     return result;
   }
 
+  function validateVerseCatalog(value) {
+    const errors = [];
+    const addError = (message) => {
+      if (errors.length < 50) errors.push(message);
+    };
+    const requireText = (record, field, path) => {
+      if (typeof record[field] !== "string" || !record[field].trim()) {
+        addError(`${path}.${field} must be a non-empty string`);
+        return null;
+      }
+      return record[field].trim();
+    };
+
+    if (!isRecord(value)) {
+      addError("catalog must be an object");
+      return Object.freeze({ valid: false, errors: Object.freeze(errors) });
+    }
+    if (!Number.isInteger(value.version) || value.version < 1) {
+      addError("version must be a positive integer");
+    }
+    requireText(value, "translationNote", "catalog");
+    if (!Array.isArray(value.themes) || value.themes.length === 0) {
+      addError("themes must contain at least one theme");
+      return Object.freeze({ valid: false, errors: Object.freeze(errors) });
+    }
+
+    const themeIds = new Set();
+    const verseReferences = new Set();
+    value.themes.forEach((theme, themeIndex) => {
+      const themePath = `themes[${themeIndex}]`;
+      if (!isRecord(theme)) {
+        addError(`${themePath} must be an object`);
+        return;
+      }
+
+      const themeId = requireText(theme, "id", themePath);
+      requireText(theme, "title", themePath);
+      requireText(theme, "emoji", themePath);
+      requireText(theme, "blurb", themePath);
+      if (themeId) {
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(themeId)) {
+          addError(`${themePath}.id must be a lowercase slug`);
+        } else if (themeIds.has(themeId)) {
+          addError(`${themePath}.id has duplicate theme id "${themeId}"`);
+        }
+        themeIds.add(themeId);
+      }
+
+      if (!Array.isArray(theme.verses) || theme.verses.length === 0) {
+        addError(`${themePath}.verses must be a non-empty array`);
+        return;
+      }
+      theme.verses.forEach((verse, verseIndex) => {
+        const versePath = `${themePath}.verses[${verseIndex}]`;
+        if (!isRecord(verse)) {
+          addError(`${versePath} must be an object`);
+          return;
+        }
+        const reference = requireText(verse, "ref", versePath);
+        for (const field of VERSE_FIELDS.slice(1)) requireText(verse, field, versePath);
+        if (reference) {
+          const normalizedReference = reference
+            .toLowerCase()
+            .replace(/[\u2012-\u2015]/g, "-")
+            .replace(/\s+/g, " ");
+          if (verseReferences.has(normalizedReference)) {
+            addError(`${versePath}.ref has duplicate verse reference "${reference}"`);
+          }
+          verseReferences.add(normalizedReference);
+        }
+      });
+    });
+
+    return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
+  }
+
   function longestCommonSubsequenceLength(actual, expected) {
     let previous = new Array(expected.length + 1).fill(0);
     for (let actualIndex = 1; actualIndex <= actual.length; actualIndex += 1) {
@@ -130,5 +207,6 @@
     normalizePrefs,
     normalizeStats,
     recallSimilarity,
+    validateVerseCatalog,
   });
 })(typeof window !== "undefined" ? window : globalThis);

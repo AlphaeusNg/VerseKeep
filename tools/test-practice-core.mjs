@@ -6,6 +6,7 @@ import vm from "node:vm";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(resolve(root, "docs/assets/js/practice-core.js"), "utf8");
+const verseCatalog = JSON.parse(readFileSync(resolve(root, "docs/data/verses.json"), "utf8"));
 const sandbox = { window: {} };
 sandbox.globalThis = sandbox;
 vm.createContext(sandbox);
@@ -36,6 +37,49 @@ assert(
 
 assert.equal(typeof core?.normalizeStats, "function", "normalizeStats is exported");
 assert.equal(typeof core?.normalizePrefs, "function", "normalizePrefs is exported");
+assert.equal(typeof core?.validateVerseCatalog, "function", "validateVerseCatalog is exported");
+
+if (core?.validateVerseCatalog) {
+  const validation = core.validateVerseCatalog(verseCatalog);
+  assert.equal(validation.valid, true, `deployed verse catalog is valid: ${validation.errors.join("; ")}`);
+
+  const emptyCatalog = core.validateVerseCatalog({ version: 3, translationNote: "Note", themes: [] });
+  assert.match(emptyCatalog.errors.join("; "), /themes must contain at least one theme/);
+
+  const withoutThemeId = structuredClone(verseCatalog);
+  delete withoutThemeId.themes[0].id;
+  assert.match(
+    core.validateVerseCatalog(withoutThemeId).errors.join("; "),
+    /themes\[0\]\.id must be a non-empty string/
+  );
+
+  const duplicateThemeId = structuredClone(verseCatalog);
+  duplicateThemeId.themes[1].id = duplicateThemeId.themes[0].id;
+  assert.match(core.validateVerseCatalog(duplicateThemeId).errors.join("; "), /duplicate theme id/);
+
+  const duplicateReference = structuredClone(verseCatalog);
+  duplicateReference.themes[1].verses[0].ref = duplicateReference.themes[0].verses[0].ref;
+  assert.match(
+    core.validateVerseCatalog(duplicateReference).errors.join("; "),
+    /duplicate verse reference/
+  );
+
+  for (const field of ["context", "application", "prayer"]) {
+    const missingField = structuredClone(verseCatalog);
+    missingField.themes[0].verses[0][field] = "   ";
+    assert.match(
+      core.validateVerseCatalog(missingField).errors.join("; "),
+      new RegExp(`themes\\[0\\]\\.verses\\[0\\]\\.${field} must be a non-empty string`)
+    );
+  }
+
+  const malformedVerseList = structuredClone(verseCatalog);
+  malformedVerseList.themes[0].verses = {};
+  assert.match(
+    core.validateVerseCatalog(malformedVerseList).errors.join("; "),
+    /themes\[0\]\.verses must be a non-empty array/
+  );
+}
 
 if (core?.normalizeStats && core?.normalizePrefs) {
   const stats = JSON.parse(
@@ -108,4 +152,4 @@ if (core?.normalizeStats && core?.normalizePrefs) {
   );
 }
 
-console.log("test-practice-core.mjs: 22 scoring and state assertions passed");
+console.log("test-practice-core.mjs: 32 scoring, state, and catalog assertions passed");

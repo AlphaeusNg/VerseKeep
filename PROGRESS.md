@@ -1,49 +1,50 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-09 (Cycle 38 across the projects workspace)
+Last updated: 2026-08-09 (Cycle 39 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: `node tools/test-site.mjs` plus syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs site structure, practice core (22 assertions), live Bible requests (11 assertions), and syntax checks.
+- Automated verification: GitHub Actions runs site structure, practice/core/catalog contracts (32 assertions), live Bible requests (11 assertions), and syntax checks.
 
-## Latest cycle: bound stalled live Bible requests
+## Latest cycle: validate the verse catalog before rendering
 
 ### Why this was selected
 
-The resolver already cached and deduplicated successful in-flight lookups, but `fetch()` had no timeout. A stalled provider could leave meditation or an entire practice queue on “Loading verses…” indefinitely. Concurrent waiters also retried immediately after a shared failure instead of using their own bundled fallback.
+Startup assigned parsed JSON directly to shared state and began rendering without checking its shape. A deploy with an empty theme list, malformed verses, duplicate identifiers, or missing meditation fields could crash midway through startup or silently render broken content. Its page-level error also exposed raw exception details.
 
 ### Changes
 
-- Added one abort controller and bounded timer per deduplicated live lookup; the production default is eight seconds and configuration is clamped to 1–30,000 ms.
-- Passed the abort signal through both official ESV and Bolls provider paths.
-- Reused a single bundled-fallback constructor for local mode, failures, timeouts, and concurrent waiters.
-- Prevented concurrent waiters from starting duplicate retries after their shared request fails; a later independent call may retry normally.
-- Added 11 mocked-network assertions for successful deduplication, timeout, caller-specific fallback, cleanup/retry, and unparsed references.
-- Added the network suite to CI and the README; bumped the deployment version to `2026.08.09.3`.
+- Added a non-mutating catalog validator to the shared practice core with bounded, field-path-specific diagnostics.
+- Enforced a positive catalog version, translation note, non-empty theme and verse arrays, required theme and verse text, lowercase unique theme IDs, and normalized unique verse references.
+- Validated the full catalog before assigning shared state or rendering either experience.
+- Kept detailed failures in the console while replacing raw page exceptions with a stable user-safe recovery message.
+- Added ten catalog assertions over the deployed JSON and malformed fixtures, plus site checks that enforce validation wiring and safe error copy.
+- Bumped the deployment version to `2026.08.09.4`.
 
 ### Verification and scores
 
-- `node tools/test-bible-live.mjs`: 11 passed, 0 failed (the timeout regression exceeded its 150 ms test deadline before implementation).
-- `node tools/test-practice-core.mjs`: 22 passed, 0 failed.
+- `node tools/test-practice-core.mjs`: 32 passed, 0 failed (the missing validator export failed before implementation).
+- `node tools/test-bible-live.mjs`: 11 passed, 0 failed.
 - `node tools/test-site.mjs`: 60 wallpaper entries and both HTML entry points verified.
 - `node --check docs/assets/js/*.js tools/*.mjs`: passed.
 - `git diff --check`: passed.
-- Correctness/reliability: 9/10 (live-provider stalls now degrade to bundled Scripture instead of hanging the UI).
-- Verifiability: 9/10 (success, timeout, concurrency, retry, and parse failure paths are deterministic).
-- Maintainability: 8/10 (timeout policy is explicit in configuration and fallback construction is centralized).
-- Performance: 9/10 (existing request deduplication is preserved and failure storms no longer create immediate retries).
+- Correctness/reliability: 9/10 (malformed content is rejected before partial UI initialization).
+- Verifiability: 9/10 (the live 17-theme, 93-verse catalog and targeted invalid shapes share one tested contract).
+- Maintainability: 9/10 (one pure validator owns the schema and returns precise paths without mutating content).
+- Security/robustness: 9/10 (user-visible failures no longer reveal internal exception details, and diagnostic volume is bounded).
 
 ### Lessons and process improvements
 
-- Audit existing behavior before adding infrastructure: in-flight deduplication was already present and only its failure path needed correction.
-- A timeout must cover the entire provider chain, not grant each fallback provider a fresh full delay.
-- Concurrent waiters should share network work but construct fallback results from their own bundled text.
+- Validate at the fetch boundary before any shared-state assignment so consumers never observe a partially trusted catalog.
+- Operational diagnostics and user-facing recovery copy have different audiences; preserve detail in the console while keeping the page stable.
+- Run multi-command verification under fail-fast shell behavior. The first pass exposed a fixture bug, but a later successful command otherwise masked the aggregate exit status.
 
 ## Previous cycle
 
+- Cycle 38 (`64ec822`): bounded live Bible lookups, preserved deduplication and retry behavior, and added 11 network assertions.
 - Cycle 37 (`cd5636a`): normalized persisted practice stats and shared preferences; practice-core coverage increased from 8 to 22 assertions.
 - Cycle 36 (`a2c21e5`): added least-privilege CI; hosted run `31293112358` completed successfully.
 - Cycle 35 (`15e7408`): replaced word-set recall grading with sequence-aware scoring, added eight assertions, and pushed version `2026.08.09.1`.
@@ -52,10 +53,10 @@ The resolver already cached and deduplicated successful in-flight lookups, but `
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add verse/theme schema validation before rendering | Correctness | High | Medium / low | Startup trusts JSON structure beyond fetch success |
-| 2 | Normalize meditation streak/history state | Reliability | Medium | Small / low | `count`, `lastDay`, and history entries still trust parsed localStorage types |
-| 3 | Abort obsolete queue hydration when the user switches theme/translation | Reliability / performance | Medium | Medium / medium | Per-request timeouts are bounded, but superseded sequential queues still finish in the background |
+| 1 | Normalize meditation session and streak/history state | Reliability | High | Small / low | String counts can concatenate, arbitrary topics can empty the pool, and history entries trust parsed localStorage types |
+| 2 | Abort obsolete queue hydration when the user switches theme/translation | Reliability / performance | Medium | Medium / medium | Per-request timeouts are bounded, but superseded sequential queues still finish in the background |
+| 3 | Validate playlist and remote-wallpaper data contracts | Correctness | Medium | Medium / low | Site checks prove JSON syntax and local paths but runtime consumers still trust object shapes |
 
 ## Next cycle
 
-Validate `verses.json` before either meditation or practice renders it, with fixtures for duplicate IDs/references and missing context/application/prayer fields. Keep the fatal UI user-safe and diagnostics precise.
+Normalize saved meditation session and streak records through shared pure helpers. Bound counters, validate calendar-day/history entries, reject unknown topics against the loaded catalog, and cover corrupt localStorage fixtures before changing runtime consumers.

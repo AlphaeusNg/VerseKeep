@@ -70,6 +70,20 @@ if (existsSync(indexPath)) {
   }
 }
 
+const appPath = requirePath("assets/js/app.js");
+if (existsSync(appPath)) {
+  const appSource = readFileSync(appPath, "utf8");
+  if (!appSource.includes("validateVerseCatalog")) {
+    failures.push("app.js must validate verses.json before rendering");
+  }
+  if (appSource.includes("Could not load verses: ${err.message}")) {
+    failures.push("Verse loading errors must not expose raw exception details in the page");
+  }
+  if (!appSource.includes("Could not load verses. Please refresh or try again later.")) {
+    failures.push("app.js must show a user-safe verse loading recovery message");
+  }
+}
+
 for (const filename of readdirSync(resolve(siteRoot, "data"))) {
   if (filename.endsWith(".json")) readJson(`data/${filename}`);
 }
