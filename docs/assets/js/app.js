@@ -109,31 +109,14 @@
   }
 
   function defaultStats() {
-    return {
-      checks: 0,
-      correct: 0,
-      themesCompleted: 0,
-      bestStreak: 0,
-      verseHits: {}, // "ref" -> correct count
-      themePlays: {}, // themeId -> times selected
-      favorites: {},
-      lastTheme: null,
-      totalScore: 0,
-    };
+    return window.VerseKeepPracticeCore.defaultStats();
   }
 
   function loadStats() {
     try {
       const raw = localStorage.getItem(STATS_KEY);
       if (!raw) return defaultStats();
-      const data = JSON.parse(raw);
-      return {
-        ...defaultStats(),
-        ...data,
-        verseHits: data.verseHits || {},
-        themePlays: data.themePlays || {},
-        favorites: data.favorites || {},
-      };
+      return window.VerseKeepPracticeCore.normalizeStats(JSON.parse(raw));
     } catch {
       return defaultStats();
     }
@@ -153,7 +136,7 @@
     try {
       const raw = localStorage.getItem(PREFS_KEY);
       if (!raw) return {};
-      return JSON.parse(raw) || {};
+      return window.VerseKeepPracticeCore.normalizePrefs(JSON.parse(raw));
     } catch {
       return {};
     }
@@ -161,7 +144,7 @@
 
   function savePrefs(partial) {
     try {
-      const next = { ...loadPrefs(), ...partial };
+      const next = window.VerseKeepPracticeCore.normalizePrefs({ ...loadPrefs(), ...partial });
       localStorage.setItem(PREFS_KEY, JSON.stringify(next));
     } catch {
       /* ignore */

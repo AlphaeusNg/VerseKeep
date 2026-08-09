@@ -24,7 +24,9 @@
 
   function loadPrefs() {
     try {
-      return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") || {};
+      return window.VerseKeepPracticeCore.normalizePrefs(
+        JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")
+      );
     } catch {
       return {};
     }
@@ -32,7 +34,8 @@
 
   function savePrefs(partial) {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ ...loadPrefs(), ...partial }));
+      const next = window.VerseKeepPracticeCore.normalizePrefs({ ...loadPrefs(), ...partial });
+      localStorage.setItem(PREFS_KEY, JSON.stringify(next));
     } catch {
       /* ignore */
     }

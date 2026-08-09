@@ -58,9 +58,12 @@ if (existsSync(indexPath)) {
     failures.push("Missing wallpaper grid density control");
   }
   const practiceCoreIndex = html.indexOf('src="assets/js/practice-core.js"');
+  const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
   const appIndex = html.indexOf('src="assets/js/app.js"');
   if (practiceCoreIndex < 0) failures.push("index.html must load practice-core.js");
-  else if (practiceCoreIndex > appIndex) failures.push("practice-core.js must load before app.js");
+  else if (practiceCoreIndex > meditateIndex || practiceCoreIndex > appIndex) {
+    failures.push("practice-core.js must load before meditate.js and app.js");
+  }
   const densityOptions = [...html.matchAll(/\bdata-wp-grid="([1-4])"/g)].map((match) => match[1]);
   if (densityOptions.join(",") !== "1,2,3,4") {
     failures.push("Expected wallpaper grid density options 1x1 through 4x4");
