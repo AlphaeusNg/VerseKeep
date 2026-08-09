@@ -79,6 +79,9 @@ node tools/test-site.mjs
 node tools/test-practice-core.mjs
 node tools/test-bible-live.mjs
 node tools/test-workflow.mjs
+npm ci
+npx playwright install chromium
+npm run test:browser
 ```
 
 ## GitHub Pages
