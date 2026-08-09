@@ -76,6 +76,7 @@ python3 -m http.server 8080 --directory docs
 # http://127.0.0.1:8080/
 
 node tools/test-site.mjs
+node tools/test-practice-core.mjs
 ```
 
 ## GitHub Pages

@@ -818,7 +818,7 @@
     } else if (state.mode === "type") {
       const got = normalize($("#type-input")?.value);
       const expect = normalize(v.text);
-      const ratio = similarity(got, expect);
+      const ratio = window.VerseKeepPracticeCore.recallSimilarity(got, expect);
       ok = ratio >= 0.82;
       detail = ok
         ? `Strong recall (${Math.round(ratio * 100)}% match).`
@@ -854,20 +854,6 @@
     setTimeout(() => {
       if (state.answered) nextVerse();
     }, 1100);
-  }
-
-  function similarity(a, b) {
-    if (!a && !b) return 1;
-    if (!a || !b) return 0;
-    const ta = a.split(" ");
-    const tb = new Set(b.split(" "));
-    let hit = 0;
-    ta.forEach((w) => {
-      if (tb.has(w)) hit += 1;
-    });
-    const recall = hit / Math.max(tb.size, 1);
-    const precision = hit / Math.max(ta.length, 1);
-    return (2 * recall * precision) / Math.max(recall + precision, 0.0001);
   }
 
   function nextVerse() {

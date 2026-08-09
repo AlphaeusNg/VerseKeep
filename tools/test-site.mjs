@@ -34,6 +34,7 @@ function readJson(relativePath) {
   "assets/js/bible-config.js",
   "assets/js/bible-live.js",
   "assets/js/meditate.js",
+  "assets/js/practice-core.js",
   "assets/js/version.js",
   "assets/js/wallpapers.js",
   "data/playlists.json",
@@ -56,6 +57,10 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="wp-grid-density"')) {
     failures.push("Missing wallpaper grid density control");
   }
+  const practiceCoreIndex = html.indexOf('src="assets/js/practice-core.js"');
+  const appIndex = html.indexOf('src="assets/js/app.js"');
+  if (practiceCoreIndex < 0) failures.push("index.html must load practice-core.js");
+  else if (practiceCoreIndex > appIndex) failures.push("practice-core.js must load before app.js");
   const densityOptions = [...html.matchAll(/\bdata-wp-grid="([1-4])"/g)].map((match) => match[1]);
   if (densityOptions.join(",") !== "1,2,3,4") {
     failures.push("Expected wallpaper grid density options 1x1 through 4x4");
