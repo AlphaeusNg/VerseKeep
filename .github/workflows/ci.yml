@@ -13,10 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "24"
+      - name: Workflow policy
+        run: node tools/test-workflow.mjs
       - name: Practice scoring
         run: node tools/test-practice-core.mjs
       - name: Live Bible requests

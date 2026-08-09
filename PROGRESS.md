@@ -1,48 +1,49 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-09 (Cycle 40 across the projects workspace)
+Last updated: 2026-08-09 (Cycle 41 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: `node tools/test-site.mjs` plus syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs site structure, practice/core/catalog contracts (42 assertions), live Bible requests (11 assertions), and syntax checks.
+- Automated verification: GitHub Actions runs CI policy (5 assertions), site structure, practice/core/catalog contracts (42 assertions), live Bible requests (11 assertions), and syntax checks on Node 24.
 
-## Latest cycle: normalize meditation persistence
+## Latest cycle: remove deprecated CI runtimes
 
 ### Why this was selected
 
-Meditation session and streak records trusted any successfully parsed localStorage value. A string count could concatenate on the next “Amen,” impossible dates and malformed history survived, and a deleted or fabricated topic ID could produce an empty meditation pool.
+The successful Cycle 40 hosted run warned that both pinned GitHub actions still used the deprecated Node 20 action runtime and were being forcibly executed on Node 24. The workflow also configured Node 20 for the project checks even though that release line is end-of-life.
 
 ### Changes
 
-- Added shared, non-mutating normalizers for saved meditation sessions and streaks.
-- Scoped restored and programmatic topic IDs to `all` plus the IDs in the validated live catalog; trimmed references and accepted only real `YYYYMMDD` resume dates.
-- Bound streak counts, coupled them to a valid `YYYY-MM-DD` anchor, removed malformed history records, and retained only the latest 30 valid entries.
-- Routed every meditation session/streak read and write through the shared contracts, including boot-time preference restoration and public topic selection.
-- Added ten persistence assertions plus site checks that enforce both runtime integrations; bumped the deployment version to `2026.08.09.5`.
+- Verified from the official repositories that `actions/checkout@v7` and `actions/setup-node@v7` use Node 24 and support current GitHub-hosted runners.
+- Upgraded both actions from v4 to v7 and moved project checks from end-of-life Node 20 to Active LTS Node 24.
+- Added five local/hosted workflow-policy assertions for action majors, Node version, read-only permissions, and the bounded job timeout.
+- Added the workflow test to CI and the README; bumped the deployment version to `2026.08.09.6`.
 
 ### Verification and scores
 
-- `node tools/test-practice-core.mjs`: 42 passed, 0 failed (both missing normalizer exports failed before implementation).
+- `node tools/test-workflow.mjs`: 5 passed, 0 failed (the legacy checkout action failed before implementation).
+- `node tools/test-practice-core.mjs`: 42 passed, 0 failed.
 - `node tools/test-bible-live.mjs`: 11 passed, 0 failed.
 - `node tools/test-site.mjs`: 60 wallpaper entries and both HTML entry points verified.
 - `node --check docs/assets/js/*.js tools/*.mjs`: passed.
 - `git diff --check`: passed.
-- Correctness/reliability: 9/10 (corrupt saved values no longer break streak arithmetic or select an empty topic).
-- Verifiability: 9/10 (valid, unknown, malformed, impossible-date, and overlong-history cases are deterministic).
-- Maintainability: 9/10 (all session and streak persistence shares two pure contracts).
-- Security/robustness: 9/10 (stored counts, identifiers, references, dates, and collection size are bounded before use).
+- Correctness/reliability: 8/10 (CI no longer relies on forced compatibility for deprecated action runtimes).
+- Verifiability: 9/10 (five policy invariants now fail locally before an outdated workflow is pushed).
+- Maintainability: 9/10 (the action and project runtimes align on the current Active LTS line).
+- Security/robustness: 9/10 (current action releases retain read-only permissions and receive supported runtime fixes).
 
 ### Lessons and process improvements
 
-- Normalize correlated fields together: a streak count is meaningful only when its last-day anchor is valid.
-- Persisted identifiers cannot be validated in isolation; session normalization must receive the current catalog's allowed theme IDs.
-- Sanitize on both reads and writes so corrupted legacy state is safe immediately and self-heals on the next interaction.
+- A successful hosted run can still carry actionable maintenance evidence; warnings belong in the next prioritization pass.
+- The JavaScript runtime inside an action and the Node version installed for project tests are separate upgrade targets.
+- Encode least privilege and timeout limits alongside dependency versions so a future workflow edit cannot regress adjacent safeguards.
 
 ## Previous cycle
 
+- Cycle 40 (`d34d984`): normalized meditation session/streak persistence and added ten corrupt-state assertions.
 - Cycle 39 (`55191ea`): validated the 17-theme, 93-verse catalog before rendering and separated precise diagnostics from safe visitor messaging.
 - Cycle 38 (`64ec822`): bounded live Bible lookups, preserved deduplication and retry behavior, and added 11 network assertions.
 - Cycle 37 (`cd5636a`): normalized persisted practice stats and shared preferences; practice-core coverage increased from 8 to 22 assertions.
