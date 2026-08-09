@@ -84,6 +84,16 @@ if (existsSync(appPath)) {
   }
 }
 
+const meditatePath = requirePath("assets/js/meditate.js");
+if (existsSync(meditatePath)) {
+  const meditateSource = readFileSync(meditatePath, "utf8");
+  for (const helper of ["normalizeMeditationSession", "normalizeMeditationStreak"]) {
+    if (!meditateSource.includes(helper)) {
+      failures.push(`meditate.js must use ${helper} for persisted state`);
+    }
+  }
+}
+
 for (const filename of readdirSync(resolve(siteRoot, "data"))) {
   if (filename.endsWith(".json")) readJson(`data/${filename}`);
 }

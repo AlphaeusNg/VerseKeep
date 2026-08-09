@@ -92,6 +92,64 @@
     return result;
   }
 
+  function isCalendarDateParts(year, month, day) {
+    if (year < 2000 || year > 9999 || month < 1 || month > 12 || day < 1) return false;
+    return day <= new Date(Date.UTC(year, month, 0)).getUTCDate();
+  }
+
+  function isDaySeed(value) {
+    if (!Number.isInteger(value)) return false;
+    const match = String(value).match(/^(\d{4})(\d{2})(\d{2})$/);
+    return !!match && isCalendarDateParts(Number(match[1]), Number(match[2]), Number(match[3]));
+  }
+
+  function isDayKey(value) {
+    if (typeof value !== "string") return false;
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return !!match && isCalendarDateParts(Number(match[1]), Number(match[2]), Number(match[3]));
+  }
+
+  function normalizeMeditationSession(value, allowedThemeIds = []) {
+    const source = isRecord(value) ? value : {};
+    const allowedTopics = new Set(["all"]);
+    if (Array.isArray(allowedThemeIds)) {
+      for (const id of allowedThemeIds) {
+        if (typeof id === "string" && id) allowedTopics.add(id);
+      }
+    }
+    const requestedTopic =
+      typeof source.topicId === "string" && source.topicId.trim().length <= 200
+        ? source.topicId.trim()
+        : "all";
+    const result = { topicId: allowedTopics.has(requestedTopic) ? requestedTopic : "all" };
+    if (typeof source.ref === "string" && source.ref.trim() && source.ref.trim().length <= 200) {
+      result.ref = source.ref.trim();
+    }
+    if (isDaySeed(source.day)) result.day = source.day;
+    return result;
+  }
+
+  function normalizeMeditationStreak(value) {
+    const source = isRecord(value) ? value : {};
+    const lastDay = isDayKey(source.lastDay) ? source.lastDay : null;
+    const rawCount = boundedInteger(source.count);
+    const history = [];
+    if (Array.isArray(source.history)) {
+      for (const entry of source.history) {
+        if (!isRecord(entry) || !isDayKey(entry.day)) continue;
+        if (typeof entry.ref !== "string" || !entry.ref.trim() || entry.ref.trim().length > 200) {
+          continue;
+        }
+        history.push({ day: entry.day, ref: entry.ref.trim() });
+      }
+    }
+    return {
+      count: lastDay ? Math.max(1, rawCount) : 0,
+      lastDay,
+      history: history.slice(-30),
+    };
+  }
+
   function validateVerseCatalog(value) {
     const errors = [];
     const addError = (message) => {
@@ -204,6 +262,8 @@
 
   global.VerseKeepPracticeCore = Object.freeze({
     defaultStats,
+    normalizeMeditationSession,
+    normalizeMeditationStreak,
     normalizePrefs,
     normalizeStats,
     recallSimilarity,

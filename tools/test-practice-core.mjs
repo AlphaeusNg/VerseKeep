@@ -38,6 +38,98 @@ assert(
 assert.equal(typeof core?.normalizeStats, "function", "normalizeStats is exported");
 assert.equal(typeof core?.normalizePrefs, "function", "normalizePrefs is exported");
 assert.equal(typeof core?.validateVerseCatalog, "function", "validateVerseCatalog is exported");
+assert.equal(
+  typeof core?.normalizeMeditationSession,
+  "function",
+  "normalizeMeditationSession is exported"
+);
+assert.equal(
+  typeof core?.normalizeMeditationStreak,
+  "function",
+  "normalizeMeditationStreak is exported"
+);
+
+if (core?.normalizeMeditationSession && core?.normalizeMeditationStreak) {
+  const themeIds = verseCatalog.themes.map((theme) => theme.id);
+  assert.deepEqual(
+    JSON.parse(
+      JSON.stringify(
+        core.normalizeMeditationSession(
+          { topicId: ` ${themeIds[0]} `, ref: " John 3:16 ", day: 20260809 },
+          themeIds
+        )
+      )
+    ),
+    { topicId: themeIds[0], ref: "John 3:16", day: 20260809 },
+    "valid meditation session values are trimmed and preserved"
+  );
+  assert.deepEqual(
+    JSON.parse(
+      JSON.stringify(
+        core.normalizeMeditationSession(
+          { topicId: "not-a-real-theme", ref: "", day: 20260230 },
+          themeIds
+        )
+      )
+    ),
+    { topicId: "all" },
+    "unknown topics and malformed resume fields reset safely"
+  );
+
+  assert.deepEqual(
+    JSON.parse(
+      JSON.stringify(
+        core.normalizeMeditationStreak({
+          count: 4,
+          lastDay: "2026-08-09",
+          history: [{ day: "2026-08-08", ref: " Psalm 56:3 " }],
+        })
+      )
+    ),
+    {
+      count: 4,
+      lastDay: "2026-08-09",
+      history: [{ day: "2026-08-08", ref: "Psalm 56:3" }],
+    },
+    "valid streak state is normalized"
+  );
+  assert.equal(
+    core.normalizeMeditationStreak({ count: "4", lastDay: "2026-08-09" }).count,
+    1,
+    "string counts cannot concatenate during the next streak increment"
+  );
+  assert.deepEqual(
+    JSON.parse(
+      JSON.stringify(
+        core.normalizeMeditationStreak({ count: 99, lastDay: "2026-02-30", history: [] })
+      )
+    ),
+    { count: 0, lastDay: null, history: [] },
+    "an invalid streak date resets its dependent count"
+  );
+
+  const history = Array.from({ length: 34 }, (_, index) => ({
+    day: `2026-07-${String(index + 1).padStart(2, "0")}`,
+    ref: `Reference ${index + 1}`,
+  }));
+  history.push({ day: "not-a-day", ref: "Bad date" }, { day: "2026-08-01", ref: " " });
+  const normalizedHistory = core.normalizeMeditationStreak({
+    count: 8,
+    lastDay: "2026-08-09",
+    history,
+  }).history;
+  assert.equal(normalizedHistory.length, 30, "streak history is capped at 30 valid entries");
+  assert.equal(
+    normalizedHistory.every((entry) => entry.ref && /^\d{4}-\d{2}-\d{2}$/.test(entry.day)),
+    true,
+    "malformed history entries are discarded"
+  );
+  assert.equal(
+    normalizedHistory.some((entry) => entry.day === "2026-07-32"),
+    false,
+    "impossible calendar dates are removed from history"
+  );
+}
 
 if (core?.validateVerseCatalog) {
   const validation = core.validateVerseCatalog(verseCatalog);
@@ -152,4 +244,4 @@ if (core?.normalizeStats && core?.normalizePrefs) {
   );
 }
 
-console.log("test-practice-core.mjs: 32 scoring, state, and catalog assertions passed");
+console.log("test-practice-core.mjs: 42 scoring, state, and catalog assertions passed");

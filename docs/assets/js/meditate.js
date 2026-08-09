@@ -43,15 +43,22 @@
 
   function loadMed() {
     try {
-      return JSON.parse(localStorage.getItem(MED_KEY) || "{}") || {};
+      return window.VerseKeepPracticeCore.normalizeMeditationSession(
+        JSON.parse(localStorage.getItem(MED_KEY) || "{}"),
+        state.data?.themes?.map((theme) => theme.id) || []
+      );
     } catch {
-      return {};
+      return { topicId: "all" };
     }
   }
 
   function saveMed(partial) {
     try {
-      localStorage.setItem(MED_KEY, JSON.stringify({ ...loadMed(), ...partial }));
+      const next = window.VerseKeepPracticeCore.normalizeMeditationSession(
+        { ...loadMed(), ...partial },
+        state.data?.themes?.map((theme) => theme.id) || []
+      );
+      localStorage.setItem(MED_KEY, JSON.stringify(next));
     } catch {
       /* ignore */
     }
@@ -59,15 +66,18 @@
 
   function loadStreak() {
     try {
-      return JSON.parse(localStorage.getItem(STREAK_KEY) || "{}") || {};
+      return window.VerseKeepPracticeCore.normalizeMeditationStreak(
+        JSON.parse(localStorage.getItem(STREAK_KEY) || "{}")
+      );
     } catch {
-      return {};
+      return { count: 0, lastDay: null, history: [] };
     }
   }
 
   function saveStreak(data) {
     try {
-      localStorage.setItem(STREAK_KEY, JSON.stringify(data));
+      const next = window.VerseKeepPracticeCore.normalizeMeditationStreak(data);
+      localStorage.setItem(STREAK_KEY, JSON.stringify(next));
     } catch {
       /* ignore */
     }
@@ -286,7 +296,10 @@
     if (state.loading) return;
     state.loading = true;
     try {
-      state.topicId = id || "all";
+      state.topicId = window.VerseKeepPracticeCore.normalizeMeditationSession(
+        { topicId: id },
+        state.data?.themes?.map((theme) => theme.id) || []
+      ).topicId;
       state.pool = buildPool(state.data, state.topicId);
       paintTopics();
       const seed = daySeed() + (state.topicId === "all" ? 0 : state.topicId.length * 17);
@@ -539,7 +552,14 @@
     state.data = data;
     const prefs = loadPrefs();
     const med = loadMed();
-    const topic = prefs.lastMedTopic || med.topicId || "all";
+    const preferredSession = window.VerseKeepPracticeCore.normalizeMeditationSession(
+      { topicId: prefs.lastMedTopic },
+      data.themes.map((theme) => theme.id)
+    );
+    const topic =
+      prefs.lastMedTopic && preferredSession.topicId === prefs.lastMedTopic
+        ? preferredSession.topicId
+        : med.topicId;
     state.topicId = topic;
     state.pool = buildPool(data, state.topicId);
     paintTopics();
