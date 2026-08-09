@@ -22,8 +22,13 @@
     liveBible: true,
     liveMeta: null,
     selecting: false,
+    selectionId: 0,
     autoAdvance: false,
   };
+
+  const queueHydrator = window.VerseKeepPracticeCore.createLatestQueueHydrator((ref, localText) =>
+    window.VerseKeepBible.resolveVerse(ref, localText)
+  );
 
   const MODE_LABELS = {
     study: "Study",
@@ -308,38 +313,46 @@
     `;
   }
 
-  async function hydrateQueueFromLive(queue) {
-    if (!state.liveBible || !window.VerseKeepBible?.resolveVerse) return queue;
-    const out = [];
-    for (const v of queue) {
-      try {
-        const live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text);
-        out.push({
-          ...v,
-          text: live.text || v.text,
-          liveSource: live.source,
-          liveTranslation: live.translation,
-        });
-      } catch {
-        out.push(v);
-      }
-    }
-    return out;
+  function queueSettingsKey() {
+    const bible = window.VERSEKEEP_BIBLE || {};
+    return `${state.liveBible}|${bible.preferred || ""}|${bible.bibleApiTranslation || ""}`;
   }
 
-  async function beginQueue(queue, label) {
+  function bundledQueue(queue) {
+    return queue.map((verse) => ({
+      ...verse,
+      text: verse.localText || verse.text,
+      liveSource: undefined,
+      liveTranslation: undefined,
+    }));
+  }
+
+  async function beginQueue(queue, label, initialOperation) {
     $("#play-panel").hidden = false;
     $("#theme-label").textContent = label;
     $("#stage").innerHTML = `<p class="hint">Loading verses${state.liveBible ? " (live text)…" : "…"}</p>`;
-    queue = await hydrateQueueFromLive(queue);
-    state.queue = queue;
+    let operation = initialOperation;
+    let hydrated;
+    while (true) {
+      const settings = queueSettingsKey();
+      hydrated = await queueHydrator.hydrate(
+        bundledQueue(queue),
+        operation,
+        state.liveBible && !!window.VerseKeepBible?.resolveVerse
+      );
+      if (!hydrated.current) return false;
+      if (settings === queueSettingsKey()) break;
+      operation = queueHydrator.begin();
+    }
+
+    state.queue = hydrated.queue;
     state.index = 0;
     state.score = 0;
     state.streak = 0;
     state.bestStreakSession = 0;
     state.answered = false;
 
-    const first = queue[0];
+    const first = state.queue[0];
     state.liveMeta = first?.liveTranslation
       ? `${first.liveTranslation} · ${first.liveSource || "live"}`
       : "local JSON";
@@ -348,31 +361,37 @@
 
     startRound();
     $("#play-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    return true;
+  }
+
+  async function rehydrateCurrentQueue(message, liveEnabled = state.liveBible) {
+    if (state.selecting || !state.themeId || !state.queue.length) return false;
+    const operation = queueHydrator.begin();
+    const settings = queueSettingsKey();
+    $("#stage").innerHTML = `<p class="hint">${message}</p>`;
+    const hydrated = await queueHydrator.hydrate(
+      bundledQueue(state.queue),
+      operation,
+      liveEnabled && !!window.VerseKeepBible?.resolveVerse
+    );
+    if (!hydrated.current || settings !== queueSettingsKey()) return false;
+    state.queue = hydrated.queue;
+    startRound();
+    return true;
   }
 
   async function selectTheme(id) {
-    if (state.selecting) return;
+    const theme = state.data?.themes?.find((candidate) => candidate.id === id);
+    if (!theme) return;
+    const selectionId = ++state.selectionId;
+    const operation = queueHydrator.begin();
     state.selecting = true;
     state.themeId = id;
-    const theme = currentTheme();
-    if (!theme) {
-      state.selecting = false;
-      return;
-    }
     paintThemes();
     // Align meditation topic with memory theme when user picks a card
     if (window.VerseKeepMeditate?.setTopic) {
-      try {
-        await window.VerseKeepMeditate.setTopic(id);
-      } catch {
-        /* ignore */
-      }
+      window.VerseKeepMeditate.setTopic(id).catch(() => {});
     }
-
-    stats.themePlays[id] = (stats.themePlays[id] || 0) + 1;
-    stats.lastTheme = id;
-    saveStats(stats);
-    paintStatsBar();
 
     // Prefer verses never answered correctly, then least-practiced
     const ranked = theme.verses
@@ -398,15 +417,22 @@
     }
 
     try {
-      await beginQueue(queue, `${theme.emoji} ${theme.title}`);
+      const applied = await beginQueue(queue, `${theme.emoji} ${theme.title}`, operation);
+      if (!applied || selectionId !== state.selectionId) return;
+      stats.themePlays[id] = (stats.themePlays[id] || 0) + 1;
+      stats.lastTheme = id;
+      saveStats(stats);
+      paintStatsBar();
     } finally {
-      state.selecting = false;
+      if (selectionId === state.selectionId) state.selecting = false;
     }
   }
 
   /** Cross-theme drill of never-answered verses (or lowest hits). */
   async function practiceWeak() {
-    if (!state.data?.themes || state.selecting) return;
+    if (!state.data?.themes) return;
+    const selectionId = ++state.selectionId;
+    const operation = queueHydrator.begin();
     state.selecting = true;
     const all = state.data.themes.flatMap((t) =>
       t.verses.map((v) => ({
@@ -426,10 +452,10 @@
     state.themeId = pool[0]?.themeId || null;
     paintThemes();
     try {
-      await beginQueue(pool, "🎯 Weak verses drill");
-      setMode("blank");
+      const applied = await beginQueue(pool, "🎯 Weak verses drill", operation);
+      if (applied && selectionId === state.selectionId) setMode("blank");
     } finally {
-      state.selecting = false;
+      if (selectionId === state.selectionId) state.selecting = false;
     }
   }
 
@@ -978,20 +1004,9 @@
         savePrefs({ translation: tr });
         const lbl = $("#live-bible-label");
         if (lbl && state.liveBible) lbl.textContent = `(${tr.toUpperCase()})`;
-        if (window.VerseKeepMeditate?.refresh) {
-          try {
-            await window.VerseKeepMeditate.refresh();
-          } catch {
-            /* ignore */
-          }
-        }
-        if (state.themeId && state.liveBible && state.queue.length) {
-          $("#stage").innerHTML = `<p class="hint">Fetching ${tr.toUpperCase()}…</p>`;
-          state.queue = await hydrateQueueFromLive(
-            state.queue.map((v) => ({ ...v, text: v.localText || v.text }))
-          );
-          startRound();
-        }
+        const updates = [rehydrateCurrentQueue(`Fetching ${tr.toUpperCase()}…`, true)];
+        if (window.VerseKeepMeditate?.refresh) updates.push(window.VerseKeepMeditate.refresh());
+        await Promise.allSettled(updates);
       });
     }
 
@@ -1026,33 +1041,12 @@
             ? `(${($("#tr-select")?.value || "esv").toUpperCase()})`
             : "(bundled)";
         }
-        if (window.VerseKeepMeditate?.refresh) {
-          try {
-            await window.VerseKeepMeditate.refresh();
-          } catch {
-            /* ignore */
-          }
-        }
-        // Re-hydrate current theme queue when toggled mid-session
-        if (state.themeId && state.queue.length) {
-          $("#stage").innerHTML = `<p class="hint">${liveToggle.checked ? "Fetching live text…" : "Restoring bundled text…"}</p>`;
-          if (liveToggle.checked) {
-            state.queue = await hydrateQueueFromLive(
-              state.queue.map((v) => ({
-                ...v,
-                text: v.localText || v.text,
-              }))
-            );
-          } else {
-            state.queue = state.queue.map((v) => ({
-              ...v,
-              text: v.localText || v.text,
-              liveSource: undefined,
-              liveTranslation: undefined,
-            }));
-          }
-          startRound();
-        }
+        const message = liveToggle.checked
+          ? "Fetching live text…"
+          : "Restoring bundled text…";
+        const updates = [rehydrateCurrentQueue(message, liveToggle.checked)];
+        if (window.VerseKeepMeditate?.refresh) updates.push(window.VerseKeepMeditate.refresh());
+        await Promise.allSettled(updates);
       });
     }
 

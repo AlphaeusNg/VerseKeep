@@ -82,6 +82,9 @@ if (existsSync(appPath)) {
   if (!appSource.includes("Could not load verses. Please refresh or try again later.")) {
     failures.push("app.js must show a user-safe verse loading recovery message");
   }
+  if (!appSource.includes("createLatestQueueHydrator")) {
+    failures.push("app.js must use latest-operation queue hydration");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");
@@ -91,6 +94,9 @@ if (existsSync(meditatePath)) {
     if (!meditateSource.includes(helper)) {
       failures.push(`meditate.js must use ${helper} for persisted state`);
     }
+  }
+  if (!meditateSource.includes("topicToken")) {
+    failures.push("meditate.js must supersede stale topic hydration");
   }
 }
 

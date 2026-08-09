@@ -48,6 +48,75 @@ assert.equal(
   "function",
   "normalizeMeditationStreak is exported"
 );
+assert.equal(
+  typeof core?.createLatestQueueHydrator,
+  "function",
+  "createLatestQueueHydrator is exported"
+);
+
+if (core?.createLatestQueueHydrator) {
+  const pending = new Map();
+  const calls = [];
+  const hydrator = core.createLatestQueueHydrator((ref) => {
+    calls.push(ref);
+    return new Promise((resolvePromise, rejectPromise) => {
+      pending.set(ref, { resolve: resolvePromise, reject: rejectPromise });
+    });
+  });
+  const originalQueue = [
+    { ref: "First", text: "Bundled first", localText: "Bundled first" },
+    { ref: "Second", text: "Bundled second", localText: "Bundled second" },
+    { ref: "Third", text: "Bundled third", localText: "Bundled third" },
+  ];
+  const operation = hydrator.begin();
+  const hydration = hydrator.hydrate(originalQueue, operation, true);
+  assert.deepEqual(calls, ["First", "Second", "Third"], "queue requests start concurrently");
+  pending.get("Third").resolve({ text: "Live third", source: "provider", translation: "NIV" });
+  pending.get("Second").reject(new Error("provider failed"));
+  pending.get("First").resolve({ text: "Live first", source: "provider", translation: "NIV" });
+  const hydrated = await hydration;
+  assert.equal(hydrated.current, true, "an unsuperseded hydration remains current");
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(hydrated.queue.map((verse) => verse.text))),
+    ["Live first", "Bundled second", "Live third"],
+    "concurrent results preserve queue order and per-verse fallback"
+  );
+  assert.deepEqual(
+    originalQueue.map((verse) => verse.text),
+    ["Bundled first", "Bundled second", "Bundled third"],
+    "hydration does not mutate the bundled source queue"
+  );
+
+  let resolveOld;
+  const latestHydrator = core.createLatestQueueHydrator((ref) => {
+    if (ref === "Old") {
+      return new Promise((resolvePromise) => {
+        resolveOld = resolvePromise;
+      });
+    }
+    return Promise.resolve({ text: "Newest", source: "provider", translation: "ESV" });
+  });
+  const oldOperation = latestHydrator.begin();
+  const oldHydration = latestHydrator.hydrate([{ ref: "Old", text: "Old local" }], oldOperation);
+  const newOperation = latestHydrator.begin();
+  const newHydration = await latestHydrator.hydrate(
+    [{ ref: "New", text: "New local" }],
+    newOperation
+  );
+  assert.equal(newHydration.current, true, "the newest hydration may commit");
+  resolveOld({ text: "Stale", source: "provider", translation: "ESV" });
+  assert.equal((await oldHydration).current, false, "a superseded hydration cannot commit");
+
+  const callsBeforeDisabled = calls.length;
+  const disabledOperation = hydrator.begin();
+  const disabled = await hydrator.hydrate(originalQueue, disabledOperation, false);
+  assert.equal(calls.length, callsBeforeDisabled, "disabled live text performs no network work");
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(disabled.queue)),
+    originalQueue,
+    "disabled live text preserves the bundled queue"
+  );
+}
 
 if (core?.normalizeMeditationSession && core?.normalizeMeditationStreak) {
   const themeIds = verseCatalog.themes.map((theme) => theme.id);
@@ -244,4 +313,4 @@ if (core?.normalizeStats && core?.normalizePrefs) {
   );
 }
 
-console.log("test-practice-core.mjs: 42 scoring, state, and catalog assertions passed");
+console.log("test-practice-core.mjs: 51 scoring, state, and catalog assertions passed");

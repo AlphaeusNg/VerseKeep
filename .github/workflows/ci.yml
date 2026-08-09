@@ -19,7 +19,7 @@ jobs:
           node-version: "24"
       - name: Workflow policy
         run: node tools/test-workflow.mjs
-      - name: Practice scoring
+      - name: Core contracts
         run: node tools/test-practice-core.mjs
       - name: Live Bible requests
         run: node tools/test-bible-live.mjs

@@ -150,6 +150,43 @@
     };
   }
 
+  function createLatestQueueHydrator(resolveVerse) {
+    if (typeof resolveVerse !== "function") throw new TypeError("resolveVerse must be a function");
+    let latestOperation = 0;
+
+    function begin() {
+      latestOperation += 1;
+      return latestOperation;
+    }
+
+    function isCurrent(operation) {
+      return operation === latestOperation;
+    }
+
+    async function hydrate(queue, operation, enabled = true) {
+      const source = Array.isArray(queue) ? queue : [];
+      if (!enabled) return { queue: source.slice(), current: isCurrent(operation) };
+      const hydrated = await Promise.all(
+        source.map(async (verse) => {
+          try {
+            const live = await resolveVerse(verse.ref, verse.localText || verse.text);
+            return {
+              ...verse,
+              text: live.text || verse.text,
+              liveSource: live.source,
+              liveTranslation: live.translation,
+            };
+          } catch {
+            return verse;
+          }
+        })
+      );
+      return { queue: hydrated, current: isCurrent(operation) };
+    }
+
+    return Object.freeze({ begin, hydrate, isCurrent });
+  }
+
   function validateVerseCatalog(value) {
     const errors = [];
     const addError = (message) => {
@@ -262,6 +299,7 @@
 
   global.VerseKeepPracticeCore = Object.freeze({
     defaultStats,
+    createLatestQueueHydrator,
     normalizeMeditationSession,
     normalizeMeditationStreak,
     normalizePrefs,

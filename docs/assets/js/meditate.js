@@ -18,6 +18,7 @@
     index: 0,
     topicId: "all",
     loading: false,
+    topicToken: 0,
     hydrateToken: 0,
     focusMode: false,
   };
@@ -293,7 +294,7 @@
   }
 
   async function setTopic(id) {
-    if (state.loading) return;
+    const topicToken = ++state.topicToken;
     state.loading = true;
     try {
       state.topicId = window.VerseKeepPracticeCore.normalizeMeditationSession(
@@ -305,9 +306,9 @@
       const seed = daySeed() + (state.topicId === "all" ? 0 : state.topicId.length * 17);
       const start = seededIndex(state.pool.length, seed);
       await showIndex(start);
-      savePrefs({ lastMedTopic: state.topicId });
+      if (topicToken === state.topicToken) savePrefs({ lastMedTopic: state.topicId });
     } finally {
-      state.loading = false;
+      if (topicToken === state.topicToken) state.loading = false;
     }
   }
 
