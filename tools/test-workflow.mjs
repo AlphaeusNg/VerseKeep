@@ -19,5 +19,6 @@ assert.match(
   "CI installs the browser explicitly"
 );
 assert.match(workflow, /run:\s*npm run test:browser\b/, "CI executes the browser smoke test");
+assert.match(workflow, /run:\s*node tools\/test-data-core\.mjs\b/, "CI executes data contracts");
 
-console.log("test-workflow.mjs: 9 CI policy assertions passed");
+console.log("test-workflow.mjs: 10 CI policy assertions passed");

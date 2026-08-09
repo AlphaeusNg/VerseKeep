@@ -33,6 +33,7 @@ function readJson(relativePath) {
   "assets/js/ambient.js",
   "assets/js/bible-config.js",
   "assets/js/bible-live.js",
+  "assets/js/data-core.js",
   "assets/js/meditate.js",
   "assets/js/practice-core.js",
   "assets/js/version.js",
@@ -58,11 +59,18 @@ if (existsSync(indexPath)) {
     failures.push("Missing wallpaper grid density control");
   }
   const practiceCoreIndex = html.indexOf('src="assets/js/practice-core.js"');
+  const dataCoreIndex = html.indexOf('src="assets/js/data-core.js"');
   const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
   const appIndex = html.indexOf('src="assets/js/app.js"');
+  const ambientIndex = html.indexOf('src="assets/js/ambient.js"');
+  const wallpapersIndex = html.indexOf('src="assets/js/wallpapers.js"');
   if (practiceCoreIndex < 0) failures.push("index.html must load practice-core.js");
   else if (practiceCoreIndex > meditateIndex || practiceCoreIndex > appIndex) {
     failures.push("practice-core.js must load before meditate.js and app.js");
+  }
+  if (dataCoreIndex < 0) failures.push("index.html must load data-core.js");
+  else if (dataCoreIndex > ambientIndex || dataCoreIndex > wallpapersIndex) {
+    failures.push("data-core.js must load before ambient.js and wallpapers.js");
   }
   const densityOptions = [...html.matchAll(/\bdata-wp-grid="([1-4])"/g)].map((match) => match[1]);
   if (densityOptions.join(",") !== "1,2,3,4") {
@@ -97,6 +105,33 @@ if (existsSync(meditatePath)) {
   }
   if (!meditateSource.includes("topicToken")) {
     failures.push("meditate.js must supersede stale topic hydration");
+  }
+}
+
+const ambientPath = requirePath("assets/js/ambient.js");
+if (existsSync(ambientPath)) {
+  const ambientSource = readFileSync(ambientPath, "utf8");
+  if (!ambientSource.includes("validatePlaylistCatalog")) {
+    failures.push("ambient.js must validate playlists before rendering");
+  }
+  if (!ambientSource.includes("Could not load music stations. Please refresh or try again later.")) {
+    failures.push("ambient.js must show a safe playlist recovery message");
+  }
+}
+
+const wallpapersPath = requirePath("assets/js/wallpapers.js");
+if (existsSync(wallpapersPath)) {
+  const wallpapersSource = readFileSync(wallpapersPath, "utf8");
+  if (!wallpapersSource.includes("validateRemoteWallpaperCatalog")) {
+    failures.push("wallpapers.js must validate remote wallpapers before rendering");
+  }
+  if (
+    !wallpapersSource.includes(
+      "Daily wallpaper suggestions are unavailable. Bundled wallpapers are still ready."
+    ) ||
+    !wallpapersSource.includes("Could not load wallpapers. Please refresh or try again later.")
+  ) {
+    failures.push("wallpapers.js must show a safe wallpaper recovery message");
   }
 }
 

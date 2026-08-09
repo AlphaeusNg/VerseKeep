@@ -1115,10 +1115,27 @@
     gridPreferences = loadGridPreferences();
     bindDetailsMemory();
     try {
-      const [local, remote] = await Promise.all([
-        loadJson("data/wallpapers.json"),
-        loadJson("data/remote-wallpapers.json").catch(() => ({ pool: [] })),
-      ]);
+      const local = await loadJson("data/wallpapers.json");
+      let remote = { pool: [] };
+      try {
+        const loadedRemote = await loadJson("data/remote-wallpapers.json");
+        const validation =
+          window.VerseKeepDataCore?.validateRemoteWallpaperCatalog?.(loadedRemote);
+        if (!validation?.valid) {
+          const detail =
+            validation?.errors?.join("; ") || "remote wallpaper validator unavailable";
+          throw new Error(`Invalid remote wallpaper catalog: ${detail}`);
+        }
+        remote = loadedRemote;
+      } catch (err) {
+        console.warn("[wallpapers] remote catalog", err);
+        const el = $("#ambient-error");
+        if (el) {
+          el.hidden = false;
+          el.textContent =
+            "Daily wallpaper suggestions are unavailable. Bundled wallpapers are still ready.";
+        }
+      }
       classics = (local.wallpapers || []).map(normalizeClassic);
       remotePool = remote.pool || [];
       for (const w of classics) rememberCatalog(w);
@@ -1133,7 +1150,7 @@
       const el = $("#ambient-error");
       if (el) {
         el.hidden = false;
-        el.textContent = `Could not load wallpapers: ${err.message}`;
+        el.textContent = "Could not load wallpapers. Please refresh or try again later.";
       }
     }
   }

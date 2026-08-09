@@ -77,6 +77,7 @@ python3 -m http.server 8080 --directory docs
 
 node tools/test-site.mjs
 node tools/test-practice-core.mjs
+node tools/test-data-core.mjs
 node tools/test-bible-live.mjs
 node tools/test-workflow.mjs
 npm ci

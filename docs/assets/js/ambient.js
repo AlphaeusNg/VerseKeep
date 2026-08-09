@@ -442,7 +442,13 @@
     bindUi();
 
     try {
-      playlists = await loadJson("data/playlists.json");
+      const loadedPlaylists = await loadJson("data/playlists.json");
+      const validation = window.VerseKeepDataCore?.validatePlaylistCatalog?.(loadedPlaylists);
+      if (!validation?.valid) {
+        const detail = validation?.errors?.join("; ") || "playlist validator unavailable";
+        throw new Error(`Invalid playlist catalog: ${detail}`);
+      }
+      playlists = loadedPlaylists;
       paintMusicTabs();
       paintMusicList();
       if (!activeMusicId || activeMusicId === DEFAULT_SPOTIFY_ID) {
@@ -459,7 +465,7 @@
       const el = $("#ambient-error");
       if (el) {
         el.hidden = false;
-        el.textContent = `Could not load music list: ${err.message}`;
+        el.textContent = "Could not load music stations. Please refresh or try again later.";
       }
     }
   }

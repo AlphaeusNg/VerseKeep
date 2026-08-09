@@ -80,3 +80,33 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
     "true"
   );
 });
+
+test("rejects an invalid playlist catalog without exposing diagnostics", async ({ page }) => {
+  await page.route("**/data/playlists.json", (route) =>
+    route.fulfill({ json: { youtube: {}, spotify: [] } })
+  );
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const error = page.locator("#ambient-error");
+  await expect(error).toBeVisible();
+  await expect(error).toHaveText("Could not load music stations. Please refresh or try again later.");
+  await expect(error).not.toContainText("youtube must be a non-empty array");
+  await expect(page.locator("#music-list [data-music-id]")).toHaveCount(0);
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+});
+
+test("rejects an invalid remote wallpaper catalog and keeps bundled wallpapers", async ({ page }) => {
+  await page.route("**/data/remote-wallpapers.json", (route) =>
+    route.fulfill({ json: { pool: [{ id: "unsafe", unsplash: "javascript:alert(1)" }] } })
+  );
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const error = page.locator("#ambient-error");
+  await expect(error).toBeVisible();
+  await expect(error).toHaveText(
+    "Daily wallpaper suggestions are unavailable. Bundled wallpapers are still ready."
+  );
+  await expect(error).not.toContainText("Unsplash photo identifier");
+  await expect(page.locator("#wallpaper-grid .wp-card")).not.toHaveCount(0);
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+});

@@ -21,6 +21,7 @@ docs/                       # GitHub Pages deployment root
     js/
       meditate.js           # Primary UX: daily/topic meditation card
       app.js                # Topics, memory modes, practice stage, stats
+      data-core.js          # Playlist + remote-wallpaper data contracts
       ambient.js            # Music: autoplay, left-edge dock
       wallpapers.js         # Daily remote + bundled classics + hearts
       bible-live.js
@@ -89,9 +90,11 @@ python3 -m http.server 8081 --directory docs
 # http://127.0.0.1:8081/
 
 node tools/test-site.mjs
+node tools/test-data-core.mjs
 node --check docs/assets/js/app.js
 node --check docs/assets/js/ambient.js
 node --check docs/assets/js/wallpapers.js
+npm run test:browser
 ```
 
 Footer version string comes from `docs/assets/js/version.js` — bump its

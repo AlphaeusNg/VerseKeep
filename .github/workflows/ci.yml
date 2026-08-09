@@ -24,6 +24,8 @@ jobs:
         run: node tools/test-workflow.mjs
       - name: Core contracts
         run: node tools/test-practice-core.mjs
+      - name: Data contracts
+        run: node tools/test-data-core.mjs
       - name: Live Bible requests
         run: node tools/test-bible-live.mjs
       - name: Site structure
