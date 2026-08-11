@@ -153,9 +153,11 @@
   function createLatestQueueHydrator(resolveVerse) {
     if (typeof resolveVerse !== "function") throw new TypeError("resolveVerse must be a function");
     let latestOperation = 0;
+    const operationControllers = new Map();
 
     function begin() {
       latestOperation += 1;
+      operationControllers.set(latestOperation, new AbortController());
       return latestOperation;
     }
 
@@ -165,23 +167,37 @@
 
     async function hydrate(queue, operation, enabled = true) {
       const source = Array.isArray(queue) ? queue : [];
-      if (!enabled) return { queue: source.slice(), current: isCurrent(operation) };
-      const hydrated = await Promise.all(
-        source.map(async (verse) => {
-          try {
-            const live = await resolveVerse(verse.ref, verse.localText || verse.text);
-            return {
-              ...verse,
-              text: live.text || verse.text,
-              liveSource: live.source,
-              liveTranslation: live.translation,
-            };
-          } catch {
-            return verse;
-          }
-        })
-      );
-      return { queue: hydrated, current: isCurrent(operation) };
+      const controller = operationControllers.get(operation);
+      try {
+        const pending = enabled
+          ? source.map(async (verse) => {
+            try {
+              const live = await resolveVerse(verse.ref, verse.localText || verse.text, {
+                signal: controller?.signal,
+              });
+              return {
+                ...verse,
+                text: live.text || verse.text,
+                liveSource: live.source,
+                liveTranslation: live.translation,
+              };
+            } catch {
+              return verse;
+            }
+          })
+          : source.map((verse) => Promise.resolve(verse));
+        // Replacement consumers are subscribed above before obsolete work is
+        // released, so identical in-flight verse requests remain shared.
+        for (const [candidate, obsolete] of operationControllers) {
+          if (candidate >= operation) continue;
+          obsolete.abort();
+          operationControllers.delete(candidate);
+        }
+        const hydrated = await Promise.all(pending);
+        return { queue: hydrated, current: isCurrent(operation) };
+      } finally {
+        operationControllers.delete(operation);
+      }
     }
 
     return Object.freeze({ begin, hydrate, isCurrent });

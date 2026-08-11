@@ -119,4 +119,44 @@ async function within(promise, milliseconds = 150) {
   assert.equal(fetches, 2, "unparsed references never reach the network");
 }
 
-console.log("test-bible-live.mjs: 11 request and fallback assertions passed");
+{
+  let fetches = 0;
+  let underlyingAborts = 0;
+  const harness = loadBible((_url, options = {}) => {
+    fetches += 1;
+    return new Promise((_, reject) => {
+      options.signal?.addEventListener(
+        "abort",
+        () => {
+          underlyingAborts += 1;
+          reject(new Error("aborted"));
+        },
+        { once: true }
+      );
+    });
+  }, { requestTimeoutMs: 1000 });
+  const firstController = new AbortController();
+  const secondController = new AbortController();
+  const first = harness.bible.resolveVerse("Mark 1:1", "Bundled first", {
+    signal: firstController.signal,
+  });
+  const second = harness.bible.resolveVerse("Mark 1:1", "Bundled second", {
+    signal: secondController.signal,
+  });
+  firstController.abort();
+  assert.equal((await within(first)).text, "Bundled first", "cancelled consumer gets its own fallback");
+  assert.equal(underlyingAborts, 0, "one cancelled consumer preserves the shared fetch");
+  secondController.abort();
+  assert.equal((await within(second)).text, "Bundled second", "last cancelled consumer settles safely");
+  assert.equal(underlyingAborts, 1, "last consumer aborts the shared fetch");
+
+  harness.setFetch(async () => {
+    fetches += 1;
+    return response("Fresh retry");
+  });
+  const retry = await within(harness.bible.resolveVerse("Mark 1:1", "Bundled retry"));
+  assert.equal(fetches, 2, "abandoned shared work is immediately retryable");
+  assert.equal(retry.text, "Fresh retry", "retry does not inherit the aborted request");
+}
+
+console.log("test-bible-live.mjs: 17 request, cancellation, and fallback assertions passed");

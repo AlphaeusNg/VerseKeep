@@ -235,7 +235,7 @@
   }
 
   const memCache = new Map(); // key -> { text, reference, translation, source, ts }
-  const inflight = new Map(); // key -> Promise
+  const inflight = new Map(); // key -> { controller, consumers, pending, promise }
   const CACHE_TTL_MS = 1000 * 60 * 60 * 12; // 12h
   const CACHE_PREFIX = "vk-bible-v1:";
 
@@ -305,12 +305,73 @@
     };
   }
 
+  /** Give each caller cancellation without breaking other shared consumers. */
+  function subscribeToRequest(entry, key, signal) {
+    entry.consumers += 1;
+    return new Promise((resolve, reject) => {
+      let released = false;
+      const release = (cancelled) => {
+        if (released) return;
+        released = true;
+        signal?.removeEventListener("abort", onAbort);
+        entry.consumers = Math.max(0, entry.consumers - 1);
+        if (cancelled && entry.pending && entry.consumers === 0) {
+          if (inflight.get(key) === entry) inflight.delete(key);
+          entry.controller.abort();
+        }
+      };
+      const onAbort = () => {
+        release(true);
+        reject(new Error("Verse request cancelled"));
+      };
+      signal?.addEventListener("abort", onAbort, { once: true });
+      entry.promise.then(
+        (value) => {
+          if (released) return;
+          release(false);
+          resolve(value);
+        },
+        (error) => {
+          if (released) return;
+          release(false);
+          reject(error);
+        }
+      );
+    });
+  }
+
+  function createRequest(key, ref, slug) {
+    const controller = new AbortController();
+    const entry = { controller, consumers: 0, pending: true, promise: null };
+    entry.promise = (async () => {
+      const timer = setTimeout(() => controller.abort(), requestTimeoutMs());
+      try {
+        const live = await fetchLive(ref, slug, controller.signal);
+        if (controller.signal.aborted) throw new Error("Verse request cancelled");
+        const stored = { ...live, ts: Date.now() };
+        memCache.set(key, stored);
+        writeSessionCache(key, stored);
+        return live;
+      } finally {
+        clearTimeout(timer);
+      }
+    })().finally(() => {
+      entry.pending = false;
+      if (inflight.get(key) === entry) inflight.delete(key);
+    });
+    inflight.set(key, entry);
+    return entry;
+  }
+
   /**
    * Prefer selected translation; fall back to local text on failure.
    * Session + memory cache; in-flight requests are de-duped.
+   * @param {{ signal?: AbortSignal }} options cancels only this consumer.
    * @returns {Promise<{text, reference, translation, source, fromCache?: boolean}>}
    */
-  async function resolveVerse(ref, localText) {
+  async function resolveVerse(ref, localText, options = {}) {
+    const signal = options?.signal;
+    if (signal?.aborted) return bundledFallback(ref, localText, true);
     const preferred = String(cfg().preferred || "esv").toLowerCase();
     if (preferred === "local") {
       return bundledFallback(ref, localText, false);
@@ -330,35 +391,11 @@
       return { ...sess, fromCache: true };
     }
 
-    if (inflight.has(key)) {
-      try {
-        return await inflight.get(key);
-      } catch {
-        return bundledFallback(ref, localText, true);
-      }
-    }
-
-    const job = (async () => {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), requestTimeoutMs());
-      try {
-        const live = await fetchLive(ref, slug, controller.signal);
-        const stored = { ...live, ts: Date.now() };
-        memCache.set(key, stored);
-        writeSessionCache(key, stored);
-        return live;
-      } finally {
-        clearTimeout(timer);
-      }
-    })();
-
-    inflight.set(key, job);
+    const entry = inflight.get(key) || createRequest(key, ref, slug);
     try {
-      return await job;
+      return await subscribeToRequest(entry, key, signal);
     } catch (err) {
-      console.warn("[bible-live]", slug, err.message);
-    } finally {
-      inflight.delete(key);
+      if (!signal?.aborted) console.warn("[bible-live]", slug, err.message);
     }
 
     return bundledFallback(ref, localText, true);

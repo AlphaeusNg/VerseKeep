@@ -26,8 +26,8 @@
     autoAdvance: false,
   };
 
-  const queueHydrator = window.VerseKeepPracticeCore.createLatestQueueHydrator((ref, localText) =>
-    window.VerseKeepBible.resolveVerse(ref, localText)
+  const queueHydrator = window.VerseKeepPracticeCore.createLatestQueueHydrator((ref, localText, options) =>
+    window.VerseKeepBible.resolveVerse(ref, localText, options)
   );
 
   const MODE_LABELS = {

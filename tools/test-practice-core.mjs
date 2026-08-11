@@ -7,7 +7,7 @@ import vm from "node:vm";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(resolve(root, "docs/assets/js/practice-core.js"), "utf8");
 const verseCatalog = JSON.parse(readFileSync(resolve(root, "docs/data/verses.json"), "utf8"));
-const sandbox = { window: {} };
+const sandbox = { window: {}, AbortController };
 sandbox.globalThis = sandbox;
 vm.createContext(sandbox);
 vm.runInContext(source, sandbox, { filename: "practice-core.js" });
@@ -106,6 +106,39 @@ if (core?.createLatestQueueHydrator) {
   assert.equal(newHydration.current, true, "the newest hydration may commit");
   resolveOld({ text: "Stale", source: "provider", translation: "ESV" });
   assert.equal((await oldHydration).current, false, "a superseded hydration cannot commit");
+
+  let obsoleteSignal;
+  const resolverOrder = [];
+  const abortingHydrator = core.createLatestQueueHydrator((ref, _text, options = {}) => {
+    resolverOrder.push(ref);
+    if (ref !== "Obsolete") {
+      return Promise.resolve({ text: "Replacement", source: "provider", translation: "ESV" });
+    }
+    obsoleteSignal = options.signal;
+    return new Promise((resolvePromise, rejectPromise) => {
+      options.signal?.addEventListener("abort", () => rejectPromise(new Error("cancelled")), {
+        once: true,
+      });
+    });
+  });
+  const obsoleteOperation = abortingHydrator.begin();
+  const obsoleteHydration = abortingHydrator.hydrate(
+    [{ ref: "Obsolete", text: "Bundled" }],
+    obsoleteOperation
+  );
+  const replacementOperation = abortingHydrator.begin();
+  const replacementHydration = abortingHydrator.hydrate(
+    [{ ref: "Replacement", text: "Bundled replacement" }],
+    replacementOperation
+  );
+  assert.deepEqual(
+    resolverOrder,
+    ["Obsolete", "Replacement"],
+    "replacement resolver subscribes before obsolete work is released"
+  );
+  assert.equal(obsoleteSignal?.aborted, true, "replacement hydration aborts obsolete resolver work");
+  assert.equal((await replacementHydration).current, true, "replacement hydration remains current");
+  assert.equal((await obsoleteHydration).current, false, "aborted hydration remains non-committable");
 
   const callsBeforeDisabled = calls.length;
   const disabledOperation = hydrator.begin();
@@ -313,4 +346,4 @@ if (core?.normalizeStats && core?.normalizePrefs) {
   );
 }
 
-console.log("test-practice-core.mjs: 51 scoring, state, and catalog assertions passed");
+console.log("test-practice-core.mjs: 55 scoring, state, catalog, and cancellation assertions passed");

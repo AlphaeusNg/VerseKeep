@@ -93,6 +93,9 @@ if (existsSync(appPath)) {
   if (!appSource.includes("createLatestQueueHydrator")) {
     failures.push("app.js must use latest-operation queue hydration");
   }
+  if (!appSource.includes("resolveVerse(ref, localText, options)")) {
+    failures.push("app.js must forward queue cancellation options to live verse resolution");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");

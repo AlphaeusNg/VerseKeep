@@ -1,57 +1,60 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 74 across the projects workspace; VerseKeep Cycle 44)
+Last updated: 2026-08-11 (Cycle 89 across the projects workspace; VerseKeep Cycle 45)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (51 assertions), data contracts (20 assertions), live Bible requests (11 assertions), three browser paths (30 checks), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (20 assertions), live Bible requests (17 assertions), three browser paths (30 checks), and syntax checks on Node 24.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: validate playlist and remote-wallpaper inputs
+## Latest cycle: cancel superseded live-verse requests safely
 
 ### Why this was selected
 
-Music and daily-wallpaper renderers trusted fetched object shapes. A malformed playlist could crash grouping or point the iframe outside the intended providers; malformed remote wallpaper fields reached selection and URL generation. Both failure paths also exposed raw exception details in the page.
+Latest-operation tokens prevented obsolete queue hydration from changing the page, but superseded live Bible requests still consumed network and timeout resources. Directly aborting an older operation was unsafe because requests for the same verse are deduplicated and may still serve the replacement operation.
 
 ### Changes
 
-- Added a pure `data-core.js` module that validates both catalogs in the browser and in Node tests.
-- Require non-empty provider arrays, globally unique slug IDs, display metadata, HTTPS, and approved YouTube/Spotify embed origins and paths.
-- Require a non-empty remote pool, unique slug IDs, bare Unsplash identifiers, display metadata, non-empty tags, slug tones, and boolean disabled flags.
-- Validate immediately after fetch and before assigning either catalog to renderer state; detailed diagnostics stay in console warnings while visitors receive generic recovery copy.
-- Preserve bundled wallpapers when remote suggestions are invalid or unavailable and tell visitors that the offline gallery is still ready.
-- Added load-order and integration checks, 20 mutation-driven schema assertions, two invalid-response browser paths, CI coverage, documented commands, and deployment version `2026.08.10.2`.
+- Give each queue-hydration operation its own abort signal and pass it through the application boundary to live-verse resolution.
+- Subscribe the replacement operation before aborting older operations, preserving an in-flight request when the replacement needs the same verse.
+- Track consumers around each deduplicated request; releasing one caller affects only that caller, while releasing the final consumer aborts the underlying fetch.
+- Remove abandoned requests from the in-flight registry before aborting them so an immediate retry cannot attach to doomed work.
+- Keep cancellations out of the persistent cache and visitor warnings, while returning each canceled caller's own local fallback.
+- Added four queue-hydration and six live-request cancellation contracts, extended static wiring checks, and bumped the deployment version to `2026.08.11.1`.
 
 ### Verification and scores
 
-- Test-first evidence: all 20 pure validator assertions passed, while the static suite failed on the five missing module/load-order/runtime/safe-message obligations before integration.
-- `node tools/test-data-core.mjs`: 20 passed, 0 failed across valid deployed data and malformed root, shape, duplicate-ID, URL-origin, tag, tone, and flag mutations.
-- `npm run test:browser`: three journeys / 30 interaction, fallback, and runtime checks passed in approximately 4 seconds; invalid playlists remain unrendered, while invalid remote suggestions retain bundled wallpapers.
-- `node tools/test-practice-core.mjs`: 51 passed, 0 failed.
-- `node tools/test-bible-live.mjs`: 11 passed, 0 failed.
+- Test-first evidence: the queue contracts first failed because resolver calls had no signal. After the implementation, the VM harness exposed a missing `AbortController`; adding the browser primitive to the harness made the new behavior testable rather than weakening the contract.
+- Self-review evidence: aborting during `begin()` would have killed a shared same-verse request before its replacement subscribed. Moving supersession into `hydrate()` after resolver subscription closed that race.
+- `node tools/test-practice-core.mjs`: 55 passed, 0 failed; replacement subscriptions precede obsolete cancellation and stale work remains noncommittable.
+- `node tools/test-bible-live.mjs`: 17 passed, 0 failed; duplicate consumers share one fetch, individual cancellation is isolated, final cancellation aborts once, and immediate retry starts fresh work.
+- `node tools/test-data-core.mjs`: 20 passed, 0 failed.
+- `npm run test:browser`: three journeys / 30 interaction, fallback, and runtime checks passed in approximately 4 seconds.
 - `node tools/test-workflow.mjs`: 10 passed, 0 failed.
 - `node tools/test-site.mjs`: 60 wallpaper entries and both HTML entry points verified.
 - `node --check docs/assets/js/*.js tools/*.mjs tools/browser/*.mjs playwright.config.mjs`: passed.
 - `npm audit --audit-level=high`: 0 vulnerabilities.
 - `git diff --check`: passed.
-- Correctness/reliability: 10/10 (both previously trusted inputs are rejected before renderer state changes, with offline wallpaper recovery).
-- Verifiability: 10/10 (schema mutations, static wiring, real invalid responses, and normal startup agree).
-- Maintainability: 9/10 (one dependency-free validator module owns both external data boundaries).
-- Security/safety: 10/10 (playlist iframe origins are allowlisted and page copy no longer exposes diagnostics).
-- Performance: 10/10 (linear validation over small local catalogs is negligible and adds no network work).
+- Correctness/reliability: 9/10 (latest-wins rendering now includes resource ownership without breaking deduplication).
+- Verifiability: 10/10 (queue ordering, shared-fetch cancellation, retry, static integration, and real-browser paths agree).
+- Maintainability: 9/10 (the in-flight registry now owns request lifetime as well as deduplication).
+- Performance: 10/10 (obsolete hydration stops its network work as soon as no active consumer needs it).
+- Security/safety: 9/10 (canceled responses cannot enter the cache or surface internal cancellation details).
+- User experience: 9/10 (rapid topic or translation changes no longer leave avoidable background work competing with the current queue).
 
 ### Lessons and process improvements
 
-- Validate URL purpose, not just URL syntax: HTTPS plus provider host and `/embed/` path protects the iframe boundary.
-- Validation should happen before assigning shared renderer state so a bad catalog cannot leave a half-painted list.
-- Optional remote enhancements should fail independently; strict rejection of daily suggestions must not remove valid bundled wallpapers.
-- Keep diagnostic precision in developer channels and recovery guidance in visitor-facing copy.
+- Cancellation ownership belongs at the deduplication boundary: operation-level signals alone cannot know whether another caller still needs shared work.
+- A replacement must subscribe before the superseded consumer releases its claim when both can target the same request.
+- Delete an abandoned in-flight entry before aborting its controller so synchronous retries cannot inherit a doomed promise.
+- VM contract harnesses need the browser primitives used by production code; a missing primitive is a harness fidelity gap, not a reason to weaken runtime behavior.
 
 ## Previous cycles
 
+- Cycle 45: canceled superseded queue hydration with consumer-aware shared-request ownership.
 - Cycle 44: validated playlist and remote-wallpaper inputs and preserved bundled fallback.
 - Cycle 43 (`78858d4`): executed startup and primary meditation-to-practice navigation in real Chromium.
 - Cycle 42 (`b0441d5`): made queue hydration concurrent, latest-wins, and settings-aware.
@@ -67,10 +70,10 @@ Music and daily-wallpaper renderers trusted fetched object shapes. A malformed p
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Abort obsolete queue requests instead of only ignoring results | Performance | Medium | Medium / medium | Operation tokens prevent stale writes, but superseded fetches run until their bounded timeout |
-| 2 | Add a narrow mobile browser path for header and music-dock interaction | Verification / UX | Medium | Small-medium / low | Desktop and invalid-data paths are covered; compact sticky-header and dock behavior remain static-only |
-| 3 | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | Site checks verify every declared asset path, but title/tag/tone/ID shape is not yet shared with runtime validation |
+| 1 | Add a narrow mobile browser path for header and music-dock interaction | Verification / UX | Medium | Small-medium / low | Desktop and invalid-data paths are covered; compact sticky-header and dock behavior remain static-only |
+| 2 | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | Site checks verify every declared asset path, but title/tag/tone/ID shape is not yet shared with runtime validation |
+| 3 | Exercise preference restoration in a real browser | Verification | Low-medium | Small / low | Pure contracts cover normalized storage, but browser smoke starts from empty storage |
 
 ## Next cycle
 
-Local next: abort superseded live-verse queue requests so rapid topic/translation changes stop obsolete network work instead of merely ignoring its result. Workspace next: pivot to ChristoDay's current correctness/verification backlog after two compounding VerseKeep cycles, avoiding diminishing returns in one repo.
+Local next: cover compact sticky-header and music-dock behavior in a narrow real-browser path. Workspace next: rotate to the car-classification service's current correctness and verification backlog after this focused VerseKeep cycle.
