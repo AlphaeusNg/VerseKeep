@@ -110,3 +110,53 @@ test("rejects an invalid remote wallpaper catalog and keeps bundled wallpapers",
   await expect(page.locator("#wallpaper-grid .wp-card")).not.toHaveCount(0);
   await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
 });
+
+test("keeps the compact header and persistent music dock usable on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const topbar = page.locator(".topbar");
+  await expect(topbar).toBeVisible();
+  await expect(page.locator(".top-nav .nav-extra").first()).toBeHidden();
+
+  await page.evaluate(() => window.scrollTo(0, 1000));
+  await expect(topbar).toHaveClass(/is-scroll-hidden/);
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await expect(topbar).not.toHaveClass(/is-scroll-hidden/);
+
+  const dock = page.locator("#worship");
+  const tab = page.locator("#music-dock-tab");
+  const panel = page.locator("#music-dock-panel");
+  const scrim = page.locator("#music-dock-scrim");
+  const frame = page.locator("#music-frame");
+  await expect(page.locator("#music-list [data-music-id]")).not.toHaveCount(0);
+  await expect(frame).toHaveAttribute("src", /spotify\.com\/embed\/playlist/);
+  const playingSrc = await frame.getAttribute("src");
+
+  await tab.click();
+  await expect(dock).toHaveClass(/is-open/);
+  await expect(tab).toHaveAttribute("aria-expanded", "true");
+  await expect(panel).toHaveAttribute("aria-hidden", "false");
+  await expect(panel).toBeVisible();
+  await expect(scrim).toBeVisible();
+  expect(await page.locator("#music-player-shell").evaluate((node) => node.parentElement?.id)).toBe(
+    "music-player-slot"
+  );
+
+  const panelBox = await panel.boundingBox();
+  expect(panelBox).not.toBeNull();
+  expect(panelBox.x).toBeGreaterThanOrEqual(0);
+  expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(390.5);
+
+  await scrim.click({ position: { x: 380, y: 820 } });
+  await expect(tab).toHaveAttribute("aria-expanded", "false");
+  await expect(panel).toHaveAttribute("aria-hidden", "true");
+  await expect(scrim).toBeHidden();
+  await expect(frame).toHaveAttribute("src", playingSrc);
+
+  await page.locator("#nav-music").click();
+  await expect(tab).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Escape");
+  await expect(tab).toHaveAttribute("aria-expanded", "false");
+  await expect(frame).toHaveAttribute("src", playingSrc);
+});

@@ -1,60 +1,66 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 89 across the projects workspace; VerseKeep Cycle 45)
+Last updated: 2026-08-11 (Cycle 102 across the projects workspace; VerseKeep Cycle 46)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (20 assertions), live Bible requests (17 assertions), three browser paths (30 checks), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (20 assertions), live Bible requests (17 assertions), four browser paths (53 checks), and syntax checks on Node 24.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: cancel superseded live-verse requests safely
+## Latest cycle: verify compact header and music dock in Chromium
 
 ### Why this was selected
 
-Latest-operation tokens prevented obsolete queue hydration from changing the page, but superseded live Bible requests still consumed network and timeout resources. Directly aborting an older operation was unsafe because requests for the same verse are deduplicated and may still serve the replacement operation.
+Desktop meditation/practice and corrupt-data fallbacks ran in a real browser,
+but the space-saving phone header and fixed left music dock remained static-only.
+Those surfaces combine viewport media queries, scroll direction, fixed geometry,
+ARIA state, outside-click handling, and the promise that closing the dock never
+interrupts audio.
 
 ### Changes
 
-- Give each queue-hydration operation its own abort signal and pass it through the application boundary to live-verse resolution.
-- Subscribe the replacement operation before aborting older operations, preserving an in-flight request when the replacement needs the same verse.
-- Track consumers around each deduplicated request; releasing one caller affects only that caller, while releasing the final consumer aborts the underlying fetch.
-- Remove abandoned requests from the in-flight registry before aborting them so an immediate retry cannot attach to doomed work.
-- Keep cancellations out of the persistent cache and visitor warnings, while returning each canceled caller's own local fallback.
-- Added four queue-hydration and six live-request cancellation contracts, extended static wiring checks, and bumped the deployment version to `2026.08.11.1`.
+- Added a real Chromium path at a 390×844 phone viewport.
+- Verified compact-only external navigation links are hidden while primary local
+  destinations remain available.
+- Exercised header hide on downward scroll and restore on upward scroll.
+- Opened the music dock from its edge tab and checked its class, ARIA, scrim,
+  visible panel, in-viewport geometry, and player ownership.
+- Closed via the scrim, reopened from header Music, and closed via Escape while
+  proving the Spotify iframe source never changed.
+- Bumped the deployment version to `2026.08.11.2`.
 
 ### Verification and scores
 
-- Test-first evidence: the queue contracts first failed because resolver calls had no signal. After the implementation, the VM harness exposed a missing `AbortController`; adding the browser primitive to the harness made the new behavior testable rather than weakening the contract.
-- Self-review evidence: aborting during `begin()` would have killed a shared same-verse request before its replacement subscribed. Moving supersession into `hydrate()` after resolver subscription closed that race.
-- `node tools/test-practice-core.mjs`: 55 passed, 0 failed; replacement subscriptions precede obsolete cancellation and stale work remains noncommittable.
-- `node tools/test-bible-live.mjs`: 17 passed, 0 failed; duplicate consumers share one fetch, individual cancellation is isolated, final cancellation aborts once, and immediate retry starts fresh work.
-- `node tools/test-data-core.mjs`: 20 passed, 0 failed.
-- `npm run test:browser`: three journeys / 30 interaction, fallback, and runtime checks passed in approximately 4 seconds.
-- `node tools/test-workflow.mjs`: 10 passed, 0 failed.
-- `node tools/test-site.mjs`: 60 wallpaper entries and both HTML entry points verified.
-- `node --check docs/assets/js/*.js tools/*.mjs tools/browser/*.mjs playwright.config.mjs`: passed.
-- `npm audit --audit-level=high`: 0 vulnerabilities.
-- `git diff --check`: passed.
-- Correctness/reliability: 9/10 (latest-wins rendering now includes resource ownership without breaking deduplication).
-- Verifiability: 10/10 (queue ordering, shared-fetch cancellation, retry, static integration, and real-browser paths agree).
-- Maintainability: 9/10 (the in-flight registry now owns request lifetime as well as deduplication).
-- Performance: 10/10 (obsolete hydration stops its network work as soon as no active consumer needs it).
-- Security/safety: 9/10 (canceled responses cannot enter the cache or surface internal cancellation details).
-- User experience: 9/10 (rapid topic or translation changes no longer leave avoidable background work competing with the current queue).
+- Targeted mobile browser path: 1/1 passed in approximately 2 seconds.
+- `npm run test:browser`: four journeys / 53 interaction, fallback, layout,
+  accessibility-state, and runtime checks passed.
+- `node tools/test-practice-core.mjs`: 55 passed; live Bible: 17; data core:
+  20; workflow policy: 10; site structure and recursive syntax passed.
+- `npm audit --audit-level=high`: 0 vulnerabilities; `git diff --check` passed.
+- Correctness/reliability: 9/10 (behavior was unchanged and verified healthy).
+- Verifiability: 10/10 (the previously static-only compact shell runs in Chromium).
+- Maintainability: 9/10 (one journey covers coupled header/dock viewport behavior).
+- Performance: 9/10 (one additional path adds roughly two seconds locally).
+- Security/safety: 9/10 (the offline external-request stub keeps CI deterministic).
+- User experience: 10/10 (the primary compact navigation and persistent-audio promises are executable).
 
 ### Lessons and process improvements
 
-- Cancellation ownership belongs at the deduplication boundary: operation-level signals alone cannot know whether another caller still needs shared work.
-- A replacement must subscribe before the superseded consumer releases its claim when both can target the same request.
-- Delete an abandoned in-flight entry before aborting its controller so synchronous retries cannot inherit a doomed promise.
-- VM contract harnesses need the browser primitives used by production code; a missing primitive is a harness fidelity gap, not a reason to weaken runtime behavior.
+- Real-browser layout contracts should verify semantic state and geometry, not
+  screenshots alone: ARIA, visibility, bounding boxes, and persistent media
+  identity provide stable evidence.
+- A single journey can efficiently cover coupled responsive behaviors when they
+  share the same viewport and user flow.
+- Test-only cycles still require the deployment stamp here because every main
+  push triggers the docs Pages deployment.
 
 ## Previous cycles
 
-- Cycle 45: canceled superseded queue hydration with consumer-aware shared-request ownership.
+- Cycle 46: exercised compact header and persistent music-dock behavior in a 390×844 Chromium path.
+- Cycle 45 (`d5c229d`): canceled superseded queue hydration with consumer-aware shared-request ownership.
 - Cycle 44: validated playlist and remote-wallpaper inputs and preserved bundled fallback.
 - Cycle 43 (`78858d4`): executed startup and primary meditation-to-practice navigation in real Chromium.
 - Cycle 42 (`b0441d5`): made queue hydration concurrent, latest-wins, and settings-aware.
@@ -70,10 +76,12 @@ Latest-operation tokens prevented obsolete queue hydration from changing the pag
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add a narrow mobile browser path for header and music-dock interaction | Verification / UX | Medium | Small-medium / low | Desktop and invalid-data paths are covered; compact sticky-header and dock behavior remain static-only |
-| 2 | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | Site checks verify every declared asset path, but title/tag/tone/ID shape is not yet shared with runtime validation |
-| 3 | Exercise preference restoration in a real browser | Verification | Low-medium | Small / low | Pure contracts cover normalized storage, but browser smoke starts from empty storage |
+| 1 | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | Site checks verify every declared asset path, but title/tag/tone/ID shape is not yet shared with runtime validation |
+| 2 | Exercise preference restoration in a real browser | Verification | Low-medium | Small / low | Pure contracts cover normalized storage, but browser smoke starts from empty storage |
+| — | Add a narrow mobile browser path for header and music-dock interaction | Verification / UX | Medium | Small-medium / low | Four browser paths / 53 checks | Completed in Cycle 46 |
 
 ## Next cycle
 
-Local next: cover compact sticky-header and music-dock behavior in a narrow real-browser path. Workspace next: rotate to the car-classification service's current correctness and verification backlog after this focused VerseKeep cycle.
+Local next: validate bundled wallpaper metadata beyond asset paths. Workspace
+next: rotate to the car-classification service's current backlog after this
+focused VerseKeep cycle.
