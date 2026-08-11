@@ -586,8 +586,9 @@
     setFocusMode,
   };
 
-  document.addEventListener("DOMContentLoaded", () => {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindUi, { once: true });
+  } else {
     bindUi();
-  });
-  if (document.readyState !== "loading") bindUi();
+  }
 })();

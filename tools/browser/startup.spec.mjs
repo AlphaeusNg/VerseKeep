@@ -81,6 +81,53 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   );
 });
 
+test("restores normalized meditation and practice preferences", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "versekeep-prefs-v1",
+      JSON.stringify({
+        mode: "quiz",
+        translation: "NIV",
+        autoAdvance: true,
+        lastMedTopic: " strength-trials ",
+        medFocus: true,
+        unexpected: "discard me",
+      })
+    );
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await expect(page.locator("#load-error")).toBeHidden();
+  await expect(page.locator("#tr-select")).toHaveValue("niv");
+  await expect(page.locator("#auto-advance")).toBeChecked();
+  await expect(page.locator('#med-topics [data-topic="strength-trials"]')).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await expect(page.locator("#meditate-card .med-topic-pill")).toContainText("Strength in Trials");
+  await expect(page.locator("body")).toHaveClass(/med-focus/);
+  await expect(page.locator("#med-focus")).toHaveAttribute("aria-pressed", "true");
+
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-prefs-v1")))).toEqual({
+    mode: "quiz",
+    translation: "niv",
+    autoAdvance: true,
+    lastMedTopic: "strength-trials",
+    medFocus: true,
+  });
+
+  await page.locator("#med-focus").click();
+  await expect(page.locator("body")).not.toHaveClass(/med-focus/);
+  await page.locator("#med-drill").click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+  await expect(page.locator('#play-panel [data-mode="quiz"]')).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(page.locator("#stage #quiz-choices .choice")).toHaveCount(4);
+});
+
 test("rejects an invalid playlist catalog without exposing diagnostics", async ({ page }) => {
   await page.route("**/data/playlists.json", (route) =>
     route.fulfill({ json: { youtube: {}, spotify: [] } })

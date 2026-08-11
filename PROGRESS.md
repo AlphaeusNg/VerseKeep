@@ -1,68 +1,68 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 112 across the projects workspace; VerseKeep Cycle 47)
+Last updated: 2026-08-11 (Cycle 122 across the projects workspace; VerseKeep Cycle 48)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), five browser paths (58 checks), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), six browser paths (67 encoded assertion sites), and syntax checks on Node 24.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: validate bundled wallpaper metadata before rendering
+## Latest cycle: restore preferences without double-binding meditation controls
 
 ### Why this was selected
 
-Site structure verified that every declared desktop and derived phone image
-existed, but runtime accepted the rest of `wallpapers.json` unchanged. Null
-records, duplicate or unsafe IDs, absent titles, malformed tags, unsafe tone or
-style values, and inconsistent theme metadata could reach search, filters,
-classes, persistence, and rendering before failing incidentally.
+Normalized preference storage had thorough pure contracts, but browser startup
+always began with empty storage. A new restored-state journey exposed that the
+deferred meditation script bound its controls both while the document was
+`interactive` and again on `DOMContentLoaded`. Every meditation click and
+keyboard shortcut consequently ran twice; focus mode visibly stayed enabled
+after one attempt to exit.
 
 ### Changes
 
-- Added `validateBundledWallpaperCatalog` beside the existing playlist/remote
-  validators and routed fetched local data through it before runtime assignment.
-- Requires a non-empty record list; unique lowercase IDs; non-empty title,
-  blurb, tone, and style; CSS/filter-safe slugs; one to three unique nonblank
-  tags; string-typed optional theme fields; and paired theme/title metadata.
-- Added 15 bundled-catalog assertions covering the checked-in 60 entries plus
-  malformed roots, records, IDs, fields, tags, slugs, and themes; total data
-  contracts increased from 20 to 35.
-- Added a structural validation-before-assignment contract and a real browser
-  recovery path that keeps meditation working while showing only the safe
-  wallpaper error and rendering no invalid cards.
-- Bumped the deployment version to `2026.08.11.3`.
+- Made meditation initialization mutually exclusive: bind once at
+  `DOMContentLoaded` while loading, otherwise bind immediately.
+- Added a browser journey seeded with mixed-case and whitespace-padded saved
+  preferences. It verifies normalized NIV selection, auto-advance, topic,
+  focus, exact cleaned storage, restored quiz mode, and a single-click focus
+  exit before entering a four-choice drill.
+- Documented browser-suite coverage and bumped the deployment version to
+  `2026.08.11.4`.
 
 ### Verification and scores
 
-- Test-first: the data suite failed because no bundled wallpaper validator was
-  exported; a follow-up type case caught object-valued optional theme metadata.
-- `node tools/test-data-core.mjs`: 35 data contracts passed.
-- `npm run test:browser`: five journeys / 58 interaction, fallback, layout,
-  accessibility-state, and runtime checks passed in approximately 5 seconds.
-- `node tools/test-practice-core.mjs`: 55 passed; live Bible: 17; workflow
-  policy: 10; all 60 wallpaper paths, site structure, and recursive syntax passed.
-- `npm audit --audit-level=high`: 0 vulnerabilities; `git diff --check` passed.
-- Correctness/reliability: 9/10 (only complete, internally consistent metadata reaches runtime consumers).
-- Verifiability: 10/10 (pure boundary cases, assignment order, and visitor-visible recovery are covered).
-- Maintainability: 9/10 (one shared validator owns bundled display/filter assumptions).
-- Performance: 10/10 (one linear 60-record startup pass; no runtime dependency or network cost).
-- Security/safety: 9/10 (unsafe slug inputs fail before class/filter use and diagnostics stay internal).
-- User experience: 9/10 (corrupt metadata degrades honestly without breaking meditation).
+- Test-first: the new browser journey failed because one focus click left the
+  body in `med-focus`; it passed after the initializer fix.
+- `npm run test:browser`: six journeys / 67 encoded interaction, persistence,
+  fallback, layout, accessibility-state, and runtime assertion sites passed;
+  three consecutive full runs completed 18/18 journeys successfully.
+- `node tools/test-practice-core.mjs`: 55 passed; data: 35; live Bible: 17;
+  workflow policy: 10; site structure, recursive syntax, JSON parsing, and
+  `git diff --check` passed.
+- `npm audit --audit-level=high`: 0 vulnerabilities.
+- Correctness/reliability: 9/10 (meditation controls now perform one action per user input).
+- Verifiability: 10/10 (all shared preference effects and the discovered defect are browser-locked).
+- Maintainability: 9/10 (one conventional, mutually exclusive startup path replaces ambiguous dual binding).
+- Performance: 10/10 (duplicate event work is removed with no added runtime dependency).
+- Security/safety: 9/10 (unknown persisted fields are discarded by the exercised normalizer).
+- User experience: 9/10 (focus exit, navigation, Amen, and keyboard controls no longer double-fire).
 
 ### Lessons and process improvements
 
-- File existence proves packaging, not semantic safety. Validate display and
-  filter metadata at the same fetched-data boundary as remote catalogs.
-- Fields that permit an empty string still need explicit type validation; a
-  truthy object can otherwise survive normalization and reach string consumers.
-- Keep detailed validator errors in console diagnostics while browser coverage
-  locks the stable, non-technical recovery message visitors receive.
+- Deferred scripts can execute at `interactive` before `DOMContentLoaded`; an
+  initializer must choose either deferred binding or immediate binding, never
+  independently do both.
+- Restored-state journeys expose startup races and listener duplication that
+  isolated normalization contracts cannot observe.
+- Assert public DOM effects first, then exact cleaned storage only where it
+  proves the persistence boundary itself.
 
 ## Previous cycles
 
+- Cycle 48: restored normalized preferences in Chromium and removed duplicate meditation event binding.
 - Cycle 47: validated all bundled wallpaper metadata before assignment and exercised safe browser recovery.
 - Cycle 46 (`37e27e7`): exercised compact header and persistent music-dock behavior in a 390×844 Chromium path.
 - Cycle 45 (`d5c229d`): canceled superseded queue hydration with consumer-aware shared-request ownership.
@@ -81,12 +81,13 @@ classes, persistence, and rendering before failing incidentally.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Exercise preference restoration in a real browser | Verification | Low-medium | Small / low | Pure contracts cover normalized storage, but browser smoke starts from empty storage |
+| 1 | Exercise saved meditation session and streak restoration in a real browser | Verification | Low-medium | Small / low | Pure contracts normalize both stores, but the browser suite has no returning-meditator path |
+| — | Exercise preference restoration in a real browser | Verification / correctness | Medium | Small / low | Six browser paths now cover all shared preference effects and single-action controls | Completed in Cycle 48 |
 | — | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | 35 data contracts plus validation-before-assignment and browser recovery | Completed in Cycle 47 |
 | — | Add a narrow mobile browser path for header and music-dock interaction | Verification / UX | Medium | Small-medium / low | Four browser paths / 53 checks | Completed in Cycle 46 |
 
 ## Next cycle
 
-Local next: exercise normalized preference restoration through the real browser
-DOM. Workspace next: rotate to the car-classification service's current backlog
-after this focused VerseKeep cycle.
+Local next: exercise saved meditation session and streak restoration through a
+returning visitor's browser DOM. Workspace next: rotate to the
+car-classification service's current backlog after this focused VerseKeep cycle.

@@ -85,6 +85,9 @@ npx playwright install chromium
 npm run test:browser
 ```
 
+The browser suite covers primary meditation-to-practice navigation, normalized
+preference restoration, catalog failure recovery, and compact mobile controls.
+
 ## GitHub Pages
 
 Repo **Settings → Pages → Deploy from branch → `main` / `docs`**
