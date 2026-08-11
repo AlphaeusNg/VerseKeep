@@ -111,6 +111,31 @@ test("rejects an invalid remote wallpaper catalog and keeps bundled wallpapers",
   await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
 });
 
+test("rejects invalid bundled wallpaper metadata without exposing diagnostics", async ({ page }) => {
+  await page.route("**/data/wallpapers.json", (route) =>
+    route.fulfill({
+      json: {
+        wallpapers: [{
+          id: "Unsafe ID",
+          title: "Unsafe",
+          blurb: "Malformed fixture",
+          tags: ["Test"],
+          tone: "Unsafe Tone",
+          style: "classic",
+        }],
+      },
+    })
+  );
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const error = page.locator("#ambient-error");
+  await expect(error).toBeVisible();
+  await expect(error).toHaveText("Could not load wallpapers. Please refresh or try again later.");
+  await expect(error).not.toContainText("lowercase slug");
+  await expect(page.locator("#wallpaper-grid .wp-card")).toHaveCount(0);
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+});
+
 test("keeps the compact header and persistent music dock usable on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });

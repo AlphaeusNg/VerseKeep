@@ -1116,6 +1116,13 @@
     bindDetailsMemory();
     try {
       const local = await loadJson("data/wallpapers.json");
+      const localValidation =
+        window.VerseKeepDataCore?.validateBundledWallpaperCatalog?.(local);
+      if (!localValidation?.valid) {
+        const detail =
+          localValidation?.errors?.join("; ") || "bundled wallpaper validator unavailable";
+        throw new Error(`Invalid bundled wallpaper catalog: ${detail}`);
+      }
       let remote = { pool: [] };
       try {
         const loadedRemote = await loadJson("data/remote-wallpapers.json");

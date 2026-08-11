@@ -88,6 +88,67 @@
     return result(errors);
   }
 
+  function validateBundledWallpaperCatalog(value) {
+    const errors = [];
+    if (!isRecord(value)) {
+      errors.push("bundled wallpaper catalog must be an object");
+      return result(errors);
+    }
+    if (!Array.isArray(value.wallpapers) || value.wallpapers.length === 0) {
+      errors.push("wallpapers must be a non-empty array");
+      return result(errors);
+    }
+
+    const ids = new Set();
+    value.wallpapers.forEach((entry, index) => {
+      const path = `wallpapers[${index}]`;
+      if (!isRecord(entry)) {
+        errors.push(`${path} must be an object`);
+        return;
+      }
+
+      const id = requireText(entry, "id", path, errors);
+      requireText(entry, "title", path, errors);
+      requireText(entry, "blurb", path, errors);
+      const tone = requireText(entry, "tone", path, errors);
+      const style = requireText(entry, "style", path, errors);
+      if (id) {
+        if (!ID_PATTERN.test(id)) errors.push(`${path}.id must be a lowercase slug`);
+        if (ids.has(id)) errors.push(`${path}.id has duplicate wallpaper id "${id}"`);
+        ids.add(id);
+      }
+      if (tone && !ID_PATTERN.test(tone)) errors.push(`${path}.tone must be a lowercase slug`);
+      if (style && !ID_PATTERN.test(style)) errors.push(`${path}.style must be a lowercase slug`);
+
+      if (!Array.isArray(entry.tags) || entry.tags.length === 0) {
+        errors.push(`${path}.tags must be a non-empty array`);
+      } else {
+        if (entry.tags.length > 3) errors.push(`${path}.tags must contain at most 3 entries`);
+        const tags = new Set();
+        entry.tags.forEach((tag, tagIndex) => {
+          if (typeof tag !== "string" || !tag.trim()) {
+            errors.push(`${path}.tags[${tagIndex}] must be a non-empty string`);
+            return;
+          }
+          const normalized = tag.trim().toLowerCase();
+          if (tags.has(normalized)) {
+            errors.push(`${path}.tags[${tagIndex}] has duplicate tag "${tag.trim()}"`);
+          }
+          tags.add(normalized);
+        });
+      }
+
+      if (typeof entry.theme !== "string") errors.push(`${path}.theme must be a string`);
+      if (typeof entry.themeTitle !== "string") errors.push(`${path}.themeTitle must be a string`);
+      const theme = typeof entry.theme === "string" ? entry.theme.trim() : "";
+      const themeTitle = typeof entry.themeTitle === "string" ? entry.themeTitle.trim() : "";
+      if (theme && !ID_PATTERN.test(theme)) errors.push(`${path}.theme must be a lowercase slug`);
+      if (theme && !themeTitle) errors.push(`${path}.themeTitle must be present when theme is set`);
+      if (!theme && themeTitle) errors.push(`${path}.theme must be present when themeTitle is set`);
+    });
+    return result(errors);
+  }
+
   function validateRemoteWallpaperCatalog(value) {
     const errors = [];
     if (!isRecord(value)) {
@@ -137,6 +198,7 @@
   }
 
   global.VerseKeepDataCore = Object.freeze({
+    validateBundledWallpaperCatalog,
     validatePlaylistCatalog,
     validateRemoteWallpaperCatalog,
   });

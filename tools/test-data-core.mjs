@@ -7,6 +7,9 @@ import vm from "node:vm";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(resolve(root, "docs/assets/js/data-core.js"), "utf8");
 const playlists = JSON.parse(readFileSync(resolve(root, "docs/data/playlists.json"), "utf8"));
+const bundledWallpapers = JSON.parse(
+  readFileSync(resolve(root, "docs/data/wallpapers.json"), "utf8")
+);
 const remoteWallpapers = JSON.parse(
   readFileSync(resolve(root, "docs/data/remote-wallpapers.json"), "utf8")
 );
@@ -32,6 +35,11 @@ equal(
   "function",
   "remote wallpaper validator is exported"
 );
+equal(
+  typeof core?.validateBundledWallpaperCatalog,
+  "function",
+  "bundled wallpaper validator is exported"
+);
 
 const deployedPlaylists = core.validatePlaylistCatalog(playlists);
 equal(deployedPlaylists.valid, true, `deployed playlists are valid: ${deployedPlaylists.errors}`);
@@ -43,6 +51,101 @@ equal(
 );
 equal(Object.isFrozen(deployedPlaylists), true, "playlist validation results are immutable");
 equal(Object.isFrozen(deployedWallpapers.errors), true, "validation error lists are immutable");
+
+const deployedBundledWallpapers = core.validateBundledWallpaperCatalog(bundledWallpapers);
+equal(
+  deployedBundledWallpapers.valid,
+  true,
+  `deployed bundled wallpapers are valid: ${deployedBundledWallpapers.errors}`
+);
+hasError(
+  core.validateBundledWallpaperCatalog(null),
+  /bundled wallpaper catalog must be an object/,
+  "bundled wallpaper root is required"
+);
+hasError(
+  core.validateBundledWallpaperCatalog({ wallpapers: [] }),
+  /wallpapers must be a non-empty array/,
+  "bundled wallpaper list cannot be empty"
+);
+const malformedBundledRecord = structuredClone(bundledWallpapers);
+malformedBundledRecord.wallpapers[0] = null;
+hasError(
+  core.validateBundledWallpaperCatalog(malformedBundledRecord),
+  /wallpapers\[0\] must be an object/,
+  "bundled wallpaper entries must be objects"
+);
+const missingBundledTitle = structuredClone(bundledWallpapers);
+delete missingBundledTitle.wallpapers[0].title;
+hasError(
+  core.validateBundledWallpaperCatalog(missingBundledTitle),
+  /wallpapers\[0\]\.title must be a non-empty string/,
+  "bundled wallpaper titles are required"
+);
+const duplicateBundledId = structuredClone(bundledWallpapers);
+duplicateBundledId.wallpapers[1].id = duplicateBundledId.wallpapers[0].id;
+hasError(
+  core.validateBundledWallpaperCatalog(duplicateBundledId),
+  /duplicate wallpaper id/,
+  "bundled wallpaper IDs are unique"
+);
+const unsafeBundledId = structuredClone(bundledWallpapers);
+unsafeBundledId.wallpapers[0].id = "Unsafe ID";
+hasError(
+  core.validateBundledWallpaperCatalog(unsafeBundledId),
+  /id must be a lowercase slug/,
+  "bundled wallpaper IDs are safe slugs"
+);
+const blankBundledTag = structuredClone(bundledWallpapers);
+blankBundledTag.wallpapers[0].tags = ["Morning", ""];
+hasError(
+  core.validateBundledWallpaperCatalog(blankBundledTag),
+  /tags\[1\] must be a non-empty string/,
+  "bundled wallpaper tags cannot be blank"
+);
+const excessBundledTags = structuredClone(bundledWallpapers);
+excessBundledTags.wallpapers[0].tags = ["One", "Two", "Three", "Four"];
+hasError(
+  core.validateBundledWallpaperCatalog(excessBundledTags),
+  /tags must contain at most 3 entries/,
+  "bundled wallpaper tags cannot be silently truncated"
+);
+const duplicateBundledTag = structuredClone(bundledWallpapers);
+duplicateBundledTag.wallpapers[0].tags = ["Morning", "morning"];
+hasError(
+  core.validateBundledWallpaperCatalog(duplicateBundledTag),
+  /duplicate tag/,
+  "bundled wallpaper tags are unique case-insensitively"
+);
+const unsafeBundledTone = structuredClone(bundledWallpapers);
+unsafeBundledTone.wallpapers[0].tone = "Morning Light";
+hasError(
+  core.validateBundledWallpaperCatalog(unsafeBundledTone),
+  /tone must be a lowercase slug/,
+  "bundled wallpaper tones remain CSS-safe"
+);
+const unsafeBundledStyle = structuredClone(bundledWallpapers);
+unsafeBundledStyle.wallpapers[0].style = "Classic Style";
+hasError(
+  core.validateBundledWallpaperCatalog(unsafeBundledStyle),
+  /style must be a lowercase slug/,
+  "bundled wallpaper styles remain filter-safe"
+);
+const missingThemeTitle = structuredClone(bundledWallpapers);
+const themedWallpaper = missingThemeTitle.wallpapers.find((wallpaper) => wallpaper.theme);
+themedWallpaper.themeTitle = "";
+hasError(
+  core.validateBundledWallpaperCatalog(missingThemeTitle),
+  /themeTitle must be present when theme is set/,
+  "bundled wallpaper themes retain display titles"
+);
+const malformedThemeMetadata = structuredClone(bundledWallpapers);
+malformedThemeMetadata.wallpapers[0].theme = {};
+hasError(
+  core.validateBundledWallpaperCatalog(malformedThemeMetadata),
+  /theme must be a string/,
+  "bundled wallpaper optional theme metadata retains a stable type"
+);
 
 hasError(core.validatePlaylistCatalog(null), /catalog must be an object/, "playlist root is required");
 hasError(

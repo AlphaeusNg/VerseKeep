@@ -125,6 +125,14 @@ if (existsSync(ambientPath)) {
 const wallpapersPath = requirePath("assets/js/wallpapers.js");
 if (existsSync(wallpapersPath)) {
   const wallpapersSource = readFileSync(wallpapersPath, "utf8");
+  if (!wallpapersSource.includes("validateBundledWallpaperCatalog")) {
+    failures.push("wallpapers.js must validate bundled wallpapers before rendering");
+  } else if (
+    wallpapersSource.indexOf("validateBundledWallpaperCatalog") >
+    wallpapersSource.indexOf("classics = (local.wallpapers || [])")
+  ) {
+    failures.push("wallpapers.js must validate bundled wallpapers before runtime assignment");
+  }
   if (!wallpapersSource.includes("validateRemoteWallpaperCatalog")) {
     failures.push("wallpapers.js must validate remote wallpapers before rendering");
   }
