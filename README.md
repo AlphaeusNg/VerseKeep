@@ -86,7 +86,8 @@ npm run test:browser
 ```
 
 The browser suite covers primary meditation-to-practice navigation, normalized
-preference restoration, catalog failure recovery, and compact mobile controls.
+preference restoration, returning meditation/streak continuity, catalog failure
+recovery, and compact mobile controls.
 
 ## GitHub Pages
 

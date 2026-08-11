@@ -1,67 +1,69 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 122 across the projects workspace; VerseKeep Cycle 48)
+Last updated: 2026-08-11 (Cycle 131 across the projects workspace; VerseKeep Cycle 49)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), six browser paths (67 encoded assertion sites), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), seven browser paths (78 encoded assertion sites), and syntax checks on Node 24.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: restore preferences without double-binding meditation controls
+## Latest cycle: exercise returning meditation and Amen continuity
 
 ### Why this was selected
 
-Normalized preference storage had thorough pure contracts, but browser startup
-always began with empty storage. A new restored-state journey exposed that the
-deferred meditation script bound its controls both while the document was
-`interactive` and again on `DOMContentLoaded`. Every meditation click and
-keyboard shortcut consequently ran twice; focus mode visibly stayed enabled
-after one attempt to exit.
+Meditation-session and Amen-streak normalizers had thorough pure contracts, but
+the browser suite did not prove that a returning visitor actually resumed the
+saved topic/reference or carried yesterday's streak into one—and only one—Amen
+for today. This is core continuity state and a small browser contract compounds
+future persistence changes at low risk.
 
 ### Changes
 
-- Made meditation initialization mutually exclusive: bind once at
-  `DOMContentLoaded` while loading, otherwise bind immediately.
-- Added a browser journey seeded with mixed-case and whitespace-padded saved
-  preferences. It verifies normalized NIV selection, auto-advance, topic,
-  focus, exact cleaned storage, restored quiz mode, and a single-click focus
-  exit before entering a four-choice drill.
+- Added a returning-visitor browser journey with a same-day saved meditation and
+  a valid yesterday streak.
+- Asserted the exact restored topic, reference, session record, and visible
+  four-day continuation prompt; then advanced to five days and verified the
+  exact two-entry history.
+- Clicked Amen a second time and proved both the duplicate warning and exactly
+  equivalent persisted state, protecting against same-day inflation.
 - Documented browser-suite coverage and bumped the deployment version to
-  `2026.08.11.4`.
+  `2026.08.11.5`.
 
 ### Verification and scores
 
-- Test-first: the new browser journey failed because one focus click left the
-  body in `med-focus`; it passed after the initializer fix.
-- `npm run test:browser`: six journeys / 67 encoded interaction, persistence,
-  fallback, layout, accessibility-state, and runtime assertion sites passed;
-  three consecutive full runs completed 18/18 journeys successfully.
+- The new coverage passed immediately, providing positive evidence that no
+  production change was justified; the cycle remained test-only.
+- The focused returning journey passed 3/3 consecutive runs. Three complete
+  suite repetitions then passed 21/21 journeys; the suite now has seven paths /
+  78 encoded interaction, persistence, fallback, layout, accessibility-state,
+  and runtime assertion sites.
 - `node tools/test-practice-core.mjs`: 55 passed; data: 35; live Bible: 17;
   workflow policy: 10; site structure, recursive syntax, JSON parsing, and
   `git diff --check` passed.
 - `npm audit --audit-level=high`: 0 vulnerabilities.
-- Correctness/reliability: 9/10 (meditation controls now perform one action per user input).
-- Verifiability: 10/10 (all shared preference effects and the discovered defect are browser-locked).
-- Maintainability: 9/10 (one conventional, mutually exclusive startup path replaces ambiguous dual binding).
-- Performance: 10/10 (duplicate event work is removed with no added runtime dependency).
-- Security/safety: 9/10 (unknown persisted fields are discarded by the exercised normalizer).
-- User experience: 9/10 (focus exit, navigation, Amen, and keyboard controls no longer double-fire).
+- Correctness/reliability: 8/10 → 9/10 (continuity behavior is unchanged but now proven end to end).
+- Verifiability: 7/10 → 10/10 (session resume, streak increment, history, and idempotence are browser-locked).
+- Maintainability: 8/10 → 9/10 (one readable journey documents the three-store continuity contract).
+- Performance: 10/10 → 10/10 (test-only change; no runtime work added).
+- Security/safety: 9/10 → 9/10 (exact local state is asserted; no boundary changed).
+- User experience: 8/10 → 9/10 (returning visitors' exact continuity is now regression-protected).
 
 ### Lessons and process improvements
 
-- Deferred scripts can execute at `interactive` before `DOMContentLoaded`; an
-  initializer must choose either deferred binding or immediate binding, never
-  independently do both.
-- Restored-state journeys expose startup races and listener duplication that
-  isolated normalization contracts cannot observe.
-- Assert public DOM effects first, then exact cleaned storage only where it
-  proves the persistence boundary itself.
+- A passing new contract is valid improvement evidence when it closes a named
+  verification gap; do not manufacture a runtime diff when behavior is already
+  correct.
+- Freeze dynamic calendar values inside the browser context so the fixture and
+  application share the same local timezone/day boundary.
+- For continuity features, assert visible meaning first, then exact storage,
+  then an idempotent repeated action.
 
 ## Previous cycles
 
+- Cycle 49: restored a same-day meditation and yesterday streak in Chromium, then proved Amen advances exactly once.
 - Cycle 48: restored normalized preferences in Chromium and removed duplicate meditation event binding.
 - Cycle 47: validated all bundled wallpaper metadata before assignment and exercised safe browser recovery.
 - Cycle 46 (`37e27e7`): exercised compact header and persistent music-dock behavior in a 390×844 Chromium path.
@@ -81,13 +83,14 @@ after one attempt to exit.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Exercise saved meditation session and streak restoration in a real browser | Verification | Low-medium | Small / low | Pure contracts normalize both stores, but the browser suite has no returning-meditator path |
+| 1 | Announce meditation feedback and validate topic-control semantics for assistive technology | Accessibility / UX | Medium | Small / low | `#med-feedback` has no live/status semantics and the topic container declares `listbox` while rendering plain buttons |
+| — | Exercise saved meditation session and streak restoration in a real browser | Verification | Low-medium | Small / low | Seven browser paths now prove same-day resume, yesterday continuation, exact history, and duplicate-Amen idempotence | Completed in Cycle 49 |
 | — | Exercise preference restoration in a real browser | Verification / correctness | Medium | Small / low | Six browser paths now cover all shared preference effects and single-action controls | Completed in Cycle 48 |
 | — | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | 35 data contracts plus validation-before-assignment and browser recovery | Completed in Cycle 47 |
 | — | Add a narrow mobile browser path for header and music-dock interaction | Verification / UX | Medium | Small-medium / low | Four browser paths / 53 checks | Completed in Cycle 46 |
 
 ## Next cycle
 
-Local next: exercise saved meditation session and streak restoration through a
-returning visitor's browser DOM. Workspace next: rotate to the
-car-classification service's current backlog after this focused VerseKeep cycle.
+Local next: make meditation feedback perceivable to assistive technology and
+align the topic control's declared semantics with its button behavior. Workspace
+next: rotate to the car-classification service's current backlog.

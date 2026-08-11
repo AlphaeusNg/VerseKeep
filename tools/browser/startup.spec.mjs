@@ -128,6 +128,70 @@ test("restores normalized meditation and practice preferences", async ({ page })
   await expect(page.locator("#stage #quiz-choices .choice")).toHaveCount(4);
 });
 
+test("restores a returning meditation and advances Amen exactly once", async ({ page }) => {
+  await page.addInitScript(() => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const yesterdayDate = new Date(now);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, "0")}-${String(yesterdayDate.getDate()).padStart(2, "0")}`;
+    const daySeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    localStorage.setItem(
+      "versekeep-meditate-v1",
+      JSON.stringify({ topicId: "trusting-god", ref: "Psalm 56:3", day: daySeed }),
+    );
+    localStorage.setItem(
+      "versekeep-med-streak-v1",
+      JSON.stringify({
+        count: 4,
+        lastDay: yesterday,
+        history: [{ day: yesterday, ref: "Proverbs 3:5–6" }],
+      }),
+    );
+    globalThis.__versekeepReturningFixture = { today, yesterday, daySeed };
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await expect(page.locator("#load-error")).toBeHidden();
+  await expect(page.locator('#med-topics [data-topic="trusting-god"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
+  await expect(page.locator("#med-streak")).toHaveText("Streak 4 days · mark Amen to continue");
+  await expect(page.locator("#med-streak")).toBeVisible();
+
+  const restoredSession = await page.evaluate(() => ({
+    fixture: globalThis.__versekeepReturningFixture,
+    session: JSON.parse(localStorage.getItem("versekeep-meditate-v1")),
+  }));
+  expect(restoredSession.session).toEqual({
+    topicId: "trusting-god",
+    ref: "Psalm 56:3",
+    day: restoredSession.fixture.daySeed,
+  });
+
+  await page.locator("#med-amen").click();
+  await expect(page.locator("#med-feedback")).toHaveText("Amen. 5-day streak.");
+  await expect(page.locator("#med-streak")).toHaveText("Streak 5 days · Amen today");
+  const afterAmen = await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-med-streak-v1")));
+  expect(afterAmen).toEqual({
+    count: 5,
+    lastDay: restoredSession.fixture.today,
+    history: [
+      { day: restoredSession.fixture.yesterday, ref: "Proverbs 3:5–6" },
+      { day: restoredSession.fixture.today, ref: "Psalm 56:3" },
+    ],
+  });
+
+  await page.locator("#med-amen").click();
+  await expect(page.locator("#med-feedback")).toHaveText("Amen already marked today.");
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-med-streak-v1"))),
+  ).toEqual(afterAmen);
+});
+
 test("rejects an invalid playlist catalog without exposing diagnostics", async ({ page }) => {
   await page.route("**/data/playlists.json", (route) =>
     route.fulfill({ json: { youtube: {}, spotify: [] } })
