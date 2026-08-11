@@ -81,6 +81,19 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   );
 });
 
+test("exposes meditation topics and feedback with matching semantics", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const topics = page.getByRole("group", { name: "Meditation topics" });
+  await expect(topics).toBeVisible();
+  await expect(topics.getByRole("button").first()).toHaveAttribute("aria-pressed", "true");
+
+  await page.locator("#med-amen").click();
+  const feedback = page.getByRole("status");
+  await expect(feedback).toHaveText(/Amen\./);
+  await expect(feedback).toHaveAttribute("aria-atomic", "true");
+});
+
 test("restores normalized meditation and practice preferences", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(

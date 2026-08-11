@@ -1,68 +1,67 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 131 across the projects workspace; VerseKeep Cycle 49)
+Last updated: 2026-08-11 (Cycle 140 across the projects workspace; VerseKeep Cycle 50)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), seven browser paths (78 encoded assertion sites), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), eight browser paths (82 encoded assertion sites), and syntax checks on Node 24.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: exercise returning meditation and Amen continuity
+## Latest cycle: make meditation controls perceivable to assistive technology
 
 ### Why this was selected
 
-Meditation-session and Amen-streak normalizers had thorough pure contracts, but
-the browser suite did not prove that a returning visitor actually resumed the
-saved topic/reference or carried yesterday's streak into one—and only one—Amen
-for today. This is core continuity state and a small browser contract compounds
-future persistence changes at low risk.
+The horizontal topic row declared a listbox while rendering ordinary toggle
+buttons, so assistive technology received a container/widget contract the child
+controls did not implement. Transient Amen, copy, share, and speech feedback was
+also only visual. Correcting both semantics is a high-value, low-risk improvement
+to the primary meditation journey.
 
 ### Changes
 
-- Added a returning-visitor browser journey with a same-day saved meditation and
-  a valid yesterday streak.
-- Asserted the exact restored topic, reference, session record, and visible
-  four-day continuation prompt; then advanced to five days and verified the
-  exact two-entry history.
-- Clicked Amen a second time and proved both the duplicate warning and exactly
-  equivalent persisted state, protecting against same-day inflation.
-- Documented browser-suite coverage and bumped the deployment version to
-  `2026.08.11.5`.
+- Replaced the false `listbox` contract with a named group containing the
+  existing pressed-state topic buttons.
+- Made `#med-feedback` an atomic status region so its transient action results
+  are announced without moving focus.
+- Added a real-browser journey that locates the group and status by their
+  accessible roles, verifies the active button state, and triggers an Amen
+  announcement.
+- Documented the expanded browser coverage and bumped the deployment version to
+  `2026.08.11.6`.
 
 ### Verification and scores
 
-- The new coverage passed immediately, providing positive evidence that no
-  production change was justified; the cycle remained test-only.
-- The focused returning journey passed 3/3 consecutive runs. Three complete
-  suite repetitions then passed 21/21 journeys; the suite now has seven paths /
-  78 encoded interaction, persistence, fallback, layout, accessibility-state,
-  and runtime assertion sites.
+- The new browser contract failed against the old page because no correctly
+  named topic-button group existed, then passed 3/3 after the semantic fix.
+- Three complete suite repetitions passed 24/24 journeys; the suite now has
+  eight paths / 82 encoded interaction, persistence, fallback, layout,
+  accessibility-state, and runtime assertion sites.
 - `node tools/test-practice-core.mjs`: 55 passed; data: 35; live Bible: 17;
   workflow policy: 10; site structure, recursive syntax, JSON parsing, and
   `git diff --check` passed.
 - `npm audit --audit-level=high`: 0 vulnerabilities.
-- Correctness/reliability: 8/10 → 9/10 (continuity behavior is unchanged but now proven end to end).
-- Verifiability: 7/10 → 10/10 (session resume, streak increment, history, and idempotence are browser-locked).
-- Maintainability: 8/10 → 9/10 (one readable journey documents the three-store continuity contract).
-- Performance: 10/10 → 10/10 (test-only change; no runtime work added).
-- Security/safety: 9/10 → 9/10 (exact local state is asserted; no boundary changed).
-- User experience: 8/10 → 9/10 (returning visitors' exact continuity is now regression-protected).
+- Correctness/reliability: 8/10 → 9/10 (declared control semantics now match actual button behavior).
+- Verifiability: 8/10 → 10/10 (the accessible roles and dynamic announcement are browser-locked).
+- Maintainability: 8/10 → 9/10 (native roles describe the interaction without custom keyboard code).
+- Performance: 10/10 → 10/10 (two static attributes add no meaningful runtime work).
+- Security/safety: 9/10 → 9/10 (no trust boundary changed).
+- User experience/accessibility: 5/10 → 9/10 (the primary controls and results are now programmatically perceivable).
 
 ### Lessons and process improvements
 
-- A passing new contract is valid improvement evidence when it closes a named
-  verification gap; do not manufacture a runtime diff when behavior is already
-  correct.
-- Freeze dynamic calendar values inside the browser context so the fixture and
-  application share the same local timezone/day boundary.
-- For continuity features, assert visible meaning first, then exact storage,
-  then an idempotent repeated action.
+- Match ARIA containers to the behavior children actually implement; a native
+  button with `aria-pressed` belongs in a named group, not an incomplete listbox.
+- Exercise live-region behavior through a real user action and query the
+  resulting role, rather than accepting markup-only evidence.
+- Accessibility fixes can remain surgical when native semantics already cover
+  the interaction model.
 
 ## Previous cycles
 
+- Cycle 50: aligned meditation topic-button semantics and announced transient feedback through an atomic status region.
 - Cycle 49: restored a same-day meditation and yesterday streak in Chromium, then proved Amen advances exactly once.
 - Cycle 48: restored normalized preferences in Chromium and removed duplicate meditation event binding.
 - Cycle 47: validated all bundled wallpaper metadata before assignment and exercised safe browser recovery.
@@ -83,7 +82,8 @@ future persistence changes at low risk.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Announce meditation feedback and validate topic-control semantics for assistive technology | Accessibility / UX | Medium | Small / low | `#med-feedback` has no live/status semantics and the topic container declares `listbox` while rendering plain buttons |
+| 1 | Announce practice-mode grading, reveal, copy, and shuffle feedback to assistive technology | Accessibility / UX | Medium | Small / low | `#feedback` changes dynamically but has no status or alert semantics |
+| — | Announce meditation feedback and validate topic-control semantics for assistive technology | Accessibility / UX | Medium | Small / low | Named button group and atomic status region are browser-verified | Completed in Cycle 50 |
 | — | Exercise saved meditation session and streak restoration in a real browser | Verification | Low-medium | Small / low | Seven browser paths now prove same-day resume, yesterday continuation, exact history, and duplicate-Amen idempotence | Completed in Cycle 49 |
 | — | Exercise preference restoration in a real browser | Verification / correctness | Medium | Small / low | Six browser paths now cover all shared preference effects and single-action controls | Completed in Cycle 48 |
 | — | Validate the bundled wallpaper catalog's non-path fields | Correctness | Low-medium | Small / low | 35 data contracts plus validation-before-assignment and browser recovery | Completed in Cycle 47 |
@@ -91,6 +91,6 @@ future persistence changes at low risk.
 
 ## Next cycle
 
-Local next: make meditation feedback perceivable to assistive technology and
-align the topic control's declared semantics with its button behavior. Workspace
-next: rotate to the car-classification service's current backlog.
+Local next: make practice grading and action feedback perceivable to assistive
+technology. Workspace next: rotate to the car-classification service's current
+backlog.
