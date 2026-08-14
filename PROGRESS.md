@@ -1,16 +1,67 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 140 across the projects workspace; VerseKeep Cycle 50)
+Last updated: 2026-08-14 (Cycle 149 across the projects workspace; VerseKeep Cycle 51)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), eight browser paths (82 encoded assertion sites), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), nine browser paths (89 encoded assertion sites), and syntax checks on Node 24.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: make meditation controls perceivable to assistive technology
+## Latest cycle: announce practice feedback accessibly
+
+### Why this was selected
+
+The primary meditation feedback was accessible after the prior cycle, but the
+practice surface still changed `#feedback` visually for grading, reveal, copy,
+and shuffle actions without status semantics. A screen-reader user could invoke
+the core memory controls and receive no programmatic result.
+
+### Changes
+
+- Made the shared practice feedback element an atomic status region while
+  preserving its existing hidden/visible and success/error styling behavior.
+- Added a real-browser journey that enters practice and triggers Reveal, Copy,
+  Shuffle, and an incorrect Type-it grade through actual controls.
+- The journey grants clipboard access explicitly, locates the live region by
+  its accessible role, and verifies each action's exact or semantic feedback.
+- Documented the expanded browser scope and bumped the deployment version to
+  `2026.08.14.1`.
+
+### Verification and scores
+
+- Test-first evidence: the initial browser locator incorrectly searched for a
+  status containing the feedback element itself. After correcting it to query
+  the visible non-empty status, the old page still failed because no such role
+  existed; the journey passed after the markup fix.
+- The focused four-action accessibility journey passed.
+- The complete site, practice 55/55, data 35/35, Bible 17/17, workflow 10/10,
+  browser, syntax, JSON, dependency, diff, hosted CI, Pages, and live-version
+  results are recorded in the Cycle 149 completion summary.
+- Correctness/reliability: 9/10 → 9/10 (visual behavior is unchanged and its
+  semantic result now matches it).
+- Verifiability: 6/10 → 10/10 (four distinct action classes are exercised at
+  the browser accessibility boundary).
+- Maintainability: 8/10 → 9/10 (one native status contract covers every caller
+  of the existing shared feedback function).
+- Performance: 10/10 → 10/10 (two static attributes add no runtime work).
+- Security/safety: 9/10 → 9/10 (clipboard permission exists only in the
+  controlled browser fixture; product permissions are unchanged).
+- User experience/accessibility: 4/10 → 9/10 (grading and practice action
+  outcomes are now programmatically announced).
+
+### Lessons and process improvements
+
+- Cover a shared feedback surface through representative callers, not merely
+  the markup, so future action-specific regressions remain visible.
+- Explicitly grant and scope clipboard permission in browser tests rather than
+  accepting a prompt fallback or weakening the path.
+- When a test-first locator is itself invalid, correct it and reproduce the
+  product failure again before claiming red evidence.
+
+## Previous cycle: make meditation controls perceivable to assistive technology
 
 ### Why this was selected
 
@@ -61,6 +112,8 @@ to the primary meditation journey.
 
 ## Previous cycles
 
+- Cycle 51: announced practice grading, reveal, copy, and shuffle feedback
+  through an atomic status region verified in Chromium.
 - Cycle 50: aligned meditation topic-button semantics and announced transient feedback through an atomic status region.
 - Cycle 49: restored a same-day meditation and yesterday streak in Chromium, then proved Amen advances exactly once.
 - Cycle 48: restored normalized preferences in Chromium and removed duplicate meditation event binding.
@@ -82,7 +135,8 @@ to the primary meditation journey.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Announce practice-mode grading, reveal, copy, and shuffle feedback to assistive technology | Accessibility / UX | Medium | Small / low | `#feedback` changes dynamically but has no status or alert semantics |
+| 1 | Align practice-mode selector semantics with its implemented interaction | Accessibility / UX | Medium | Small / low | The row declares tabs, but the controls have no tabpanel relationship or arrow-key tab behavior; a named pressed-button group may match the existing UX better |
+| — | Announce practice-mode grading, reveal, copy, and shuffle feedback to assistive technology | Accessibility / UX | Medium | Small / low | Four action classes now share an atomic status region verified in Chromium | Completed in Cycle 51 |
 | — | Announce meditation feedback and validate topic-control semantics for assistive technology | Accessibility / UX | Medium | Small / low | Named button group and atomic status region are browser-verified | Completed in Cycle 50 |
 | — | Exercise saved meditation session and streak restoration in a real browser | Verification | Low-medium | Small / low | Seven browser paths now prove same-day resume, yesterday continuation, exact history, and duplicate-Amen idempotence | Completed in Cycle 49 |
 | — | Exercise preference restoration in a real browser | Verification / correctness | Medium | Small / low | Six browser paths now cover all shared preference effects and single-action controls | Completed in Cycle 48 |
@@ -91,6 +145,6 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: make practice grading and action feedback perceivable to assistive
-technology. Workspace next: rotate to the car-classification service's current
-backlog.
+Local next: align practice-mode selector semantics with the interaction it
+actually implements. Workspace next: rotate to the car-classification service's
+current backlog.

@@ -94,6 +94,31 @@ test("exposes meditation topics and feedback with matching semantics", async ({ 
   await expect(feedback).toHaveAttribute("aria-atomic", "true");
 });
 
+test("announces practice feedback for grading and actions", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: "http://127.0.0.1:4174",
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#theme-grid [data-drill]").first().click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+
+  const feedback = page.locator("#feedback");
+  await page.locator("#btn-reveal").click();
+  await expect(page.getByRole("status").filter({ hasText: /.+/ })).toBeVisible();
+  await expect(feedback).not.toHaveText("");
+  await expect(feedback).toHaveAttribute("aria-atomic", "true");
+
+  await page.locator("#btn-copy").click();
+  await expect(feedback).toHaveText("Verse copied to clipboard.");
+  await page.locator("#btn-shuffle").click();
+  await expect(feedback).toHaveText("Queue shuffled.");
+
+  await page.locator('#play-panel [data-mode="type"]').click();
+  await page.locator("#type-input").fill("not the verse");
+  await page.locator("#btn-check").click();
+  await expect(feedback).toContainText("Keep going");
+});
+
 test("restores normalized meditation and practice preferences", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(
