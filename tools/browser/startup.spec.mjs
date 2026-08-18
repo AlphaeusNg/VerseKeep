@@ -51,6 +51,12 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   await expect(page.locator("#music-list [data-music-id]")).not.toHaveCount(0);
   await expect(page.locator("#wallpaper-grid .wp-card")).not.toHaveCount(0);
 
+  await expect(page.locator(".hero")).toHaveCount(0);
+  await expect(page.locator(".top-nav > a[href='#meditate']")).toBeVisible();
+  await expect(page.locator(".top-nav > a[href='#themes']")).toBeVisible();
+  await expect(page.locator("#nav-music")).toBeVisible();
+  await expect(page.locator(".top-nav > a[href='#topics']")).toHaveCount(0);
+  await page.locator(".top-nav .nav-more > summary").click();
   await page.locator('.top-nav a[href="#topics"]').click();
   await expect(page).toHaveURL(/#topics$/);
 
@@ -347,6 +353,10 @@ test("keeps the compact header and persistent music dock usable on a phone", asy
 
   const topbar = page.locator(".topbar");
   await expect(topbar).toBeVisible();
+  await expect(page.locator(".hero")).toHaveCount(0);
+  await expect(page.locator("#nav-music")).toBeVisible();
+  await expect(page.locator(".top-nav .nav-more > summary")).toBeVisible();
+  await expect(page.locator(".top-nav a[href='#topics']")).toBeHidden();
   await expect(page.locator(".top-nav .nav-extra").first()).toBeHidden();
 
   await page.evaluate(() => window.scrollTo(0, 1000));

@@ -67,6 +67,15 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="med-more"') || !html.includes('id="med-more-panel"')) {
     failures.push("Meditation dock must keep extras behind More");
   }
+  if (!html.includes('id="nav-music"')) {
+    failures.push("Primary nav must keep #nav-music to toggle the dock");
+  }
+  if (!html.includes('class="nav-more"') || !html.includes('href="#topics"') || !html.includes('href="#wallpapers"')) {
+    failures.push("Topics, wallpapers, and sibling links must stay reachable from a More overflow");
+  }
+  if (html.includes("Meditate without friction")) {
+    failures.push("Compact hero manifesto must not occupy the first screen");
+  }
   if (!html.includes('id="memorize-empty"')) {
     failures.push("Memorize section must include an empty state");
   }

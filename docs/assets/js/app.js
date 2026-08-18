@@ -1237,6 +1237,19 @@
       bar.addEventListener("focusin", () => bar.classList.remove("is-scroll-hidden"));
     })();
 
+    (function bindNavMore() {
+      const more = document.querySelector(".top-nav .nav-more");
+      if (!more) return;
+      more.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          more.open = false;
+        });
+      });
+      document.addEventListener("click", (event) => {
+        if (more.open && !more.contains(event.target)) more.open = false;
+      });
+    })();
+
     // Soft resume hint for last memory theme
     if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {
       const hint = $("#resume-hint");

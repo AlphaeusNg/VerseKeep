@@ -150,6 +150,7 @@ a:hover {
 .top-nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem 0.85rem;
   font-size: 0.8rem;
 }
@@ -162,27 +163,54 @@ a:hover {
   color: var(--cream);
 }
 
+.nav-more {
+  position: relative;
+}
+
+.nav-more > summary {
+  list-style: none;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.nav-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-more > summary:hover,
+.nav-more[open] > summary {
+  color: var(--cream);
+}
+
+.nav-more-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  min-width: 10.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 0.7rem;
+  background: rgba(16, 22, 18, 0.96);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  z-index: 30;
+}
+
+.nav-more-menu a {
+  padding: 0.28rem 0.45rem;
+  border-radius: 0.4rem;
+}
+
+.nav-more-menu a:hover {
+  background: var(--gold-soft);
+}
+
 main {
   max-width: 58rem;
   margin: 0 auto;
   padding: 1.1rem 1.2rem 3.5rem;
-}
-
-.hero {
-  margin-bottom: 1rem;
-  padding: 0.1rem 0.15rem 0.25rem;
-}
-
-.hero-compact h1 {
-  font-size: clamp(1.65rem, 4.2vw, 2.25rem);
-}
-
-.hero-lead {
-  margin: 0.45rem 0 0;
-  max-width: 36rem;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
 }
 
 .eyebrow {
@@ -192,29 +220,6 @@ main {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold);
-}
-
-.hero h1 {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(2.1rem, 5.5vw, 3rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: var(--cream);
-}
-
-.hero p {
-  margin: 0.75rem 0 0;
-  max-width: 40rem;
-  color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.6;
-}
-
-.hero-compact p.hero-lead {
-  margin-top: 0.45rem;
-  font-size: 0.95rem;
 }
 
 .panel {
@@ -1774,8 +1779,8 @@ html[data-wallpaper-grid="4"] .wp-badge {
 }
 
 .resume-hint {
-  margin: 0.85rem 0 0;
-  font-size: 0.9rem;
+  margin: 0 0 0.7rem;
+  font-size: 0.88rem;
   color: var(--muted);
 }
 
@@ -2268,7 +2273,7 @@ kbd {
 }
 
 /* Focus mode: dim chrome, center the meditation */
-body.med-focus .hero,
+body.med-focus #resume-hint,
 body.med-focus .topics-panel,
 body.med-focus #themes,
 body.med-focus #play-panel,
@@ -2648,6 +2653,10 @@ body.med-focus .med-topics {
   font-size: 0.76rem;
 }
 
+.nav-more-menu {
+  min-width: 9.5rem;
+}
+
 .top-nav button {
   border: 0;
   background: transparent;
@@ -2677,11 +2686,6 @@ body.med-focus .med-topics {
 
 main {
   padding: 0.75rem 1rem 2rem;
-}
-
-.hero {
-  margin-bottom: 0.6rem;
-  padding-bottom: 0.1rem;
 }
 
 .panel {
