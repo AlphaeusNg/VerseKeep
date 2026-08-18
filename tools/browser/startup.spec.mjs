@@ -76,7 +76,7 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   await page.locator('#play-panel [data-mode="type"]').click();
   await expect(page.locator("#stage #type-input")).toBeVisible();
   await expect(page.locator('#play-panel [data-mode="type"]')).toHaveAttribute(
-    "aria-selected",
+    "aria-pressed",
     "true"
   );
 });
@@ -117,6 +117,31 @@ test("announces practice feedback for grading and actions", async ({ page, conte
   await page.locator("#type-input").fill("not the verse");
   await page.locator("#btn-check").click();
   await expect(feedback).toContainText("Keep going");
+});
+
+test("exposes practice modes as a pressed-button group", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#theme-grid [data-drill]").first().click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+
+  const modes = page.getByRole("group", { name: "Practice mode" });
+  await expect(modes).toBeVisible();
+  await expect(page.getByRole("tablist", { name: "Practice mode" })).toHaveCount(0);
+  await expect(modes.getByRole("button", { name: "Study" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+
+  await modes.getByRole("button", { name: "Type it" }).click();
+  await expect(modes.getByRole("button", { name: "Type it" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await expect(modes.getByRole("button", { name: "Study" })).toHaveAttribute(
+    "aria-pressed",
+    "false"
+  );
+  await expect(page.locator("#stage #type-input")).toBeVisible();
 });
 
 test("restores normalized meditation and practice preferences", async ({ page }) => {
@@ -160,7 +185,7 @@ test("restores normalized meditation and practice preferences", async ({ page })
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator('#play-panel [data-mode="quiz"]')).toHaveAttribute(
-    "aria-selected",
+    "aria-pressed",
     "true"
   );
   await expect(page.locator("#stage #quiz-choices .choice")).toHaveCount(4);

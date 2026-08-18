@@ -465,7 +465,7 @@
     // Scope to practice chips only — music tabs also use .mode-row .chip
     $$("#play-panel [data-mode]").forEach((c) => {
       c.classList.toggle("is-active", c.dataset.mode === mode);
-      c.setAttribute("aria-selected", c.dataset.mode === mode ? "true" : "false");
+      c.setAttribute("aria-pressed", c.dataset.mode === mode ? "true" : "false");
     });
     savePrefs({ mode });
     if (state.themeId) startRound();

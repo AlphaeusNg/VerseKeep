@@ -1,16 +1,59 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-14 (Cycle 149 across the projects workspace; VerseKeep Cycle 51)
+Last updated: 2026-08-18 (Cycle 158 across the projects workspace; VerseKeep Cycle 52)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), nine browser paths (89 encoded assertion sites), and syntax checks on Node 24.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), ten browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.18.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: announce practice feedback accessibly
+## Latest cycle: align practice-mode selector semantics
+
+### Why this was selected
+
+The practice chips declared a tablist without tabpanels or arrow-key tab
+behavior. Clicking a chip already swapped the stage like a toggle group, so the
+ARIA contract was false. This was the oldest remaining non-profile backlog item.
+
+### Changes
+
+- Replaced the practice `tablist`/`tab`/`aria-selected` contract with a named
+  group of `aria-pressed` buttons, matching the meditation topic chips.
+- Updated `setMode()` to keep pressed state in sync with the active mode.
+- Added a Chromium journey that locates the group by role, proves no practice
+  tablist exists, and switches Study → Type it through the accessible name.
+- Bumped the deployment stamp to `2026.08.18.1`.
+
+### Verification and scores
+
+- Deterministic gates: site, practice-core 55, data-core, bible-live, workflow
+  10, recursive syntax, and `git diff --check` passed.
+- `CI=1 npm run test:browser`: 10/10, including the new pressed-button group
+  path. An earlier local run collided with another project's server on 4174;
+  forcing a fresh VerseKeep server isolated that.
+- Correctness/reliability: 8/10 → 9/10 (declared semantics now match click behavior).
+- Verifiability: 7/10 → 10/10 (group role, pressed state, and mode switch are browser-locked).
+- Maintainability: 8/10 → 9/10 (one group contract covers every practice mode).
+- Performance: 10/10 → 10/10.
+- Security/safety: 9/10 → 9/10.
+- User experience/accessibility: 5/10 → 9/10 (assistive tech no longer receives a fake tab widget).
+
+### Lessons and process improvements
+
+- Match ARIA containers to the interaction children actually implement.
+- When Playwright reuses 4174, another project's leftover server can serve the
+  wrong app; CI-forced webServer startup avoids that.
+
+### Explicit next opportunity
+
+Inspect remaining music-source chips, which still declare a tablist. Workspace
+next: continue rotation; skip Car-Type-Classification-Service.
+
+## Previous cycle: announce practice feedback accessibly
 
 ### Why this was selected
 
@@ -135,7 +178,8 @@ to the primary meditation journey.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Align practice-mode selector semantics with its implemented interaction | Accessibility / UX | Medium | Small / low | The row declares tabs, but the controls have no tabpanel relationship or arrow-key tab behavior; a named pressed-button group may match the existing UX better |
+| 1 | Align music-source chips with the interaction they implement | Accessibility / UX | Medium | Small / low | The music row still declares a tablist without tabpanels |
+| — | Align practice-mode selector semantics with its implemented interaction | Accessibility / UX | Medium | Small / low | Named pressed-button group is browser-verified | Completed in Cycle 52 |
 | — | Announce practice-mode grading, reveal, copy, and shuffle feedback to assistive technology | Accessibility / UX | Medium | Small / low | Four action classes now share an atomic status region verified in Chromium | Completed in Cycle 51 |
 | — | Announce meditation feedback and validate topic-control semantics for assistive technology | Accessibility / UX | Medium | Small / low | Named button group and atomic status region are browser-verified | Completed in Cycle 50 |
 | — | Exercise saved meditation session and streak restoration in a real browser | Verification | Low-medium | Small / low | Seven browser paths now prove same-day resume, yesterday continuation, exact history, and duplicate-Amen idempotence | Completed in Cycle 49 |
@@ -145,6 +189,5 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: align practice-mode selector semantics with the interaction it
-actually implements. Workspace next: rotate to the car-classification service's
-current backlog.
+Local next: align music-source chips with the interaction they implement.
+Workspace next: continue rotation and skip Car-Type-Classification-Service.

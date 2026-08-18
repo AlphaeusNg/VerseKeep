@@ -188,12 +188,12 @@
         <span class="kbd-row">Shortcuts: <kbd>1</kbd>–<kbd>5</kbd> modes · <kbd>N</kbd>/<kbd>B</kbd> next/back · <kbd>R</kbd> reveal · <kbd>C</kbd> copy · <kbd>S</kbd> shuffle</span>
       </p>
 
-      <div class="mode-row" role="tablist" aria-label="Practice mode">
-        <button type="button" class="chip is-active" data-mode="study" role="tab" aria-selected="true">Study</button>
-        <button type="button" class="chip" data-mode="blank" role="tab" aria-selected="false">Fill blanks</button>
-        <button type="button" class="chip" data-mode="type" role="tab" aria-selected="false">Type it</button>
-        <button type="button" class="chip" data-mode="order" role="tab" aria-selected="false">Order words</button>
-        <button type="button" class="chip" data-mode="quiz" role="tab" aria-selected="false">Which verse?</button>
+      <div class="mode-row" role="group" aria-label="Practice mode">
+        <button type="button" class="chip is-active" data-mode="study" aria-pressed="true">Study</button>
+        <button type="button" class="chip" data-mode="blank" aria-pressed="false">Fill blanks</button>
+        <button type="button" class="chip" data-mode="type" aria-pressed="false">Type it</button>
+        <button type="button" class="chip" data-mode="order" aria-pressed="false">Order words</button>
+        <button type="button" class="chip" data-mode="quiz" aria-pressed="false">Which verse?</button>
       </div>
 
       <div id="stage"></div>
