@@ -88,10 +88,36 @@ test("exposes meditation topics and feedback with matching semantics", async ({ 
   await expect(topics).toBeVisible();
   await expect(topics.getByRole("button").first()).toHaveAttribute("aria-pressed", "true");
 
+  await expect(page.locator("#med-streak")).toBeVisible();
+  await expect(page.locator("#med-streak")).toContainText(
+    "Sit with this, then tap Amen to start a streak"
+  );
+  await expect(page.locator("#med-streak .med-week-dot")).toHaveCount(7);
+  await expect(page.locator("#med-streak .med-week-dot.is-today")).toHaveCount(1);
+  await expect(page.locator("#med-streak .med-week-dot.is-today.is-filled")).toHaveCount(0);
+
+  await expect(page.locator("#med-prev")).toBeVisible();
+  await expect(page.locator("#med-next")).toBeVisible();
+  await expect(page.locator("#med-amen")).toBeVisible();
+  await expect(page.locator("#med-focus")).toBeVisible();
+  await expect(page.locator("#med-more")).toBeVisible();
+  await expect(page.locator("#med-today")).toBeHidden();
+  await expect(page.locator("#med-shuffle")).toBeHidden();
+  await expect(page.locator("#med-copy")).toBeHidden();
+  await expect(page.locator("#med-share")).toBeHidden();
+  await expect(page.locator("#med-listen")).toBeHidden();
+
+  await page.locator("#med-more").click();
+  await expect(page.locator("#med-more")).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#med-today")).toBeVisible();
+  await expect(page.locator("#med-shuffle")).toBeVisible();
+
   await page.locator("#med-amen").click();
   const feedback = page.getByRole("status");
   await expect(feedback).toHaveText(/Amen\./);
   await expect(feedback).toHaveAttribute("aria-atomic", "true");
+  await expect(page.locator("#med-streak")).toContainText("Streak 1 day · Amen today");
+  await expect(page.locator("#med-streak .med-week-dot.is-today.is-filled")).toHaveCount(1);
 });
 
 test("announces practice feedback for grading and actions", async ({ page, context }) => {
@@ -182,6 +208,7 @@ test("restores normalized meditation and practice preferences", async ({ page })
 
   await page.locator("#med-focus").click();
   await expect(page.locator("body")).not.toHaveClass(/med-focus/);
+  await page.locator("#med-more").click();
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator('#play-panel [data-mode="quiz"]')).toHaveAttribute(
@@ -222,8 +249,10 @@ test("restores a returning meditation and advances Amen exactly once", async ({ 
     "true",
   );
   await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
-  await expect(page.locator("#med-streak")).toHaveText("Streak 4 days · mark Amen to continue");
+  await expect(page.locator("#med-streak")).toContainText("Streak 4 days · mark Amen to continue");
   await expect(page.locator("#med-streak")).toBeVisible();
+  await expect(page.locator("#med-streak .med-week-dot")).toHaveCount(7);
+  await expect(page.locator("#med-streak .med-week-dot.is-filled")).toHaveCount(1);
 
   const restoredSession = await page.evaluate(() => ({
     fixture: globalThis.__versekeepReturningFixture,
@@ -237,7 +266,9 @@ test("restores a returning meditation and advances Amen exactly once", async ({ 
 
   await page.locator("#med-amen").click();
   await expect(page.locator("#med-feedback")).toHaveText("Amen. 5-day streak.");
-  await expect(page.locator("#med-streak")).toHaveText("Streak 5 days · Amen today");
+  await expect(page.locator("#med-streak")).toContainText("Streak 5 days · Amen today");
+  await expect(page.locator("#med-streak .med-week-dot.is-filled")).toHaveCount(2);
+  await expect(page.locator("#med-streak .med-week-dot.is-today.is-filled")).toHaveCount(1);
   const afterAmen = await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-med-streak-v1")));
   expect(afterAmen).toEqual({
     count: 5,
@@ -358,4 +389,57 @@ test("keeps the compact header and persistent music dock usable on a phone", asy
   await page.keyboard.press("Escape");
   await expect(tab).toHaveAttribute("aria-expanded", "false");
   await expect(frame).toHaveAttribute("src", playingSrc);
+});
+
+test("exposes music sources as a pressed-button group", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#music-dock-tab").click();
+
+  const sources = page.getByRole("group", { name: "Music source" });
+  await expect(sources).toBeVisible();
+  await expect(page.getByRole("tablist", { name: "Music source" })).toHaveCount(0);
+  await expect(sources.getByRole("button", { name: "Spotify" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+
+  await sources.getByRole("button", { name: "YouTube" }).click();
+  await expect(sources.getByRole("button", { name: "YouTube" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await expect(sources.getByRole("button", { name: "Spotify" })).toHaveAttribute(
+    "aria-pressed",
+    "false"
+  );
+  await expect(page.locator("#music-list [data-music-id]")).not.toHaveCount(0);
+});
+
+test("shows a memorize empty state until practice opens", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "versekeep-stats-v1",
+      JSON.stringify({
+        checks: 1,
+        correct: 1,
+        lastTheme: "gospel",
+      })
+    );
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await page.locator('.top-nav a[href="#themes"]').click();
+  await expect(page).toHaveURL(/#themes$/);
+  await expect(page.locator("#play-panel")).toBeHidden();
+
+  const empty = page.locator("#memorize-empty");
+  await expect(empty).toBeVisible();
+  await expect(empty).toContainText("Resume your last drill");
+  await expect(page.getByRole("group", { name: "Memorize topics" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Start a drill" })).toBeVisible();
+
+  await page.locator("#btn-resume-drill").click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+  await expect(empty).toBeHidden();
+  await expect(page.locator("#theme-label")).toContainText("Gospel");
 });

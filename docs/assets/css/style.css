@@ -2173,13 +2173,32 @@ kbd {
 }
 
 .med-actions {
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
   position: sticky;
   bottom: 0.5rem;
   z-index: 8;
   padding: 0.55rem 0.15rem 0.15rem;
   margin-top: 0.25rem;
   background: linear-gradient(180deg, transparent, rgba(10, 14, 12, 0.92) 28%);
+}
+
+.med-dock-primary,
+.med-more-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.med-more-panel[hidden] {
+  display: none;
+}
+
+#med-more[aria-expanded="true"] {
+  border-color: var(--gold);
+  color: var(--cream);
+  background: var(--gold-soft);
 }
 
 .med-feedback {
@@ -2189,10 +2208,42 @@ kbd {
 }
 
 .med-streak {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.75rem;
   margin: 0.35rem 0 0;
   font-size: 0.72rem;
   color: var(--gold);
   letter-spacing: 0.02em;
+}
+
+.med-week {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.med-week-dot {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  border: 1px solid var(--gold-line);
+  background: transparent;
+}
+
+.med-week-dot.is-filled {
+  background: rgba(212, 175, 55, 0.45);
+  border-color: var(--gold);
+}
+
+.med-week-dot.is-today {
+  border-color: var(--gold);
+}
+
+.med-week-dot.is-today.is-filled {
+  background: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.22);
 }
 
 .med-verse.is-loading {
@@ -2255,16 +2306,8 @@ body.med-focus .med-topics {
   pointer-events: none;
 }
 
-#med-amen {
-  border-color: rgba(212, 175, 55, 0.45);
-  color: var(--cream);
-  background: rgba(212, 175, 55, 0.12);
-}
-
-#med-amen:hover,
-#med-amen:focus-visible {
-  border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.2);
+#med-amen.btn.primary {
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.28);
 }
 
 #med-focus[aria-pressed="true"] {
@@ -2285,6 +2328,36 @@ body.med-focus .med-topics {
 
 .topics-panel .stats-bar {
   margin: 0.65rem 0 0.85rem;
+}
+
+.memorize-empty {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 0.9rem;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.memorize-empty[hidden] {
+  display: none;
+}
+
+.memorize-empty-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.memorize-empty-resume {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.memorize-empty-row {
+  margin-bottom: 0;
 }
 
 /* Wallpapers collapsed by default so meditation stays primary */

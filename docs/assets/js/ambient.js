@@ -77,7 +77,9 @@
 
   function paintMusicTabs() {
     $$("[data-music-tab]").forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.musicTab === musicTab);
+      const active = btn.dataset.musicTab === musicTab;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
     });
   }
 

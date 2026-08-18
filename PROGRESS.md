@@ -1,17 +1,66 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 158 across the projects workspace; VerseKeep Cycle 52)
+Last updated: 2026-08-18 (Cycle 159 across the projects workspace; VerseKeep Cycle 53)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), ten browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.18.1`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twelve browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.18.2`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: align practice-mode selector semantics
+## Latest cycle: ship worshipper-facing meditation and memorize UX
+
+### Why this was selected
+
+The primary dock showed ten equal actions, the Amen streak stayed hidden until
+the first mark, music source chips still declared a fake tablist, and Memorize
+was a dead hint whenever practice was closed.
+
+### Changes
+
+- Collapsed the meditation dock to Prev / Next / Amen / Focus, with Today,
+  Shuffle, Copy, Share, Listen, and Drill behind a More extra row. Existing
+  button IDs stay bound.
+- Amen is the gold primary control. `#med-streak` is always visible, with first
+  visit copy and a 7-dot week from `versekeep-med-streak-v1` history (today gold
+  when filled).
+- Replaced the music-source `tablist` with a named `aria-pressed` group.
+- Replaced the idle Memorize hint with a last-drill resume plus topic and drill
+  chips that start meditation or practice.
+- Bumped the deployment stamp to `2026.08.18.2`.
+
+### Verification and scores
+
+- Deterministic gates: site, practice-core 55, data-core, bible-live, workflow
+  10, recursive syntax, and `git diff --check`.
+- `CI=1 npm run test:browser`: 12/12, including first-visit streak + dock
+  collapse, music-source pressed group, and memorize empty-state resume.
+- Correctness/reliability: 9/10 → 9/10 (existing Amen and practice bindings
+  are unchanged; extras remain reachable).
+- Verifiability: 10/10 → 10/10 (dock, invite copy, week dots, music group, and
+  empty-state resume are browser-locked).
+- Maintainability: 9/10 → 9/10 (one More panel and one empty-state painter).
+- Performance: 10/10 → 10/10.
+- Security/safety: 9/10 → 9/10.
+- User experience/accessibility: 9/10 → 9/10 (primary daily close is obvious;
+  music chips match their real toggle behavior).
+
+### Lessons and process improvements
+
+- Hide secondary actions without deleting their IDs so keyboard shortcuts and
+  existing tests can keep calling the same controls.
+- First-visit streak copy belongs in the same slot as returning copy; an empty
+  hidden region teaches nothing.
+
+### Explicit next opportunity
+
+Review Topics-grid density on phone now that Memorize has a real empty state.
+Workspace next: continue rotation; skip Car-Type-Classification-Service.
+
+## Previous cycle: align practice-mode selector semantics
 
 ### Why this was selected
 
@@ -155,6 +204,7 @@ to the primary meditation journey.
 
 ## Previous cycles
 
+- Cycle 52: aligned practice-mode selector semantics with a named pressed-button group.
 - Cycle 51: announced practice grading, reveal, copy, and shuffle feedback
   through an atomic status region verified in Chromium.
 - Cycle 50: aligned meditation topic-button semantics and announced transient feedback through an atomic status region.
@@ -178,7 +228,10 @@ to the primary meditation journey.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Align music-source chips with the interaction they implement | Accessibility / UX | Medium | Small / low | The music row still declares a tablist without tabpanels |
+| 1 | Review Topics-grid density on phone now that Memorize has a real empty state | UX | Medium | Small / low | Memorize empty state is live; Topics is still a tall card grid |
+| — | Collapse the ten-button meditation dock and always show the Amen streak invite | UX | High | Small / low | Primary dock, More extras, invite copy, and 7-dot week are browser-locked | Completed in Cycle 53 |
+| — | Replace the idle Memorize hint with last-drill resume and topic/drill chips | UX | Medium | Small / low | Empty state hides when practice opens and resume starts Gospel | Completed in Cycle 53 |
+| — | Align music-source chips with the interaction they implement | Accessibility / UX | Medium | Small / low | Named pressed-button group is browser-verified | Completed in Cycle 53 |
 | — | Align practice-mode selector semantics with its implemented interaction | Accessibility / UX | Medium | Small / low | Named pressed-button group is browser-verified | Completed in Cycle 52 |
 | — | Announce practice-mode grading, reveal, copy, and shuffle feedback to assistive technology | Accessibility / UX | Medium | Small / low | Four action classes now share an atomic status region verified in Chromium | Completed in Cycle 51 |
 | — | Announce meditation feedback and validate topic-control semantics for assistive technology | Accessibility / UX | Medium | Small / low | Named button group and atomic status region are browser-verified | Completed in Cycle 50 |
@@ -189,5 +242,5 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: align music-source chips with the interaction they implement.
+Local next: review Topics-grid density on phone now that Memorize has a real empty state.
 Workspace next: continue rotation and skip Car-Type-Classification-Service.

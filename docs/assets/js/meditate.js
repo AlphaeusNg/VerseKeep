@@ -171,6 +171,19 @@
     active?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
   }
 
+  function recentDayKeys(n) {
+    const keys = [];
+    const today = new Date();
+    for (let i = n - 1; i >= 0; i -= 1) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      keys.push(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+      );
+    }
+    return keys;
+  }
+
   function paintStreak() {
     const el = $("#med-streak");
     if (!el) return;
@@ -178,14 +191,31 @@
     const count = s.count || 0;
     const today = dayKey();
     const didToday = s.lastDay === today;
-    if (!count) {
-      el.hidden = true;
-      return;
-    }
     el.hidden = false;
-    el.textContent = didToday
-      ? `Streak ${count} day${count === 1 ? "" : "s"} · Amen today`
-      : `Streak ${count} day${count === 1 ? "" : "s"} · mark Amen to continue`;
+    const copy = !count
+      ? "Sit with this, then tap Amen to start a streak"
+      : didToday
+        ? `Streak ${count} day${count === 1 ? "" : "s"} · Amen today`
+        : `Streak ${count} day${count === 1 ? "" : "s"} · mark Amen to continue`;
+    const marked = new Set((s.history || []).map((entry) => entry.day));
+    if (s.lastDay) marked.add(s.lastDay);
+    const dots = recentDayKeys(7)
+      .map((day) => {
+        const filled = marked.has(day);
+        const isToday = day === today;
+        return `<span class="med-week-dot${filled ? " is-filled" : ""}${isToday ? " is-today" : ""}" title="${day}"></span>`;
+      })
+      .join("");
+    el.innerHTML = `<span class="med-streak-copy">${escapeHtml(copy)}</span><span class="med-week" aria-hidden="true">${dots}</span>`;
+  }
+
+  function setMoreOpen(open) {
+    const panel = $("#med-more-panel");
+    const btn = $("#med-more");
+    if (!panel || !btn) return;
+    const next = !!open;
+    panel.hidden = !next;
+    btn.setAttribute("aria-expanded", next ? "true" : "false");
   }
 
   function paintDrillBtn() {
@@ -438,17 +468,29 @@
   function bindUi() {
     $("#med-next")?.addEventListener("click", () => next(1));
     $("#med-prev")?.addEventListener("click", () => next(-1));
-    $("#med-shuffle")?.addEventListener("click", () => shuffleOne());
+    $("#med-more")?.addEventListener("click", () => {
+      setMoreOpen($("#med-more-panel")?.hidden);
+    });
+    $("#med-shuffle")?.addEventListener("click", () => {
+      setMoreOpen(false);
+      shuffleOne();
+    });
     $("#med-copy")?.addEventListener("click", () => {
+      setMoreOpen(false);
       copyMeditation().catch(() => {});
     });
     $("#med-share")?.addEventListener("click", () => {
+      setMoreOpen(false);
       shareMeditation().catch(() => {});
     });
-    $("#med-listen")?.addEventListener("click", readAloud);
+    $("#med-listen")?.addEventListener("click", () => {
+      setMoreOpen(false);
+      readAloud();
+    });
     $("#med-amen")?.addEventListener("click", markAmen);
     $("#med-focus")?.addEventListener("click", () => setFocusMode(!state.focusMode));
     $("#med-today")?.addEventListener("click", async () => {
+      setMoreOpen(false);
       const seed = daySeed();
       // Today's pick always from full pool when on "all"; else within topic
       await showIndex(seededIndex(state.pool.length, seed));
@@ -456,6 +498,7 @@
     $("#med-drill")?.addEventListener("click", () => {
       const id = $("#med-drill")?.dataset.theme;
       if (!id) return;
+      setMoreOpen(false);
       if (typeof window.VerseKeepPractice?.selectTheme === "function") {
         window.VerseKeepPractice.selectTheme(id);
       } else {

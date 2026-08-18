@@ -300,6 +300,86 @@
     showFeedback(true, "Reading aloud…");
   }
 
+  function paintMemorizeEmpty() {
+    const host = $("#memorize-empty");
+    if (!host || !state.data) return;
+    const playOpen = $("#play-panel") && !$("#play-panel").hidden;
+    host.hidden = playOpen;
+    if (playOpen) return;
+
+    const lastId = stats.lastTheme;
+    const lastTheme = lastId && state.data.themes.find((theme) => theme.id === lastId);
+    const sitThemes = state.data.themes.slice(0, 4);
+    const drillThemes = state.data.themes
+      .filter((theme) => theme.id !== lastId)
+      .slice(0, 2);
+
+    host.innerHTML = `
+      <p class="memorize-empty-copy">
+        ${
+          lastTheme
+            ? "Resume your last drill, sit with a topic, or start a fresh memory set."
+            : "Pick a topic to sit with, or open a memory drill. Progress stays on this device."
+        }
+      </p>
+      ${
+        lastTheme
+          ? `<div class="memorize-empty-resume">
+        <button type="button" class="btn primary" id="btn-resume-drill">Resume last drill · ${escapeHtml(lastTheme.emoji + " " + lastTheme.title)}</button>
+      </div>`
+          : ""
+      }
+      <div class="mode-row memorize-empty-row" role="group" aria-label="Memorize topics">
+        ${sitThemes
+          .map(
+            (theme) =>
+              `<button type="button" class="chip" data-memorize-sit="${escapeHtml(theme.id)}">${escapeHtml(theme.emoji)} ${escapeHtml(theme.title)}</button>`
+          )
+          .join("")}
+      </div>
+      <div class="mode-row memorize-empty-row" role="group" aria-label="Start a drill">
+        ${drillThemes
+          .map(
+            (theme) =>
+              `<button type="button" class="chip" data-memorize-drill="${escapeHtml(theme.id)}">Drill · ${escapeHtml(theme.title)}</button>`
+          )
+          .join("")}
+        <button type="button" class="chip" data-memorize-weak>Practice weak</button>
+      </div>
+    `;
+  }
+
+  function bindMemorizeEmpty() {
+    const host = $("#memorize-empty");
+    if (!host || host.dataset.bound) return;
+    host.dataset.bound = "1";
+    host.addEventListener("click", (event) => {
+      const sit = event.target.closest("[data-memorize-sit]");
+      if (sit?.dataset.memorizeSit) {
+        const id = sit.dataset.memorizeSit;
+        state.themeId = id;
+        paintThemes();
+        if (window.VerseKeepMeditate?.setTopic) {
+          window.VerseKeepMeditate.setTopic(id).catch(() => {});
+        }
+        $("#meditate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      const drill = event.target.closest("[data-memorize-drill]");
+      if (drill?.dataset.memorizeDrill) {
+        selectTheme(drill.dataset.memorizeDrill);
+        return;
+      }
+      if (event.target.closest("[data-memorize-weak]")) {
+        practiceWeak();
+        return;
+      }
+      if (event.target.closest("#btn-resume-drill") && stats.lastTheme) {
+        selectTheme(stats.lastTheme);
+      }
+    });
+  }
+
   function paintStatsBar() {
     const el = $("#stats-bar");
     if (!el) return;
@@ -329,6 +409,7 @@
 
   async function beginQueue(queue, label, initialOperation) {
     $("#play-panel").hidden = false;
+    paintMemorizeEmpty();
     $("#theme-label").textContent = label;
     $("#stage").innerHTML = `<p class="hint">Loading verses${state.liveBible ? " (live text)…" : "…"}</p>`;
     let operation = initialOperation;
@@ -940,6 +1021,7 @@
       state.data = catalog;
       paintThemes();
       paintStatsBar();
+      paintMemorizeEmpty();
       $("#load-error").hidden = true;
       // Meditation is primary: start as soon as data is ready
       if (window.VerseKeepMeditate?.bootWithData) {
@@ -951,6 +1033,7 @@
       $("#load-error").textContent = "Could not load verses. Please refresh or try again later.";
     }
 
+    bindMemorizeEmpty();
     $$("#play-panel [data-mode]").forEach((chip) => {
       chip.addEventListener("click", () => setMode(chip.dataset.mode));
     });
@@ -973,6 +1056,7 @@
       saveStats(stats);
       paintStatsBar();
       paintThemes();
+      paintMemorizeEmpty();
       const resume = $("#resume-hint");
       if (resume) {
         resume.hidden = false;

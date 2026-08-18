@@ -42,9 +42,9 @@
         Pick a station · player stays in this panel · click outside to close · audio keeps playing.
         Autoplay uses last station or <strong>God’s encouragement</strong>.
       </p>
-      <div class="mode-row music-dock-tabs" role="tablist" aria-label="Music source">
-        <button type="button" class="chip is-active" data-music-tab="spotify">Spotify</button>
-        <button type="button" class="chip" data-music-tab="youtube">YouTube</button>
+      <div class="mode-row music-dock-tabs" role="group" aria-label="Music source">
+        <button type="button" class="chip is-active" data-music-tab="spotify" aria-pressed="true">Spotify</button>
+        <button type="button" class="chip" data-music-tab="youtube" aria-pressed="false">YouTube</button>
       </div>
       <div class="pick-list" id="music-list"></div>
       <div id="music-player-slot" class="music-player-slot">
@@ -103,7 +103,7 @@
         <div>
           <h2>Meditate</h2>
           <p class="hint">Start here. Next is one tap · <kbd>←</kbd><kbd>→</kbd> · <kbd>F</kbd> focus · <kbd>A</kbd> Amen</p>
-          <p id="med-streak" class="med-streak mono" hidden></p>
+          <p id="med-streak" class="med-streak mono"></p>
         </div>
         <div class="theme-tools med-tools">
           <label class="live-bible-toggle">
@@ -129,16 +129,21 @@
       <p id="med-feedback" class="med-feedback" role="status" aria-atomic="true" hidden></p>
 
       <div class="actions med-actions" id="med-actions">
-        <button type="button" class="btn ghost" id="med-prev" title="Previous (←)">← Prev</button>
-        <button type="button" class="btn primary" id="med-next" title="Next verse (→)">Next</button>
-        <button type="button" class="btn" id="med-amen" title="Mark Amen for today (A)">Amen</button>
-        <button type="button" class="btn ghost" id="med-today" title="Today’s pick">Today</button>
-        <button type="button" class="btn ghost" id="med-shuffle" title="Another verse (S)">Shuffle</button>
-        <button type="button" class="btn ghost" id="med-focus" title="Focus mode (F)" aria-pressed="false">Focus</button>
-        <button type="button" class="btn ghost" id="med-copy" title="Copy (C)">Copy</button>
-        <button type="button" class="btn ghost" id="med-share" title="Share">Share</button>
-        <button type="button" class="btn ghost" id="med-listen" title="Read aloud (L)">Listen</button>
-        <button type="button" class="btn ghost" id="med-drill" title="Open memory drill for this topic" hidden>Drill topic</button>
+        <div class="med-dock-primary">
+          <button type="button" class="btn ghost" id="med-prev" title="Previous (←)">← Prev</button>
+          <button type="button" class="btn ghost" id="med-next" title="Next verse (→)">Next</button>
+          <button type="button" class="btn primary" id="med-amen" title="Mark Amen for today (A)">Amen</button>
+          <button type="button" class="btn ghost" id="med-focus" title="Focus mode (F)" aria-pressed="false">Focus</button>
+          <button type="button" class="btn ghost" id="med-more" aria-expanded="false" aria-controls="med-more-panel">More</button>
+        </div>
+        <div class="med-more-panel" id="med-more-panel" hidden>
+          <button type="button" class="btn ghost" id="med-today" title="Today’s pick">Today</button>
+          <button type="button" class="btn ghost" id="med-shuffle" title="Another verse (S)">Shuffle</button>
+          <button type="button" class="btn ghost" id="med-copy" title="Copy (C)">Copy</button>
+          <button type="button" class="btn ghost" id="med-share" title="Share">Share</button>
+          <button type="button" class="btn ghost" id="med-listen" title="Read aloud (L)">Listen</button>
+          <button type="button" class="btn ghost" id="med-drill" title="Open memory drill for this topic" hidden>Drill topic</button>
+        </div>
       </div>
     </section>
 
@@ -168,9 +173,7 @@
           </p>
         </div>
       </div>
-      <p class="hint" style="margin-bottom:0">
-        Topic cards open meditation · Drill opens memory practice · progress stays on this device.
-      </p>
+      <div id="memorize-empty" class="memorize-empty"></div>
     </section>
 
     <section class="panel" id="play-panel" hidden>

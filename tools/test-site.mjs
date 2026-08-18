@@ -58,6 +58,18 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="wp-grid-density"')) {
     failures.push("Missing wallpaper grid density control");
   }
+  if (!html.includes('role="group" aria-label="Music source"')) {
+    failures.push("Music source chips must be a named button group");
+  }
+  if (html.includes('role="tablist"')) {
+    failures.push("index.html must not declare a tablist for chip toggles");
+  }
+  if (!html.includes('id="med-more"') || !html.includes('id="med-more-panel"')) {
+    failures.push("Meditation dock must keep extras behind More");
+  }
+  if (!html.includes('id="memorize-empty"')) {
+    failures.push("Memorize section must include an empty state");
+  }
   const practiceCoreIndex = html.indexOf('src="assets/js/practice-core.js"');
   const dataCoreIndex = html.indexOf('src="assets/js/data-core.js"');
   const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
