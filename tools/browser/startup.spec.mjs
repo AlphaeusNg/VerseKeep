@@ -294,7 +294,7 @@ test("restores a returning meditation and advances Amen exactly once", async ({ 
   });
 
   await page.locator("#med-amen").click();
-  await expect(page.locator("#med-feedback")).toHaveText("Amen already marked today.");
+  await expect(page.locator("#med-feedback")).toHaveText("Amen already marked for this calendar day.");
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-med-streak-v1"))),
   ).toEqual(afterAmen);

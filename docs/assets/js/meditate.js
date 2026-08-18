@@ -465,7 +465,7 @@
     const today = dayKey();
     const s = loadStreak();
     if (s.lastDay === today) {
-      flashFeedback("Amen already marked today.");
+      flashFeedback("Amen already marked for this calendar day.");
       paintStreak();
       return;
     }

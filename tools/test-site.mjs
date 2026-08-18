@@ -144,6 +144,9 @@ if (existsSync(stylePath)) {
   if (!css.includes("body.med-focus #med-more") || !css.includes("body.med-focus .music-dock")) {
     failures.push("Focus mode must hide More and the music dock chrome");
   }
+  if (!css.includes("grid-auto-rows: 7rem") || !css.includes(".topics-panel .theme-card small")) {
+    failures.push("phone Topics cards must stay dense (7rem rows, hide blurbs)");
+  }
 }
 
 const ambientPath = requirePath("assets/js/ambient.js");
