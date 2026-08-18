@@ -40,7 +40,8 @@ tools/test-site.mjs         # Structural and local-reference validation
 
 - On load: today’s verse (date-seeded) with context, application, prayer.
 - Topic chips + topic cards filter meditation; **Drill** opens memory practice.
-- **Amen** tracks a local daily streak; **Focus** dims the rest of the page.
+- **Amen** tracks a local daily streak; **Focus** hides More and the music
+  dock so the verse, Amen, and Prev/Next stay primary. Music keeps playing.
 - Keys (when not in practice): `←`/`→` · `S` shuffle · `C` copy · `L` listen · `F` focus · `A` Amen.
 - Swipe the card (touch): left = next, right = prev.
 - Live text: ESV / NIV / NKJV with session cache + prefetch; bundled JSON fallback.

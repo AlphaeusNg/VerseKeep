@@ -21,6 +21,7 @@
     topicToken: 0,
     hydrateToken: 0,
     focusMode: false,
+    resumeOffer: null,
   };
 
   function loadPrefs() {
@@ -234,6 +235,40 @@
     btn.title = `Open memory practice for ${title}`;
   }
 
+  function locateVerse(ref, topicId) {
+    if (!state.data || !ref) return null;
+    if (topicId && topicId !== "all") {
+      const pool = buildPool(state.data, topicId);
+      const index = pool.findIndex((v) => v.ref === ref);
+      if (index >= 0) return { topicId, pool, index };
+    }
+    const pool = buildPool(state.data, "all");
+    const index = pool.findIndex((v) => v.ref === ref);
+    if (index < 0) return null;
+    return {
+      topicId: topicId === "all" ? "all" : pool[index].themeId,
+      pool,
+      index,
+    };
+  }
+
+  function resumeChipHtml() {
+    const offer = state.resumeOffer;
+    if (!offer?.ref || current()?.ref === offer.ref) return "";
+    return `<button type="button" class="med-resume-chip" id="med-resume" title="Return to last verse">Resume last · ${escapeHtml(offer.ref)}</button>`;
+  }
+
+  function paintResumeChip() {
+    const host = $("#meditate-card");
+    if (!host) return;
+    $("#med-resume")?.remove();
+    const html = resumeChipHtml();
+    if (!html) return;
+    const top = host.querySelector(".med-card-top");
+    if (top) top.insertAdjacentHTML("afterend", html);
+    else host.insertAdjacentHTML("afterbegin", html);
+  }
+
   function paintCard(v, meta) {
     const host = $("#meditate-card");
     if (!host) return;
@@ -250,6 +285,7 @@
         <span class="med-topic-pill mono">${escapeHtml(v.themeEmoji || "")} ${escapeHtml(v.themeTitle || "")}</span>
         <span class="med-pos mono" aria-live="polite">${pos} / ${n}${tr ? ` · ${escapeHtml(tr)}` : ""}${loading ? " · …" : ""}</span>
       </div>
+      ${resumeChipHtml()}
       <p class="med-ref">${escapeHtml(v.ref)}</p>
       <blockquote class="med-verse${loading ? " is-loading" : ""}">${escapeHtml(v.text)}</blockquote>
       <div class="med-block">
@@ -451,6 +487,26 @@
     paintStreak();
   }
 
+  async function resumeLastVerse() {
+    const offer = state.resumeOffer;
+    if (!offer?.ref) return;
+    const located = locateVerse(offer.ref, offer.topicId);
+    if (!located) {
+      state.resumeOffer = null;
+      $("#med-resume")?.remove();
+      return;
+    }
+    if (state.topicId !== located.topicId) {
+      state.topicId = located.topicId;
+      state.pool = located.topicId === "all" ? located.pool : buildPool(state.data, located.topicId);
+      paintTopics();
+      savePrefs({ lastMedTopic: state.topicId });
+    }
+    const index = state.pool.findIndex((v) => v.ref === offer.ref);
+    if (index < 0) return;
+    await showIndex(index);
+  }
+
   function setFocusMode(on) {
     state.focusMode = !!on;
     document.body.classList.toggle("med-focus", state.focusMode);
@@ -461,6 +517,7 @@
     }
     savePrefs({ medFocus: state.focusMode });
     if (state.focusMode) {
+      setMoreOpen(false);
       $("#meditate")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
@@ -489,6 +546,10 @@
     });
     $("#med-amen")?.addEventListener("click", markAmen);
     $("#med-focus")?.addEventListener("click", () => setFocusMode(!state.focusMode));
+    $("#meditate-card")?.addEventListener("click", (event) => {
+      if (!event.target.closest("#med-resume")) return;
+      resumeLastVerse().catch(() => {});
+    });
     $("#med-today")?.addEventListener("click", async () => {
       setMoreOpen(false);
       const seed = daySeed();
@@ -618,6 +679,14 @@
       if (found >= 0) idx = found;
     }
     await showIndex(idx);
+
+    const lastOffer = med.ref ? { ref: med.ref, topicId: med.topicId || "all" } : null;
+    const locatedLast = lastOffer ? locateVerse(lastOffer.ref, lastOffer.topicId) : null;
+    if (locatedLast && current()?.ref !== lastOffer.ref) {
+      state.resumeOffer = lastOffer;
+      saveMed({ topicId: lastOffer.topicId, ref: lastOffer.ref, day: med.day });
+      paintResumeChip();
+    }
   }
 
   window.VerseKeepMeditate = {

@@ -2108,6 +2108,28 @@ kbd {
   margin-bottom: 0.65rem;
 }
 
+.med-resume-chip {
+  display: inline-flex;
+  align-items: center;
+  margin: -0.2rem 0 0.75rem;
+  padding: 0.28rem 0.72rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.med-resume-chip:hover,
+.med-resume-chip:focus-visible {
+  color: var(--cream);
+  border-color: var(--gold);
+  outline: none;
+}
+
 .med-topic-pill {
   font-size: 0.72rem;
   color: var(--gold);
@@ -2279,7 +2301,11 @@ body.med-focus #themes,
 body.med-focus #play-panel,
 body.med-focus #wallpapers,
 body.med-focus main > .panel:not(.meditate-panel),
-body.med-focus .footer {
+body.med-focus .footer,
+body.med-focus #med-more,
+body.med-focus #med-more-panel,
+body.med-focus .music-dock,
+body.med-focus #music-dock-tab {
   display: none !important;
 }
 

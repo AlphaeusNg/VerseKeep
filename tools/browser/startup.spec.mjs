@@ -203,6 +203,12 @@ test("restores normalized meditation and practice preferences", async ({ page })
   await expect(page.locator("#meditate-card .med-topic-pill")).toContainText("Strength in Trials");
   await expect(page.locator("body")).toHaveClass(/med-focus/);
   await expect(page.locator("#med-focus")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#med-amen")).toBeVisible();
+  await expect(page.locator("#med-prev")).toBeVisible();
+  await expect(page.locator("#med-next")).toBeVisible();
+  await expect(page.locator("#med-more")).toBeHidden();
+  await expect(page.locator("#med-more-panel")).toBeHidden();
+  await expect(page.locator("#music-dock-tab")).toBeHidden();
 
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-prefs-v1")))).toEqual({
     mode: "quiz",
@@ -214,6 +220,8 @@ test("restores normalized meditation and practice preferences", async ({ page })
 
   await page.locator("#med-focus").click();
   await expect(page.locator("body")).not.toHaveClass(/med-focus/);
+  await expect(page.locator("#med-more")).toBeVisible();
+  await expect(page.locator("#music-dock-tab")).toBeVisible();
   await page.locator("#med-more").click();
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
@@ -423,6 +431,76 @@ test("exposes music sources as a pressed-button group", async ({ page }) => {
     "false"
   );
   await expect(page.locator("#music-list [data-music-id]")).not.toHaveCount(0);
+});
+
+test("focus mode hides More and the music dock without stopping playback", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const frame = page.locator("#music-frame");
+  await expect(frame).toHaveAttribute("src", /spotify\.com\/embed\/playlist/);
+  const playingSrc = await frame.getAttribute("src");
+
+  await expect(page.locator("#med-more")).toBeVisible();
+  await expect(page.locator("#music-dock-tab")).toBeVisible();
+  await expect(page.locator("#med-amen")).toBeVisible();
+
+  await page.locator("#med-focus").click();
+  await expect(page.locator("body")).toHaveClass(/med-focus/);
+  await expect(page.locator("#med-focus")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#med-more")).toBeHidden();
+  await expect(page.locator("#med-more-panel")).toBeHidden();
+  await expect(page.locator("#music-dock-tab")).toBeHidden();
+  await expect(page.locator("#med-amen")).toBeVisible();
+  await expect(page.locator("#med-prev")).toBeVisible();
+  await expect(page.locator("#med-next")).toBeVisible();
+  await expect(frame).toHaveAttribute("src", playingSrc);
+
+  await page.locator("#med-focus").click();
+  await expect(page.locator("body")).not.toHaveClass(/med-focus/);
+  await expect(page.locator("#med-more")).toBeVisible();
+  await expect(page.locator("#music-dock-tab")).toBeVisible();
+  await expect(frame).toHaveAttribute("src", playingSrc);
+});
+
+test("offers yesterday's last verse as a resume chip on the meditation card", async ({ page }) => {
+  await page.addInitScript(() => {
+    const now = new Date();
+    const yesterdayDate = new Date(now);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const daySeed =
+      yesterdayDate.getFullYear() * 10000 +
+      (yesterdayDate.getMonth() + 1) * 100 +
+      yesterdayDate.getDate();
+    localStorage.setItem(
+      "versekeep-prefs-v1",
+      JSON.stringify({ lastMedTopic: "gospel" }),
+    );
+    localStorage.setItem(
+      "versekeep-meditate-v1",
+      JSON.stringify({ topicId: "trusting-god", ref: "Psalm 56:3", day: daySeed }),
+    );
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await expect(page.locator("#load-error")).toBeHidden();
+  await expect(page.locator('#med-topics [data-topic="gospel"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("Psalm 56:3");
+  const chip = page.locator("#med-resume");
+  await expect(chip).toBeVisible();
+  await expect(chip).toHaveText("Resume last · Psalm 56:3");
+  await expect(page.locator("#resume-hint")).toBeHidden();
+
+  await chip.click();
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
+  await expect(page.locator('#med-topics [data-topic="trusting-god"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("#med-resume")).toHaveCount(0);
 });
 
 test("shows a memorize empty state until practice opens", async ({ page }) => {

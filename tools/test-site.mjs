@@ -67,6 +67,9 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="med-more"') || !html.includes('id="med-more-panel"')) {
     failures.push("Meditation dock must keep extras behind More");
   }
+  if (!html.includes('id="med-focus"') || !html.includes('id="med-amen"')) {
+    failures.push("Meditation dock must keep Focus and Amen button IDs");
+  }
   if (!html.includes('id="nav-music"')) {
     failures.push("Primary nav must keep #nav-music to toggle the dock");
   }
@@ -129,6 +132,17 @@ if (existsSync(meditatePath)) {
   }
   if (!meditateSource.includes("topicToken")) {
     failures.push("meditate.js must supersede stale topic hydration");
+  }
+  if (!meditateSource.includes("resumeOffer") || !meditateSource.includes("med-resume")) {
+    failures.push("meditate.js must offer last verse as a visible resume chip");
+  }
+}
+
+const stylePath = requirePath("assets/css/style.css");
+if (existsSync(stylePath)) {
+  const css = readFileSync(stylePath, "utf8");
+  if (!css.includes("body.med-focus #med-more") || !css.includes("body.med-focus .music-dock")) {
+    failures.push("Focus mode must hide More and the music dock chrome");
   }
 }
 

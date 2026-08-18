@@ -1,17 +1,59 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 159 across the projects workspace; VerseKeep Cycle 53)
+Last updated: 2026-08-18 (Cycle 160 across the projects workspace; VerseKeep Cycle 54)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twelve browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.18.2`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), fourteen browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.18.4`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: ship worshipper-facing meditation and memorize UX
+## Latest cycle: hide extras in Focus and offer last-verse resume
+
+### Why this was selected
+
+Focus still left More and the music-dock tab in the way of the verse, and a
+saved last verse only restored silently on the same day.
+
+### Changes
+
+- Focus now hides `#med-more`, `#med-more-panel`, and the music dock chrome
+  (`#music-dock-tab` / `.music-dock`). Amen, Prev/Next, and Focus stay visible.
+  Playing audio is not stopped.
+- Yesterday's last verse appears as a `#med-resume` chip on the meditation card.
+  Same-day restore is unchanged; the tiny `#resume-hint` is still drill-only.
+- Bumped the deployment stamp to `2026.08.18.4`.
+
+### Verification and scores
+
+- Deterministic gates: site, practice-core 55, data-core, bible-live, workflow
+  10, recursive syntax, and `git diff --check`.
+- `CI=1 npm run test:browser`: 14/14, including Focus hide/restore with an
+  unchanged player `src`, restored-prefs Focus visibility, and yesterday-resume
+  chip → Psalm 56:3.
+- Correctness/reliability: 9/10 → 9/10 (same-day session restore is unchanged).
+- Verifiability: 10/10 → 10/10 (Focus chrome and last-verse chip are browser-locked).
+- Maintainability: 9/10 → 9/10 (one body class and one boot-time offer).
+- Performance: 10/10 → 10/10.
+- Security/safety: 9/10 → 9/10.
+- User experience/accessibility: 9/10 → 9/10 (Focus is now a quiet verse + Amen
+  surface; last verse is an obvious chip).
+
+### Lessons and process improvements
+
+- Hide dock chrome with CSS so the iframe stays mounted and audio continues.
+- Keep last-verse session fields when showing today's pick so a reload does
+  not drop yesterday's offer.
+
+### Explicit next opportunity
+
+Review Topics-grid density on phone now that Memorize has a real empty state.
+Workspace next: continue rotation; skip Car-Type-Classification-Service.
+
+## Previous cycle: ship worshipper-facing meditation and memorize UX
 
 ### Why this was selected
 
@@ -229,6 +271,7 @@ to the primary meditation journey.
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
 | 1 | Review Topics-grid density on phone now that Memorize has a real empty state | UX | Medium | Small / low | Memorize empty state is live; Topics is still a tall card grid |
+| — | Hide More and the music dock in Focus; offer last verse as a card chip | UX | High | Small / low | Focus hide/restore and yesterday-resume chip are browser-locked | Completed in Cycle 54 |
 | — | Collapse the ten-button meditation dock and always show the Amen streak invite | UX | High | Small / low | Primary dock, More extras, invite copy, and 7-dot week are browser-locked | Completed in Cycle 53 |
 | — | Replace the idle Memorize hint with last-drill resume and topic/drill chips | UX | Medium | Small / low | Empty state hides when practice opens and resume starts Gospel | Completed in Cycle 53 |
 | — | Align music-source chips with the interaction they implement | Accessibility / UX | Medium | Small / low | Named pressed-button group is browser-verified | Completed in Cycle 53 |
