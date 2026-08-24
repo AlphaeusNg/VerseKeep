@@ -245,7 +245,7 @@
         return `
       <div class="theme-card-wrap">
         <button type="button" class="theme-card${t.id === state.themeId ? " is-active" : ""}${fav ? " is-fav" : ""}" data-theme="${escapeHtml(t.id)}" aria-pressed="${t.id === state.themeId ? "true" : "false"}">
-          <span class="emoji" aria-hidden="true">${t.emoji}</span>
+          <span class="emoji" aria-hidden="true">${escapeHtml(t.emoji)}</span>
           <strong>${escapeHtml(t.title)}</strong>
           <small>${escapeHtml(t.blurb)}</small>
           <span class="theme-meta mono">

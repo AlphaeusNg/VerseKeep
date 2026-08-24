@@ -166,7 +166,7 @@
       .map(
         (t) => `
       <button type="button" class="med-topic-chip${t.id === state.topicId ? " is-active" : ""}" data-topic="${escapeHtml(t.id)}" aria-pressed="${t.id === state.topicId ? "true" : "false"}">
-        <span aria-hidden="true">${t.emoji}</span> ${escapeHtml(t.title)}
+        <span aria-hidden="true">${escapeHtml(t.emoji)}</span> ${escapeHtml(t.title)}
       </button>`
       )
       .join("");

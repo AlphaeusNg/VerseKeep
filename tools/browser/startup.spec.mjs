@@ -87,6 +87,27 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   );
 });
 
+test("renders theme emoji text without interpreting catalog markup", async ({ page }) => {
+  const probe = '<span id="catalog-markup-probe">unsafe</span>';
+  await page.route("**/data/verses.json", async (route) => {
+    const response = await route.fetch();
+    const catalog = await response.json();
+    catalog.themes[0].emoji = probe;
+    await route.fulfill({
+      response,
+      contentType: "application/json",
+      body: JSON.stringify(catalog),
+    });
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await expect(page.locator("#load-error")).toBeHidden();
+  await expect(page.locator("#catalog-markup-probe")).toHaveCount(0);
+  await expect(page.locator("#theme-grid .emoji").first()).toHaveText(probe);
+  await expect(page.locator("#med-topics [data-topic] span").nth(1)).toHaveText(probe);
+});
+
 test("exposes meditation topics and feedback with matching semantics", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
