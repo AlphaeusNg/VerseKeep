@@ -38,6 +38,9 @@ old value, so the feedback and visible streak could contradict each other.
 - Deterministic gates passed: workflow 10, practice core 55, data core 35,
   live Bible 17, site structure, recursive JavaScript syntax, and diff checks.
 - `CI=1 npm run test:browser`: 15/15 Chromium journeys passed.
+- Hosted CI run `32760366072` passed the same Node 24 and Chromium gates;
+  Pages run `32760364651` deployed successfully, and the live site served
+  version `2026.08.25.1`.
 - Correctness/reliability: 5/10 → 10/10 (feedback, visible state, and actual
   persistence outcome can no longer contradict one another).
 - Verifiability: 4/10 → 10/10 (the denied storage boundary is browser-locked).
