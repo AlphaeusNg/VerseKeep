@@ -127,11 +127,30 @@
     }
   }
 
+  let statsSaveWarned = false;
+
+  function paintStatsStorageStatus(saved) {
+    const status = $("#practice-storage-status");
+    if (!status) return;
+    status.hidden = saved;
+    status.textContent = saved
+      ? ""
+      : "Practice progress is kept for this visit only; device storage is blocked.";
+  }
+
   function saveStats(stats) {
     try {
       localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-    } catch {
-      /* ignore */
+      statsSaveWarned = false;
+      paintStatsStorageStatus(true);
+      return true;
+    } catch (err) {
+      if (!statsSaveWarned) {
+        console.warn("[VerseKeep] practice statistics remain session-only", err);
+        statsSaveWarned = true;
+      }
+      paintStatsStorageStatus(false);
+      return false;
     }
   }
 
@@ -1053,14 +1072,16 @@
     $("#btn-reset-stats")?.addEventListener("click", () => {
       if (!confirm("Reset all VerseKeep progress on this device? (favorites, mastery, streaks)")) return;
       stats = defaultStats();
-      saveStats(stats);
+      const saved = saveStats(stats);
       paintStatsBar();
       paintThemes();
       paintMemorizeEmpty();
       const resume = $("#resume-hint");
       if (resume) {
         resume.hidden = false;
-        resume.textContent = "Progress reset on this device.";
+        resume.textContent = saved
+          ? "Progress reset on this device."
+          : "Progress reset for this visit; device storage is blocked.";
       }
     });
 

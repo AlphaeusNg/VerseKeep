@@ -1,17 +1,74 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-25 (VerseKeep Cycle 56)
+Last updated: 2026-08-25 (VerseKeep Cycle 57)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), fifteen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.25.1`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), sixteen browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.25.2`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: keep denied Amen persistence honest and session-safe
+## Latest cycle: keep denied practice statistics honest and session-safe
+
+### Why this was selected
+
+Practice statistics already remained in the page's in-memory object when
+`localStorage` rejected a write, but `saveStats()` swallowed the error. Checks,
+theme starts, and resets therefore gave no durability warning; reset explicitly
+claimed “on this device” even though the old device value could remain.
+
+### Changes
+
+- Made `saveStats()` return its durability outcome and drive one persistent,
+  atomic practice-storage status. It warns once per failure episode and clears
+  automatically after a successful recovery write.
+- Preserved the existing in-memory statistics as the session source of truth,
+  so checks and mastery remain coherent while storage is blocked.
+- Made reset feedback say “for this visit” when the reset cannot reach device
+  storage, rather than claiming a durable device reset.
+- Added a Chromium journey that denies only the statistics key, proves session
+  check continuity and the absence of a stored value, restores writes, and
+  verifies the complete session snapshot flushes with two checks.
+- Bumped the deployment version to `2026.08.25.2`.
+
+### Verification and scores
+
+- Test-first: the old app had no durability-status element. After adding the
+  boundary, a second red run exposed the reset's false “on this device” copy.
+- Focused Chromium denial/recovery journey passed after both fixes.
+- Workflow 10, practice core 55, data core 35, live Bible 17, site structure,
+  recursive syntax, diff checks, and `npm audit` (zero vulnerabilities) passed.
+- `CI=1 npm run test:browser`: 16/16 Chromium journeys passed.
+- Correctness/reliability: 5/10 → 10/10 (session state and durable state are
+  explicit, and recovery flushes the full snapshot).
+- Verifiability: 4/10 → 10/10 (denial, reset, recovery, and round-trip count are
+  exercised through real controls).
+- Maintainability: 7/10 → 9/10 (one save boundary owns status and warning episodes).
+- Performance: 10/10 → 10/10 (no additional writes; one small status update).
+- Security/robustness: 7/10 → 9/10 (storage denial remains non-fatal and visible).
+- User experience/accessibility: 5/10 → 9/10 (persistent atomic copy explains
+  exactly what will survive the visit).
+
+### Lessons and process improvements
+
+- Existing in-memory mutation can be the correct session fallback; do not add a
+  second cache when the module already owns live state.
+- Recovery tests should prove the eventual durable snapshot includes changes
+  made throughout the failure episode.
+- Audit destructive copy separately: a generic warning does not excuse a nearby
+  explicit claim that data was reset “on this device.”
+
+### Explicit next opportunity
+
+Audit meditation-session and shared-preference writes for user-visible promises
+that still imply persistence when storage is blocked; keep silent preferences
+best-effort unless a concrete contradiction is found.
+Workspace next: rotate repositories.
+
+## Previous cycle: keep denied Amen persistence honest and session-safe
 
 ### Why this was selected
 
@@ -307,6 +364,8 @@ to the primary meditation journey.
 
 ## Previous cycles
 
+- Cycle 57: kept denied practice-stat changes coherent for the visit, disclosed
+  durability and reset outcomes, and verified later recovery flush.
 - Cycle 56: retained denied Amen writes for the current visit and disclosed
   that device persistence failed, with a real-browser denial path.
 - Cycle 55 (`8cbc000`): tightened phone topic density and clarified Amen's
@@ -335,7 +394,8 @@ to the primary meditation journey.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Keep practice statistics honest when device writes are denied | Reliability / UX | Medium | Small / low | `saveStats()` swallows errors while completion feedback implies durable progress |
+| 1 | Audit meditation-session and shared-preference write promises | Reliability / UX | Low-medium | Small / low | Save helpers still swallow errors; change only if a visible durability contradiction is reproducible |
+| — | Keep practice statistics honest when device writes are denied | Reliability / UX | Medium | Small / low | 16th Chromium journey covers denial, session counts, reset copy, recovery, and full flush | Completed in Cycle 57 |
 | — | Retain and disclose denied Amen streak writes for the current visit | Reliability / UX | Medium | Small / low | 15th Chromium journey proves no durable value, coherent session state, and idempotence | Completed in Cycle 56 |
 | — | Tighten Topics-grid density on phone | UX | Medium | Small / low | 7rem rows, hidden redundant blurbs/bars, and static density contract | Completed in Cycle 55 |
 | — | Hide More and the music dock in Focus; offer last verse as a card chip | UX | High | Small / low | Focus hide/restore and yesterday-resume chip are browser-locked | Completed in Cycle 54 |
@@ -352,7 +412,7 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: keep practice completion and scoring honest when device statistics
-writes are denied.
+Local next: audit meditation-session and shared-preference write paths for a
+concrete user-visible persistence contradiction.
 Workspace next: rotate to another clean repository and skip
 Car-Type-Classification-Service.

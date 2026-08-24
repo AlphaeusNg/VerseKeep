@@ -151,6 +151,49 @@ test("announces practice feedback for grading and actions", async ({ page, conte
   await expect(feedback).toContainText("Keep going");
 });
 
+test("keeps practice stats session-safe and honest when device storage is denied", async ({ page }) => {
+  await page.addInitScript(() => {
+    const setItem = Storage.prototype.setItem;
+    globalThis.__versekeepStatsWritesAllowed = false;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "versekeep-stats-v1" && !globalThis.__versekeepStatsWritesAllowed) {
+        throw new DOMException("Storage denied", "QuotaExceededError");
+      }
+      return setItem.call(this, key, value);
+    };
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#theme-grid [data-drill]").first().click();
+  const storageStatus = page.locator("#practice-storage-status");
+  await expect(storageStatus).toBeVisible();
+  await expect(storageStatus).toHaveText(
+    "Practice progress is kept for this visit only; device storage is blocked.",
+  );
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.locator("#btn-reset-stats").click();
+  await expect(page.locator("#resume-hint")).toHaveText(
+    "Progress reset for this visit; device storage is blocked.",
+  );
+
+  await page.locator('#play-panel [data-mode="type"]').click();
+  await page.locator("#type-input").fill("not the verse");
+  await page.locator("#btn-check").click();
+  await expect(page.locator("#feedback")).toContainText("Keep going");
+  await expect(page.locator("#stats-bar")).toContainText("Checks 1");
+  expect(await page.evaluate(() => localStorage.getItem("versekeep-stats-v1"))).toBeNull();
+
+  await page.evaluate(() => {
+    globalThis.__versekeepStatsWritesAllowed = true;
+  });
+  await page.locator("#btn-next").click();
+  await page.locator("#type-input").fill("still not the verse");
+  await page.locator("#btn-check").click();
+  await expect(storageStatus).toBeHidden();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-stats-v1")));
+  expect(saved.checks).toBe(2);
+});
+
 test("exposes practice modes as a pressed-button group", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("#theme-grid [data-drill]").first().click();
