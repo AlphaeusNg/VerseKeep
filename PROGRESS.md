@@ -1,17 +1,71 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-25 (VerseKeep Cycle 57)
+Last updated: 2026-08-25 (VerseKeep Cycle 58)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), sixteen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.25.2`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), seventeen browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.25.3`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: keep denied practice statistics honest and session-safe
+## Latest cycle: render theme emoji as text, never catalog markup
+
+### Why this was selected
+
+The verse-catalog boundary accepts theme emoji as text, but the topic-chip and
+theme-card renderers interpolated that value directly into `innerHTML`. A
+malformed catalog value therefore became live markup in two places while every
+other displayed theme field passed through HTML escaping. The remaining saved
+preference/session writes were also audited and make no visible durability
+promise, so changing those best-effort preferences would add noise without
+fixing a reproduced contradiction.
+
+### Changes
+
+- Escaped `themes[].emoji` in both the meditation topic-chip renderer and the
+  memory theme-card renderer.
+- Added a controlled Chromium catalog response containing an element-shaped
+  emoji. The journey requires the exact string to remain visible as text in
+  both surfaces and forbids the probe element from entering the DOM.
+- Bumped the deployment version to `2026.08.25.3`.
+
+### Verification and scores
+
+- Test-first: the new browser journey found two real
+  `#catalog-markup-probe` elements before the fix, one from each renderer.
+- Workflow 10, practice core 55, data core 35, live Bible 17, 60-entry site
+  structure, recursive JavaScript syntax, diff checks, and `npm audit` (zero
+  vulnerabilities) passed.
+- `CI=1 npm run test:browser`: 17/17 Chromium journeys passed, up from 16.
+- Hosted CI run `32773936510` passed every Node 24 and Chromium gate in 57s;
+  Pages run `32773935426` deployed successfully, and the live site serves
+  version `2026.08.25.3`.
+- Correctness/reliability: 6/10 → 10/10 (catalog text stays text at both sinks).
+- Verifiability: 5/10 → 10/10 (a real response and both DOM surfaces execute).
+- Maintainability: 8/10 → 9/10 (all theme text follows one escaping rule).
+- Performance: 10/10 → 10/10 (two tiny string escapes during bounded renders).
+- Security/robustness: 4/10 → 10/10 (element-shaped content cannot become DOM).
+- User experience/accessibility: 9/10 → 9/10 (normal emoji output is unchanged).
+
+### Lessons and process improvements
+
+- A schema check that says “string” does not make that string safe for an HTML
+  sink; apply output encoding at every render boundary.
+- Exercise suspicious content through the real fetch and DOM path. Counting
+  created elements proved both vulnerable sinks and prevented a source-only
+  assertion from missing one.
+- Do not turn intentionally best-effort preferences into warning-heavy state
+  unless the interface actually promises they will persist.
+
+### Explicit next opportunity
+
+No higher-impact unblocked VerseKeep item is currently recorded. Rotate
+repositories and return when new runtime or content evidence appears.
+
+## Previous cycle: keep denied practice statistics honest and session-safe
 
 ### Why this was selected
 
@@ -395,9 +449,10 @@ to the primary meditation journey.
 
 ## Prioritized opportunities
 
-| Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
-|---|---|---|---|---|---|
-| 1 | Audit meditation-session and shared-preference write promises | Reliability / UX | Low-medium | Small / low | Save helpers still swallow errors; change only if a visible durability contradiction is reproducible |
+| Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency | Status |
+|---|---|---|---|---|---|---|
+| — | Render validated theme emoji only as text | Correctness / security | High | Small / low | 17th Chromium journey injects element-shaped text through both renderers | Completed in Cycle 58 |
+| — | Audit meditation-session and shared-preference write promises | Reliability / UX | Low-medium | Small / low | No visible durability promise was found; these preferences intentionally remain best-effort | Audited in Cycle 58; no change |
 | — | Keep practice statistics honest when device writes are denied | Reliability / UX | Medium | Small / low | 16th Chromium journey covers denial, session counts, reset copy, recovery, and full flush | Completed in Cycle 57 |
 | — | Retain and disclose denied Amen streak writes for the current visit | Reliability / UX | Medium | Small / low | 15th Chromium journey proves no durable value, coherent session state, and idempotence | Completed in Cycle 56 |
 | — | Tighten Topics-grid density on phone | UX | Medium | Small / low | 7rem rows, hidden redundant blurbs/bars, and static density contract | Completed in Cycle 55 |
@@ -415,7 +470,6 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: audit meditation-session and shared-preference write paths for a
-concrete user-visible persistence contradiction.
-Workspace next: rotate to another clean repository and skip
-Car-Type-Classification-Service.
+Local next: wait for new runtime or content evidence instead of revisiting a
+fully audited best-effort preference boundary.
+Workspace next: rotate to another clean repository.
