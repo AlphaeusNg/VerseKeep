@@ -300,6 +300,34 @@ test("restores a returning meditation and advances Amen exactly once", async ({ 
   ).toEqual(afterAmen);
 });
 
+test("keeps Amen truthful and session-safe when device storage denies the streak", async ({ page }) => {
+  await page.addInitScript(() => {
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "versekeep-med-streak-v1") {
+        throw new DOMException("Storage denied", "QuotaExceededError");
+      }
+      return setItem.call(this, key, value);
+    };
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#med-amen").click();
+
+  await expect(page.locator("#med-feedback")).toHaveText(
+    "Amen marked for this visit. Device storage could not save the streak.",
+  );
+  await expect(page.locator("#med-streak")).toContainText("Streak 1 day · Amen today");
+  await expect(page.locator("#med-streak .med-week-dot.is-today.is-filled")).toHaveCount(1);
+  expect(await page.evaluate(() => localStorage.getItem("versekeep-med-streak-v1"))).toBeNull();
+
+  await page.locator("#med-amen").click();
+  await expect(page.locator("#med-feedback")).toHaveText(
+    "Amen already marked for this calendar day.",
+  );
+  await expect(page.locator("#med-streak")).toContainText("Streak 1 day · Amen today");
+});
+
 test("rejects an invalid playlist catalog without exposing diagnostics", async ({ page }) => {
   await page.route("**/data/playlists.json", (route) =>
     route.fulfill({ json: { youtube: {}, spotify: [] } })

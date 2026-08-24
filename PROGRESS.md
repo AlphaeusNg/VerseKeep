@@ -1,17 +1,75 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 160 across the projects workspace; VerseKeep Cycle 54)
+Last updated: 2026-08-25 (VerseKeep Cycle 56)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), fourteen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.18.4`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), fifteen browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.25.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: hide extras in Focus and offer last-verse resume
+## Latest cycle: keep denied Amen persistence honest and session-safe
+
+### Why this was selected
+
+When browser storage rejected the Amen streak write, VerseKeep swallowed the
+error and announced “Streak started.” The next paint immediately reloaded the
+old value, so the feedback and visible streak could contradict each other.
+
+### Changes
+
+- Keep normalized streak state in memory for the lifetime of the page, while
+  continuing to load the existing device value on first use.
+- Return the persistence outcome from the streak writer. A denied write now
+  keeps the Amen mark and idempotence for the current visit, logs diagnostics,
+  and tells the visitor that device storage could not save the streak.
+- Added a real Chromium journey that denies only the streak key, verifies no
+  value was persisted, proves the current-day dot and count remain correct,
+  and rejects a duplicate Amen.
+- Bumped the deployment stamp to `2026.08.25.1`.
+
+### Verification and scores
+
+- Test-first: the new journey received “Amen. Streak started.” from the old
+  implementation and failed before any persistence or idempotence checks.
+- Deterministic gates passed: workflow 10, practice core 55, data core 35,
+  live Bible 17, site structure, recursive JavaScript syntax, and diff checks.
+- `CI=1 npm run test:browser`: 15/15 Chromium journeys passed.
+- Correctness/reliability: 5/10 → 10/10 (feedback, visible state, and actual
+  persistence outcome can no longer contradict one another).
+- Verifiability: 4/10 → 10/10 (the denied storage boundary is browser-locked).
+- Maintainability: 8/10 → 9/10 (one session value is the streak source of truth).
+- Performance: 10/10 → 10/10 (one normalized in-memory object avoids repeat reads).
+- Security/robustness: 7/10 → 9/10 (storage denial degrades without false claims).
+- User experience/accessibility: 6/10 → 9/10 (the atomic feedback is actionable).
+
+### Lessons and process improvements
+
+- A best-effort write must not drive unconditional success copy.
+- Session fallback is valuable when a meaningful action should remain coherent
+  during a visit even though durable browser storage is unavailable.
+- Storage-denial tests should prove both honesty and continued idempotence.
+
+### Explicit next opportunity
+
+Apply the same audit to practice statistics: `saveStats()` swallows denied
+writes while theme-completion feedback can imply durable progress.
+Workspace next: rotate to another clean repository before returning here.
+
+## Previous cycle: tighten phone Topics and clarify Amen cadence
+
+### Changes and verification
+
+- Reduced phone topic rows from 8.6rem to 7rem, hid redundant blurbs and
+  progress bars, and kept three compact rows visible in the scroller.
+- Clarified that Amen is marked once per calendar day and locked the mobile
+  density contract in the site check.
+- Shipped deployment version `2026.08.18.6` in commit `8cbc000`.
+
+## Previous cycle: hide extras in Focus and offer last-verse resume
 
 ### Why this was selected
 
@@ -246,6 +304,10 @@ to the primary meditation journey.
 
 ## Previous cycles
 
+- Cycle 56: retained denied Amen writes for the current visit and disclosed
+  that device persistence failed, with a real-browser denial path.
+- Cycle 55 (`8cbc000`): tightened phone topic density and clarified Amen's
+  once-per-calendar-day cadence.
 - Cycle 52: aligned practice-mode selector semantics with a named pressed-button group.
 - Cycle 51: announced practice grading, reveal, copy, and shuffle feedback
   through an atomic status region verified in Chromium.
@@ -270,7 +332,9 @@ to the primary meditation journey.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Review Topics-grid density on phone now that Memorize has a real empty state | UX | Medium | Small / low | Memorize empty state is live; Topics is still a tall card grid |
+| 1 | Keep practice statistics honest when device writes are denied | Reliability / UX | Medium | Small / low | `saveStats()` swallows errors while completion feedback implies durable progress |
+| — | Retain and disclose denied Amen streak writes for the current visit | Reliability / UX | Medium | Small / low | 15th Chromium journey proves no durable value, coherent session state, and idempotence | Completed in Cycle 56 |
+| — | Tighten Topics-grid density on phone | UX | Medium | Small / low | 7rem rows, hidden redundant blurbs/bars, and static density contract | Completed in Cycle 55 |
 | — | Hide More and the music dock in Focus; offer last verse as a card chip | UX | High | Small / low | Focus hide/restore and yesterday-resume chip are browser-locked | Completed in Cycle 54 |
 | — | Collapse the ten-button meditation dock and always show the Amen streak invite | UX | High | Small / low | Primary dock, More extras, invite copy, and 7-dot week are browser-locked | Completed in Cycle 53 |
 | — | Replace the idle Memorize hint with last-drill resume and topic/drill chips | UX | Medium | Small / low | Empty state hides when practice opens and resume starts Gospel | Completed in Cycle 53 |
@@ -285,5 +349,7 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: review Topics-grid density on phone now that Memorize has a real empty state.
-Workspace next: continue rotation and skip Car-Type-Classification-Service.
+Local next: keep practice completion and scoring honest when device statistics
+writes are denied.
+Workspace next: rotate to another clean repository and skip
+Car-Type-Classification-Service.

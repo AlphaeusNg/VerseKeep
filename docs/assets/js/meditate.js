@@ -11,6 +11,7 @@
   const PREFS_KEY = "versekeep-prefs-v1";
   const MED_KEY = "versekeep-meditate-v1";
   const STREAK_KEY = "versekeep-med-streak-v1";
+  let sessionStreak = null;
 
   const state = {
     data: null,
@@ -67,21 +68,26 @@
   }
 
   function loadStreak() {
+    if (sessionStreak) return sessionStreak;
     try {
-      return window.VerseKeepPracticeCore.normalizeMeditationStreak(
+      sessionStreak = window.VerseKeepPracticeCore.normalizeMeditationStreak(
         JSON.parse(localStorage.getItem(STREAK_KEY) || "{}")
       );
+      return sessionStreak;
     } catch {
-      return { count: 0, lastDay: null, history: [] };
+      sessionStreak = { count: 0, lastDay: null, history: [] };
+      return sessionStreak;
     }
   }
 
   function saveStreak(data) {
+    sessionStreak = window.VerseKeepPracticeCore.normalizeMeditationStreak(data);
     try {
-      const next = window.VerseKeepPracticeCore.normalizeMeditationStreak(data);
-      localStorage.setItem(STREAK_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
+      localStorage.setItem(STREAK_KEY, JSON.stringify(sessionStreak));
+      return true;
+    } catch (err) {
+      console.warn("[VerseKeep] Amen streak remains session-only", err);
+      return false;
     }
   }
 
@@ -482,8 +488,14 @@
     const history = Array.isArray(s.history) ? s.history.slice(-29) : [];
     if (v?.ref) history.push({ day: today, ref: v.ref });
 
-    saveStreak({ count, lastDay: today, history });
-    flashFeedback(count === 1 ? "Amen. Streak started." : `Amen. ${count}-day streak.`);
+    const persisted = saveStreak({ count, lastDay: today, history });
+    flashFeedback(
+      persisted
+        ? count === 1
+          ? "Amen. Streak started."
+          : `Amen. ${count}-day streak.`
+        : "Amen marked for this visit. Device storage could not save the streak."
+    );
     paintStreak();
   }
 
