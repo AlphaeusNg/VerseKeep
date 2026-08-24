@@ -42,6 +42,9 @@ claimed “on this device” even though the old device value could remain.
 - Workflow 10, practice core 55, data core 35, live Bible 17, site structure,
   recursive syntax, diff checks, and `npm audit` (zero vulnerabilities) passed.
 - `CI=1 npm run test:browser`: 16/16 Chromium journeys passed.
+- Hosted CI run `32762488237` passed every Node 24 and Chromium gate; Pages run
+  `32762486965` deployed successfully, and the live site served version
+  `2026.08.25.2`.
 - Correctness/reliability: 5/10 → 10/10 (session state and durable state are
   explicit, and recovery flushes the full snapshot).
 - Verifiability: 4/10 → 10/10 (denial, reset, recovery, and round-trip count are
