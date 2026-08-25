@@ -7,7 +7,7 @@ import vm from "node:vm";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(resolve(root, "docs/assets/js/practice-core.js"), "utf8");
 const verseCatalog = JSON.parse(readFileSync(resolve(root, "docs/data/verses.json"), "utf8"));
-const sandbox = { window: {}, AbortController };
+const sandbox = { window: {}, AbortController, URLSearchParams };
 sandbox.globalThis = sandbox;
 vm.createContext(sandbox);
 vm.runInContext(source, sandbox, { filename: "practice-core.js" });
@@ -53,6 +53,8 @@ assert.equal(
   "function",
   "createLatestQueueHydrator is exported"
 );
+assert.equal(typeof core?.parseMeditationLink, "function", "parseMeditationLink is exported");
+assert.equal(typeof core?.meditationSearch, "function", "meditationSearch is exported");
 
 if (core?.createLatestQueueHydrator) {
   const pending = new Map();
@@ -346,4 +348,61 @@ if (core?.normalizeStats && core?.normalizePrefs) {
   );
 }
 
-console.log("test-practice-core.mjs: 55 scoring, state, catalog, and cancellation assertions passed");
+if (core?.parseMeditationLink && core?.meditationSearch) {
+  const themeIds = verseCatalog.themes.map((theme) => theme.id);
+  const verseRefs = verseCatalog.themes.flatMap((theme) =>
+    (theme.verses || []).map((verse) => verse.ref)
+  );
+  const enDashRef = verseRefs.find((ref) => ref.includes("–"));
+  assert.equal(typeof enDashRef, "string", "catalog includes a ranged reference");
+  const hyphenRef = enDashRef.replace(/–/g, "-");
+  const options = { themeIds, verseRefs };
+
+  assert.equal(core.parseMeditationLink(""), null, "empty search is not a meditation link");
+  assert.equal(core.parseMeditationLink("?"), null, "empty query is not a meditation link");
+  assert.deepEqual(
+    JSON.parse(
+      JSON.stringify(
+        core.parseMeditationLink(`?v=${encodeURIComponent(enDashRef)}&t=${themeIds[0]}&tr=NIV`, options)
+      )
+    ),
+    { ref: enDashRef, topicId: themeIds[0], translation: "niv" },
+    "valid verse, topic, and translation are preserved"
+  );
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(core.parseMeditationLink(`v=${encodeURIComponent(hyphenRef)}`, options))),
+    { ref: enDashRef },
+    "ASCII hyphens resolve to the catalog en-dash reference"
+  );
+  assert.equal(
+    core.parseMeditationLink("?v=Not%20A%20Verse&t=not-a-theme&tr=kjv", options),
+    null,
+    "unknown verse, topic, and translation fail closed"
+  );
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(core.parseMeditationLink("?t=all&tr=esv", options))),
+    { topicId: "all", translation: "esv" },
+    "topic-only and translation-only values remain usable"
+  );
+  assert.equal(
+    core.parseMeditationLink(`?v=${"x".repeat(201)}`, options),
+    null,
+    "overlong verse queries are rejected"
+  );
+  assert.equal(
+    core.meditationSearch({
+      ref: enDashRef,
+      topicId: themeIds[0],
+      translation: "ESV",
+    }),
+    new URLSearchParams({ v: enDashRef, t: themeIds[0], tr: "esv" }).toString(),
+    "canonical search encodes verse, topic, and translation"
+  );
+  assert.equal(
+    core.meditationSearch({ ref: "", topicId: "", translation: "kjv" }),
+    "",
+    "empty or invalid share fields emit no query"
+  );
+}
+
+console.log("test-practice-core.mjs: 66 scoring, state, catalog, link, and cancellation assertions passed");

@@ -363,6 +363,7 @@
     await hydrateCurrent();
     paintStreak();
     paintDrillBtn();
+    writeMeditationLink();
   }
 
   async function setTopic(id) {
@@ -407,9 +408,48 @@
     }, 2000);
   }
 
+  function currentLinkSession() {
+    const v = current();
+    return {
+      ref: v?.ref || "",
+      topicId: state.topicId || "all",
+      translation: ($("#tr-select")?.value || "").toLowerCase(),
+    };
+  }
+
+  function meditationShareUrl() {
+    const search = window.VerseKeepPracticeCore.meditationSearch(currentLinkSession());
+    try {
+      const url = new URL(location.href);
+      url.search = search;
+      url.hash = "#meditate";
+      return url.toString();
+    } catch {
+      const path = location.pathname || "/";
+      return `${location.origin || ""}${path}?${search}#meditate`;
+    }
+  }
+
+  function writeMeditationLink() {
+    const v = current();
+    if (!v?.ref || typeof window.VerseKeepPracticeCore?.meditationSearch !== "function") return;
+    try {
+      const url = new URL(location.href);
+      url.search = window.VerseKeepPracticeCore.meditationSearch(currentLinkSession());
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      const here = `${location.pathname}${location.search}${location.hash}`;
+      if (next !== here && typeof history.replaceState === "function") {
+        history.replaceState(null, "", next);
+      }
+    } catch {
+      /* fail closed */
+    }
+  }
+
   async function copyMeditation() {
     const v = current();
     if (!v) return;
+    const url = meditationShareUrl();
     const text = [
       v.ref,
       v.text,
@@ -417,6 +457,8 @@
       "Context: " + (v.context || ""),
       "Application: " + (v.application || ""),
       "Prayer: " + (v.prayer || ""),
+      "",
+      url,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(text);
@@ -426,13 +468,26 @@
     }
   }
 
+  async function copyMeditationLink() {
+    const v = current();
+    if (!v) return;
+    const url = meditationShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      flashFeedback("Copied meditation link.");
+    } catch {
+      prompt("Copy link:", url);
+    }
+  }
+
   async function shareMeditation() {
     const v = current();
     if (!v) return;
-    const text = `${v.ref}\n${v.text}\n\n— VerseKeep`;
+    const url = meditationShareUrl();
+    const text = `${v.ref}\n${v.text}\n\n${url}\n\n— VerseKeep`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: v.ref, text });
+        await navigator.share({ title: v.ref, text, url });
         flashFeedback("Shared.");
         return;
       }
@@ -547,6 +602,10 @@
     $("#med-copy")?.addEventListener("click", () => {
       setMoreOpen(false);
       copyMeditation().catch(() => {});
+    });
+    $("#med-copy-link")?.addEventListener("click", () => {
+      setMoreOpen(false);
+      copyMeditationLink().catch(() => {});
     });
     $("#med-share")?.addEventListener("click", () => {
       setMoreOpen(false);
@@ -669,14 +728,27 @@
     state.data = data;
     const prefs = loadPrefs();
     const med = loadMed();
+    const themeIds = data.themes.map((theme) => theme.id);
+    const verseRefs = [];
+    for (const theme of data.themes) {
+      for (const verse of theme.verses || []) {
+        if (verse?.ref) verseRefs.push(verse.ref);
+      }
+    }
+    const link =
+      window.VerseKeepPracticeCore.parseMeditationLink(location.search, {
+        themeIds,
+        verseRefs,
+      }) || {};
     const preferredSession = window.VerseKeepPracticeCore.normalizeMeditationSession(
       { topicId: prefs.lastMedTopic },
-      data.themes.map((theme) => theme.id)
+      themeIds
     );
     const topic =
-      prefs.lastMedTopic && preferredSession.topicId === prefs.lastMedTopic
+      link.topicId ||
+      (prefs.lastMedTopic && preferredSession.topicId === prefs.lastMedTopic
         ? preferredSession.topicId
-        : med.topicId;
+        : med.topicId);
     state.topicId = topic;
     state.pool = buildPool(data, state.topicId);
     paintTopics();
@@ -686,7 +758,29 @@
     if (prefs.medFocus) setFocusMode(true);
 
     let idx = seededIndex(state.pool.length, daySeed());
-    if (med.ref && med.day === daySeed() && med.topicId === state.topicId) {
+    let usedLink = false;
+    if (link.ref) {
+      const located = locateVerse(link.ref, link.topicId || state.topicId);
+      if (located) {
+        if (link.topicId === "all") {
+          state.topicId = "all";
+          state.pool = buildPool(data, "all");
+        } else if (link.topicId && located.topicId === link.topicId) {
+          state.topicId = link.topicId;
+          state.pool = buildPool(data, link.topicId);
+        } else if (!link.topicId) {
+          state.topicId = located.topicId;
+          state.pool = buildPool(data, located.topicId);
+        }
+        paintTopics();
+        const found = state.pool.findIndex((v) => v.ref === link.ref);
+        if (found >= 0) {
+          idx = found;
+          usedLink = true;
+        }
+      }
+    }
+    if (!usedLink && !link.topicId && med.ref && med.day === daySeed() && med.topicId === state.topicId) {
       const found = state.pool.findIndex((v) => v.ref === med.ref);
       if (found >= 0) idx = found;
     }
@@ -708,6 +802,7 @@
     current,
     refresh: hydrateCurrent,
     setFocusMode,
+    syncLink: writeMeditationLink,
   };
 
   if (document.readyState === "loading") {

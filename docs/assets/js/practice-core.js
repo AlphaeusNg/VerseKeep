@@ -294,6 +294,72 @@
     return previous[expected.length];
   }
 
+  function normalizeVerseRef(value) {
+    if (typeof value !== "string") return "";
+    return value
+      .trim()
+      .replace(/[\u2010-\u2015\u2212-]/g, "-")
+      .replace(/\s+/g, " ")
+      .slice(0, 200);
+  }
+
+  function readSearchParams(search) {
+    if (search instanceof URLSearchParams) return search;
+    if (typeof search !== "string" || !search) return new URLSearchParams();
+    return new URLSearchParams(search.charAt(0) === "?" ? search.slice(1) : search);
+  }
+
+  function catalogVerseRefs(themeIdsSource) {
+    const refs = [];
+    if (!Array.isArray(themeIdsSource)) return refs;
+    for (const theme of themeIdsSource) {
+      if (!isRecord(theme) || !Array.isArray(theme.verses)) continue;
+      for (const verse of theme.verses) {
+        if (typeof verse?.ref === "string" && verse.ref.trim()) refs.push(verse.ref);
+      }
+    }
+    return refs;
+  }
+
+  function parseMeditationLink(search, options = {}) {
+    const params = readSearchParams(search);
+    if (![...params.keys()].length) return null;
+    const allowedTopics = new Set(["all"]);
+    const themeIds = Array.isArray(options.themeIds) ? options.themeIds : [];
+    for (const id of themeIds) {
+      if (typeof id === "string" && id) allowedTopics.add(id);
+    }
+    const knownRefs = Array.isArray(options.verseRefs)
+      ? options.verseRefs.filter((ref) => typeof ref === "string" && ref.trim())
+      : catalogVerseRefs(options.themes);
+    const result = {};
+    const rawRef = params.get("v") || params.get("ref") || "";
+    const normalized = normalizeVerseRef(rawRef);
+    if (normalized) {
+      const match = knownRefs.find((ref) => normalizeVerseRef(ref) === normalized);
+      if (match) result.ref = match;
+    }
+    const rawTopic = (params.get("t") || params.get("topic") || "").trim();
+    if (allowedTopics.has(rawTopic)) result.topicId = rawTopic;
+    const translation = (params.get("tr") || "").toLowerCase();
+    if (TRANSLATIONS.has(translation)) result.translation = translation;
+    return Object.keys(result).length ? result : null;
+  }
+
+  function meditationSearch(session = {}) {
+    const source = isRecord(session) ? session : {};
+    const params = new URLSearchParams();
+    if (typeof source.ref === "string" && source.ref.trim() && source.ref.trim().length <= 200) {
+      params.set("v", source.ref.trim());
+    }
+    if (typeof source.topicId === "string" && source.topicId.trim() && source.topicId.trim().length <= 200) {
+      params.set("t", source.topicId.trim());
+    }
+    const translation = typeof source.translation === "string" ? source.translation.toLowerCase() : "";
+    if (TRANSLATIONS.has(translation)) params.set("tr", translation);
+    return params.toString();
+  }
+
   /**
    * Word-sequence F1 score. Order and repeated-word counts matter, while
    * omissions and additions remain forgiving enough for free recall.
@@ -316,10 +382,12 @@
   global.VerseKeepPracticeCore = Object.freeze({
     defaultStats,
     createLatestQueueHydrator,
+    meditationSearch,
     normalizeMeditationSession,
     normalizeMeditationStreak,
     normalizePrefs,
     normalizeStats,
+    parseMeditationLink,
     recallSimilarity,
     validateVerseCatalog,
   });

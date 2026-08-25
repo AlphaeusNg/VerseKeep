@@ -67,6 +67,9 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="med-more"') || !html.includes('id="med-more-panel"')) {
     failures.push("Meditation dock must keep extras behind More");
   }
+  if (!html.includes('id="med-copy-link"')) {
+    failures.push("Meditation More panel must include Copy link");
+  }
   if (!html.includes('id="med-focus"') || !html.includes('id="med-amen"')) {
     failures.push("Meditation dock must keep Focus and Amen button IDs");
   }
@@ -120,6 +123,9 @@ if (existsSync(appPath)) {
   if (!appSource.includes("resolveVerse(ref, localText, options)")) {
     failures.push("app.js must forward queue cancellation options to live verse resolution");
   }
+  if (!appSource.includes("parseMeditationLink") || !appSource.includes("applyTranslation")) {
+    failures.push("app.js must apply shared translation before meditation boot");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");
@@ -129,6 +135,12 @@ if (existsSync(meditatePath)) {
     if (!meditateSource.includes(helper)) {
       failures.push(`meditate.js must use ${helper} for persisted state`);
     }
+  }
+  if (!meditateSource.includes("parseMeditationLink") || !meditateSource.includes("meditationSearch")) {
+    failures.push("meditate.js must parse and write meditation share URLs");
+  }
+  if (!meditateSource.includes("history.replaceState")) {
+    failures.push("meditation navigation must keep the address bar canonical");
   }
   if (!meditateSource.includes("topicToken")) {
     failures.push("meditate.js must supersede stale topic hydration");

@@ -131,6 +131,7 @@ test("exposes meditation topics and feedback with matching semantics", async ({ 
   await expect(page.locator("#med-today")).toBeHidden();
   await expect(page.locator("#med-shuffle")).toBeHidden();
   await expect(page.locator("#med-copy")).toBeHidden();
+  await expect(page.locator("#med-copy-link")).toBeHidden();
   await expect(page.locator("#med-share")).toBeHidden();
   await expect(page.locator("#med-listen")).toBeHidden();
 
@@ -622,4 +623,66 @@ test("shows a memorize empty state until practice opens", async ({ page }) => {
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(empty).toBeHidden();
   await expect(page.locator("#theme-label")).toContainText("Gospel");
+});
+
+test("opens a shared meditation URL and copies a canonical link", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: "http://127.0.0.1:4174",
+  });
+
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "versekeep-prefs-v1",
+      JSON.stringify({ lastMedTopic: "gods-character", translation: "esv" }),
+    );
+    const now = new Date();
+    const daySeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    localStorage.setItem(
+      "versekeep-meditate-v1",
+      JSON.stringify({ topicId: "gods-character", ref: "Exodus 34:6", day: daySeed }),
+    );
+  });
+
+  await page.goto("/?v=Proverbs+3:5-6&t=trusting-god&tr=niv#meditate", {
+    waitUntil: "domcontentloaded",
+  });
+
+  await expect(page.locator("#load-error")).toBeHidden();
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText("Proverbs 3:5–6");
+  await expect(page.locator('#med-topics [data-topic="trusting-god"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("#tr-select")).toHaveValue("niv");
+  await expect(page).toHaveURL(/v=Proverbs(\+|%20)3%3A5(%E2%80%93|–|-)6/);
+  await expect(page).toHaveURL(/t=trusting-god/);
+  await expect(page).toHaveURL(/tr=niv/);
+  await expect(page).toHaveURL(/#meditate$/);
+
+  await page.locator("#med-next").click();
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("Proverbs 3:5–6");
+  const afterNext = new URL(page.url());
+  expect(afterNext.searchParams.get("t")).toBe("trusting-god");
+  expect(afterNext.searchParams.get("v")).not.toBe("Proverbs 3:5–6");
+  expect(afterNext.searchParams.get("tr")).toBe("niv");
+
+  await page.locator("#med-more").click();
+  await page.locator("#med-copy-link").click();
+  await expect(page.locator("#med-feedback")).toHaveText("Copied meditation link.");
+  const copied = new URL(await page.evaluate(() => navigator.clipboard.readText()));
+  expect(copied.searchParams.get("t")).toBe("trusting-god");
+  expect(copied.searchParams.get("tr")).toBe("niv");
+  expect(copied.searchParams.get("v")).toBe(afterNext.searchParams.get("v"));
+  expect(copied.hash).toBe("#meditate");
+
+  await page.goto("/?v=DefinitelyNotAVerse&t=not-a-theme&tr=kjv#meditate", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.locator("#load-error")).toBeHidden();
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("DefinitelyNotAVerse");
+  await expect(page.locator('#med-topics [data-topic="not-a-theme"]')).toHaveCount(0);
+  const recovered = new URL(page.url());
+  expect(recovered.searchParams.get("v")).toBeTruthy();
+  expect(recovered.searchParams.get("v")).not.toBe("DefinitelyNotAVerse");
 });

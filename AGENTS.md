@@ -38,10 +38,14 @@ tools/test-site.mjs         # Structural and local-reference validation
 
 ## Meditation
 
-- On load: today’s verse (date-seeded) with context, application, prayer.
+- On load: today’s verse (date-seeded) with context, application, prayer,
+  unless `?v=` names a catalog reference. `?t=` selects a topic and `?tr=`
+  selects ESV/NIV/NKJV. Unknown values fall back to today/prefs. Navigation
+  `replaceState`s the canonical query so the address bar matches the card.
 - Topic chips + topic cards filter meditation; **Drill** opens memory practice.
 - **Amen** tracks a local daily streak; **Focus** hides More and the music
   dock so the verse, Amen, and Prev/Next stay primary. Music keeps playing.
+- Share / Copy link encode that URL so a partner can reopen the same verse.
 - Keys (when not in practice): `←`/`→` · `S` shuffle · `C` copy · `L` listen · `F` focus · `A` Amen.
 - Swipe the card (touch): left = next, right = prev.
 - Live text: ESV / NIV / NKJV with session cache + prefetch; bundled JSON fallback.

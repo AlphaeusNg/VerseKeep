@@ -1028,6 +1028,41 @@
     return tag === "INPUT" || tag === "TEXTAREA" || el.isContentEditable;
   }
 
+  function translationFromStartup(catalog) {
+    const allowed = new Set(["esv", "niv", "nkjv"]);
+    const themeIds = Array.isArray(catalog?.themes) ? catalog.themes.map((theme) => theme.id) : [];
+    const verseRefs = [];
+    for (const theme of catalog?.themes || []) {
+      for (const verse of theme.verses || []) {
+        if (verse?.ref) verseRefs.push(verse.ref);
+      }
+    }
+    const link =
+      typeof window.VerseKeepPracticeCore?.parseMeditationLink === "function"
+        ? window.VerseKeepPracticeCore.parseMeditationLink(location.search, { themeIds, verseRefs }) || {}
+        : {};
+    const saved = (loadPrefs().translation || "").toLowerCase();
+    const fallback = (window.VERSEKEEP_BIBLE?.bibleApiTranslation || "esv").toLowerCase();
+    if (allowed.has(link.translation)) return link.translation;
+    if (allowed.has(saved)) return saved;
+    if (allowed.has(fallback)) return fallback;
+    return "esv";
+  }
+
+  function applyTranslation(slug) {
+    const allowed = new Set(["esv", "niv", "nkjv"]);
+    const tr = allowed.has(slug) ? slug : "esv";
+    const trSelect = $("#tr-select");
+    if (trSelect) trSelect.value = tr;
+    if (window.VERSEKEEP_BIBLE) {
+      window.VERSEKEEP_BIBLE.bibleApiTranslation = tr;
+      if ($("#live-bible")?.checked !== false) window.VERSEKEEP_BIBLE.preferred = tr;
+    }
+    const lbl = $("#live-bible-label");
+    if (lbl && ($("#live-bible")?.checked !== false)) lbl.textContent = `(${tr.toUpperCase()})`;
+    return tr;
+  }
+
   async function boot() {
     try {
       const res = await fetch("data/verses.json", { cache: "no-store" });
@@ -1042,6 +1077,7 @@
       paintStatsBar();
       paintMemorizeEmpty();
       $("#load-error").hidden = true;
+      applyTranslation(translationFromStartup(catalog));
       // Meditation is primary: start as soon as data is ready
       if (window.VerseKeepMeditate?.bootWithData) {
         await window.VerseKeepMeditate.bootWithData(state.data);
@@ -1090,28 +1126,13 @@
     const trSelect = $("#tr-select");
     if (trSelect && window.VERSEKEEP_BIBLE) {
       const allowed = new Set(["esv", "niv", "nkjv"]);
-      let savedTr = (
-        loadPrefs().translation ||
-        window.VERSEKEEP_BIBLE.bibleApiTranslation ||
-        "esv"
-      ).toLowerCase();
-      if (!allowed.has(savedTr)) savedTr = "esv";
-      trSelect.value = savedTr;
-      window.VERSEKEEP_BIBLE.bibleApiTranslation = savedTr;
-      window.VERSEKEEP_BIBLE.preferred = savedTr;
-      const lbl0 = $("#live-bible-label");
-      if (lbl0 && state.liveBible) lbl0.textContent = `(${savedTr.toUpperCase()})`;
       trSelect.addEventListener("change", async () => {
-        const tr = allowed.has(trSelect.value) ? trSelect.value : "esv";
-        trSelect.value = tr;
-        window.VERSEKEEP_BIBLE.bibleApiTranslation = tr;
-        window.VERSEKEEP_BIBLE.preferred = tr;
+        const tr = applyTranslation(allowed.has(trSelect.value) ? trSelect.value : "esv");
         savePrefs({ translation: tr });
-        const lbl = $("#live-bible-label");
-        if (lbl && state.liveBible) lbl.textContent = `(${tr.toUpperCase()})`;
         const updates = [rehydrateCurrentQueue(`Fetching ${tr.toUpperCase()}…`, true)];
         if (window.VerseKeepMeditate?.refresh) updates.push(window.VerseKeepMeditate.refresh());
         await Promise.allSettled(updates);
+        window.VerseKeepMeditate?.syncLink?.();
       });
     }
 

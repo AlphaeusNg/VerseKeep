@@ -1,17 +1,33 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-25 (VerseKeep Cycle 59)
+Last updated: 2026-08-25 (VerseKeep Cycle 60)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), seventeen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.25.4`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), eighteen browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.25.5`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: put Drill beside Amen
+## Latest cycle: share a meditation as a URL
+
+### Why this was selected
+
+Share copied verse text. A partner on WhatsApp could not reopen the same
+reference, topic, and translation. ChristoDay and CardFit already deep-link.
+
+### Changes
+
+- Encode verse, topic, and translation as `?v=&t=&tr=`; hyphen ranges resolve
+  to catalog en-dashes; unknown values fall back to today/prefs.
+- Boot prefers the shared URL over the last local session.
+- Navigation `replaceState`s the canonical query so the address bar matches
+  the card. More adds Copy link; Copy and Share include that URL.
+- Version `2026.08.25.5`.
+
+## Previous cycle: put Drill beside Amen
 
 ### Why this was selected
 
