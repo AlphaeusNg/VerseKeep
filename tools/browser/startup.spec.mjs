@@ -286,7 +286,7 @@ test("restores normalized meditation and practice preferences", async ({ page })
   await expect(page.locator("body")).not.toHaveClass(/med-focus/);
   await expect(page.locator("#med-more")).toBeVisible();
   await expect(page.locator("#music-dock-tab")).toBeVisible();
-  await page.locator("#med-more").click();
+  await expect(page.locator("#med-drill")).toBeVisible();
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator('#play-panel [data-mode="quiz"]')).toHaveAttribute(

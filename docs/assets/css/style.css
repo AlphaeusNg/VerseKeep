@@ -2304,6 +2304,7 @@ body.med-focus main > .panel:not(.meditate-panel),
 body.med-focus .footer,
 body.med-focus #med-more,
 body.med-focus #med-more-panel,
+body.med-focus #med-drill,
 body.med-focus .music-dock,
 body.med-focus #music-dock-tab {
   display: none !important;

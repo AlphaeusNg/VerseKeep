@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-25 (VerseKeep Cycle 58)
+Last updated: 2026-08-25 (VerseKeep Cycle 59)
 
 ## Current state
 
@@ -8,10 +8,23 @@ Last updated: 2026-08-25 (VerseKeep Cycle 58)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (55 assertions), data contracts (35 assertions), live Bible requests (17 assertions), seventeen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.25.3`.
+- Deployment version: `2026.08.25.4`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: render theme emoji as text, never catalog markup
+## Latest cycle: put Drill beside Amen
+
+### Why this was selected
+
+Memory practice lived behind More. After sitting with a verse, starting a
+topic drill took an extra tap and was easy to miss.
+
+### Changes
+
+- Moved `#med-drill` into the primary meditation dock beside Amen.
+- Focus still hides Drill with More and the music dock.
+- Version `2026.08.25.4`.
+
+## Previous cycle: render theme emoji as text, never catalog markup
 
 ### Why this was selected
 
