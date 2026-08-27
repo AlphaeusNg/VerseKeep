@@ -41,6 +41,23 @@ test.afterEach(async ({ page }) => {
   expect(runtimeErrors.get(page), "unexpected browser runtime errors").toEqual([]);
 });
 
+async function installSpeechProbe(page) {
+  await page.addInitScript(() => {
+    globalThis.__versekeepSpeech = { cancelled: 0, spoken: [] };
+    Object.defineProperty(window, "speechSynthesis", {
+      configurable: true,
+      value: {
+        cancel() {
+          globalThis.__versekeepSpeech.cancelled += 1;
+        },
+        speak(utterance) {
+          globalThis.__versekeepSpeech.spoken.push(String(utterance?.text || ""));
+        },
+      },
+    });
+  });
+}
+
 test("boots meditation and navigates from a topic into practice", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -85,6 +102,36 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
     "aria-pressed",
     "true"
   );
+});
+
+test("stops meditation speech before showing another verse", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const originalRef = await page.locator("#meditate-card .med-ref").textContent();
+  await page.keyboard.press("l");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+  const cancelsAfterStart = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+
+  await page.locator("#med-next").click();
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText(originalRef || "");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
+    .toBeGreaterThan(cancelsAfterStart);
+});
+
+test("stops practice speech before showing another drill verse", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#med-drill").click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+
+  await page.locator("#btn-speak").click();
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+  const cancelsAfterStart = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+
+  await page.locator("#btn-next").click();
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
+    .toBeGreaterThan(cancelsAfterStart);
 });
 
 test("renders theme emoji text without interpreting catalog markup", async ({ page }) => {

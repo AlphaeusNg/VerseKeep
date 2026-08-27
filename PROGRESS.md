@@ -1,17 +1,69 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-27 (VerseKeep Cycle 61)
+Last updated: 2026-08-28 (VerseKeep Cycle 62)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), eighteen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.27.1`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.28.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: John 15 true-vine wallpapers
+## Latest cycle: stop stale read-aloud on verse changes
+
+### Why this was selected
+
+Both meditation and memory practice could start browser speech, then replace
+the visible verse without cancelling the old utterance. The screen and audio
+therefore described different Scripture until the previous reading finished.
+
+### Changes
+
+- Stop meditation speech at the `showIndex()` boundary before any next,
+  previous, shuffle, topic, resume, or initial verse is rendered.
+- Route meditation's read-aloud restart through that same stop helper.
+- Stop practice speech at `startRound()` so next, previous, shuffle, mode, and
+  theme changes cannot retain the prior drill verse.
+- Add two Chromium journeys that instrument speech synthesis and require an
+  additional cancellation before each meditation and practice verse change.
+- Bump deployment version to `2026.08.28.1`.
+
+### Verification and scores
+
+- Test-first: both browser probes timed out with one cancellation—the restart
+  before speaking—but no second cancellation after their visible verse changed.
+- Workflow 10, practice core 66, data core 35, live Bible 17, 63-entry site
+  structure, recursive syntax, JSON parsing, diff checks, and the
+  zero-vulnerability npm audit pass.
+- `CI=1 npm run test:browser`: 20/20 Chromium journeys pass in 17 seconds, up
+  from 18; the two focused speech/navigation journeys pass independently.
+- Correctness/reliability: 5/10 -> 10/10 (audio and the visible verse change
+  through the same boundary).
+- Verifiability: 4/10 -> 10/10 (both independent speech consumers execute in a
+  real browser).
+- Maintainability: 7/10 -> 9/10 (each module has one stop helper at its render
+  boundary).
+- User experience/accessibility: 4/10 -> 10/10 (listeners no longer hear stale
+  Scripture over a new card).
+- Performance and security remain 10/10 and 9/10 respectively; cancellation is
+  bounded to user-visible verse transitions.
+
+### Lessons and process improvements
+
+- Speech synthesis is page-global even when product surfaces live in separate
+  modules; every content replacement must first terminate the old utterance.
+- Put media cleanup at the render/round boundary rather than enumerating each
+  navigation button, so keyboard, swipe, auto-advance, and future controls
+  inherit the same rule.
+
+### Explicit next opportunity
+
+No higher-impact unblocked VerseKeep item is currently recorded. Rotate
+repositories and return when new runtime or content evidence appears.
+
+## Previous cycle: John 15 true-vine wallpapers
 
 ### Why this was selected
 
@@ -494,6 +546,7 @@ to the primary meditation journey.
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency | Status |
 |---|---|---|---|---|---|---|
+| — | Stop stale speech when meditation or practice replaces its verse | Correctness / UX | Medium-high | Small / low | Two new Chromium journeys require cancellation across both independent read-aloud paths | Completed in Cycle 62 |
 | — | Render validated theme emoji only as text | Correctness / security | High | Small / low | 17th Chromium journey injects element-shaped text through both renderers | Completed in Cycle 58 |
 | — | Audit meditation-session and shared-preference write promises | Reliability / UX | Low-medium | Small / low | No visible durability promise was found; these preferences intentionally remain best-effort | Audited in Cycle 58; no change |
 | — | Keep practice statistics honest when device writes are denied | Reliability / UX | Medium | Small / low | 16th Chromium journey covers denial, session counts, reset copy, recovery, and full flush | Completed in Cycle 57 |

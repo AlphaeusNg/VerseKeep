@@ -354,6 +354,7 @@
   }
 
   async function showIndex(i) {
+    stopSpeech();
     if (!state.pool.length) {
       paintCard(null);
       return;
@@ -502,17 +503,21 @@
     }
   }
 
+  function stopSpeech() {
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {
+      /* ignore */
+    }
+  }
+
   function readAloud() {
     const v = current();
     if (!v || !window.speechSynthesis) {
       flashFeedback("Speech not available.");
       return;
     }
-    try {
-      window.speechSynthesis.cancel();
-    } catch {
-      /* ignore */
-    }
+    stopSpeech();
     const parts = [v.ref, v.text, "Context.", v.context, "Application.", v.application, "Prayer.", v.prayer]
       .filter(Boolean)
       .join(" ");

@@ -623,6 +623,7 @@
   }
 
   function startRound() {
+    stopSpeech();
     const v = currentVerse();
     clearFeedback();
     state.answered = false;
