@@ -76,6 +76,8 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 
 - Daily Unsplash CDN suggestions + bundled offline classics.
 - Hearts / most-loved: best-effort remote counter (see `docs/assets/js/wallpapers.js`).
+- Bible-truth sets ship in three looks: **lo-fi** (`lofi-`, `style: lofi`), **masculine / realistic** (`masc-`, `style: realistic`), and **minimal** (`min-`, `style: minimal`). Each theme needs desktop 16:9 plus `phone/<id>-phone.jpg`.
+- Daily generation playbook: `/home/alph/projects/.grok/schedules/versekeep-wallpapers.md`. New themes must be a real biblical passage, never extra-biblical legend.
 
 ## Live Bible
 

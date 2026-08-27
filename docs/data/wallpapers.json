@@ -934,6 +934,54 @@
       "download": "assets/wallpapers/masc-cross-hills.jpg"
     },
     {
+      "id": "lofi-true-vine",
+      "title": "True vine",
+      "blurb": "Lo-fi · Vineyard lantern · John 15",
+      "theme": "true-vine",
+      "themeTitle": "True vine",
+      "style": "lofi",
+      "tags": [
+        "Lo-fi",
+        "Vine",
+        "John 15"
+      ],
+      "tone": "gospel",
+      "src": "assets/wallpapers/lofi-true-vine.jpg",
+      "download": "assets/wallpapers/lofi-true-vine.jpg"
+    },
+    {
+      "id": "min-true-vine",
+      "title": "True vine",
+      "blurb": "Minimal · Vineyard lantern · John 15",
+      "theme": "true-vine",
+      "themeTitle": "True vine",
+      "style": "minimal",
+      "tags": [
+        "Minimal",
+        "Vine",
+        "John 15"
+      ],
+      "tone": "minimal",
+      "src": "assets/wallpapers/min-true-vine.jpg",
+      "download": "assets/wallpapers/min-true-vine.jpg"
+    },
+    {
+      "id": "masc-true-vine",
+      "title": "True vine",
+      "blurb": "Realistic · Vineyard lantern · John 15",
+      "theme": "true-vine",
+      "themeTitle": "True vine",
+      "style": "realistic",
+      "tags": [
+        "Realistic",
+        "Vine",
+        "John 15"
+      ],
+      "tone": "realistic",
+      "src": "assets/wallpapers/masc-true-vine.jpg",
+      "download": "assets/wallpapers/masc-true-vine.jpg"
+    },
+    {
       "id": "none",
       "title": "Default (no image)",
       "blurb": "Clean dark theme only",

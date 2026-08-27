@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-25 (VerseKeep Cycle 60)
+Last updated: 2026-08-27 (VerseKeep Cycle 61)
 
 ## Current state
 
@@ -8,10 +8,24 @@ Last updated: 2026-08-25 (VerseKeep Cycle 60)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), eighteen browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.25.5`.
+- Deployment version: `2026.08.27.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: share a meditation as a URL
+## Latest cycle: John 15 true-vine wallpapers
+
+### Why this was selected
+
+Daily Bible wallpapers should keep growing in the three locked looks (lo-fi,
+masculine/realistic, minimal) rather than stall on the first sixteen themes.
+
+### Changes
+
+- Added theme `true-vine` (John 15) in lo-fi, minimal, and realistic, each with
+  a phone crop.
+- Daily generation playbook: `/home/alph/projects/.grok/schedules/versekeep-wallpapers.md`.
+- Version `2026.08.27.1`.
+
+## Previous cycle: share a meditation as a URL
 
 ### Why this was selected
 
