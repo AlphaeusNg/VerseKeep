@@ -39,6 +39,9 @@ therefore described different Scripture until the previous reading finished.
   zero-vulnerability npm audit pass.
 - `CI=1 npm run test:browser`: 20/20 Chromium journeys pass in 17 seconds, up
   from 18; the two focused speech/navigation journeys pass independently.
+- Hosted CI run `33098391164` and Pages run `33098390348` passed. The public
+  site serves version `2026.08.28.1`, with speech cancellation present at both
+  meditation and practice verse-replacement boundaries.
 - Correctness/reliability: 5/10 -> 10/10 (audio and the visible verse change
   through the same boundary).
 - Verifiability: 4/10 -> 10/10 (both independent speech consumers execute in a
