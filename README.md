@@ -9,9 +9,29 @@ The live site *is* the demo. Pick a theme, pick a mode, practice a verse.
 ## Try it
 
 1. Open **[VerseKeep](https://alphaeusng.github.io/VerseKeep/)**.
-2. Choose a theme (for example Trusting in God, The gospel, or Identity in Christ).
+2. Choose a theme (for example Trusting in God, The Gospel, or Identity in Christ).
 3. Start with **Study**, then try **Fill blanks** or **Type it**.
 4. Keyboard: `1`–`5` switch modes · `N`/`B` next/back · `R` reveal · `Enter` check.
+
+## Themes
+
+- Trusting in God
+- God's Character
+- Reality of Sin
+- The Gospel
+- Nourish & Cherish Your Wife
+- Apologetic Anchors
+- Prayer & the Word
+- Strength in Trials
+- Identity in Christ
+- Sovereignty & Providence
+- Justification by Grace
+- Union with Christ
+- Repentance & Holiness
+- Assurance of Salvation
+- The Holy Spirit
+- Worship & Adoration
+- Humility & Service
 
 Progress (mastery, streaks, accuracy) stays in `localStorage` on this device. Edit verses in `docs/data/verses.json`.
 
