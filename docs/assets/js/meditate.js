@@ -241,6 +241,29 @@
     btn.title = `Open memory practice for ${title}`;
   }
 
+  function paintPracticeVerseBtn() {
+    const btn = $("#med-practice-verse");
+    if (!btn) return;
+    const v = current();
+    if (!v?.ref) {
+      btn.hidden = true;
+      btn.classList.remove("is-offered");
+      delete btn.dataset.ref;
+      return;
+    }
+    btn.hidden = false;
+    btn.dataset.ref = v.ref;
+    btn.textContent = "Practice this verse";
+    btn.title = `Fill blanks for ${v.ref}`;
+  }
+
+  function offerPracticeThisVerse() {
+    paintPracticeVerseBtn();
+    const btn = $("#med-practice-verse");
+    if (!btn || btn.hidden) return;
+    btn.classList.add("is-offered");
+  }
+
   function locateVerse(ref, topicId) {
     if (!state.data || !ref) return null;
     if (topicId && topicId !== "all") {
@@ -364,6 +387,7 @@
     await hydrateCurrent();
     paintStreak();
     paintDrillBtn();
+    paintPracticeVerseBtn();
     writeMeditationLink();
   }
 
@@ -533,6 +557,7 @@
     if (s.lastDay === today) {
       flashFeedback("Amen already marked for this calendar day.");
       paintStreak();
+      offerPracticeThisVerse();
       return;
     }
     // Yesterday?
@@ -557,6 +582,7 @@
         : "Amen marked for this visit. Device storage could not save the streak."
     );
     paintStreak();
+    offerPracticeThisVerse();
   }
 
   async function resumeLastVerse() {
@@ -621,6 +647,15 @@
       readAloud();
     });
     $("#med-amen")?.addEventListener("click", markAmen);
+    $("#med-practice-verse")?.addEventListener("click", () => {
+      const v = current();
+      const ref = v?.ref || $("#med-practice-verse")?.dataset.ref;
+      if (!ref) return;
+      setMoreOpen(false);
+      if (typeof window.VerseKeepPractice?.practiceVerse === "function") {
+        window.VerseKeepPractice.practiceVerse(ref, v?.themeId);
+      }
+    });
     $("#med-focus")?.addEventListener("click", () => setFocusMode(!state.focusMode));
     $("#meditate-card")?.addEventListener("click", (event) => {
       if (!event.target.closest("#med-resume")) return;
@@ -759,6 +794,7 @@
     paintTopics();
     paintStreak();
     paintDrillBtn();
+    paintPracticeVerseBtn();
 
     if (prefs.medFocus) setFocusMode(true);
 
