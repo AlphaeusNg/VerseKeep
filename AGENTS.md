@@ -42,7 +42,8 @@ tools/test-site.mjs         # Structural and local-reference validation
   unless `?v=` names a catalog reference. `?t=` selects a topic and `?tr=`
   selects ESV/NIV/NKJV. Unknown values fall back to today/prefs. Navigation
   `replaceState`s the canonical query so the address bar matches the card.
-- Topic chips + topic cards filter meditation; **Drill** opens memory practice.
+- Topic chips + topic cards filter meditation; **Practice this verse** opens
+  Fill blanks for the card only; **Drill** opens the topic playlist.
 - **Amen** tracks a local daily streak; **Focus** hides More and the music
   dock so the verse, Amen, and Prev/Next stay primary. Music keeps playing.
 - Share / Copy link encode that URL so a partner can reopen the same verse.

@@ -1305,9 +1305,45 @@
     }
   }
 
+  async function practiceVerse(ref, themeId) {
+    if (!ref || !state.data?.themes) return;
+    let theme = themeId ? state.data.themes.find((candidate) => candidate.id === themeId) : null;
+    let found = theme?.verses?.find((verse) => verse.ref === ref) || null;
+    if (!found) {
+      for (const candidate of state.data.themes) {
+        const verse = candidate.verses.find((item) => item.ref === ref);
+        if (verse) {
+          found = verse;
+          theme = candidate;
+          break;
+        }
+      }
+    }
+    if (!found || !theme) return;
+    const selectionId = ++state.selectionId;
+    const operation = queueHydrator.begin();
+    state.selecting = true;
+    state.themeId = theme.id;
+    paintThemes();
+    try {
+      const item = {
+        ...found,
+        themeId: theme.id,
+        localText: found.text,
+        hits: stats.verseHits[found.ref] || 0,
+      };
+      const applied = await beginQueue([item], found.ref, operation);
+      if (!applied || selectionId !== state.selectionId) return;
+      setMode("blank");
+    } finally {
+      if (selectionId === state.selectionId) state.selecting = false;
+    }
+  }
+
   window.VerseKeepPractice = {
     selectTheme,
     practiceWeak,
+    practiceVerse,
   };
 
   bindBackgroundView();

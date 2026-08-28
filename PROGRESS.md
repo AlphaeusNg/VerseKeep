@@ -1,17 +1,45 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-28 (VerseKeep Cycle 62)
+Last updated: 2026-08-28 (VerseKeep Cycle 63)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.28.1`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty-one browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.08.28.2`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: stop stale read-aloud on verse changes
+## Latest cycle: practice this verse, not the whole topic
+
+### Why this was selected
+
+Meditation Drill opened the topic playlist via `selectTheme(topicId)`, so Amen
+then Drill practiced a ranked set instead of the verse on the card.
+
+### Changes
+
+- Add a primary control **Practice this verse** that opens Fill blanks for
+  `current().ref` only through `VerseKeepPractice.practiceVerse(ref, themeId)`.
+- After Amen, offer that one-tap (`is-offered`) without changing Amen copy.
+- Leave topic-wide Drill on `#med-drill` unchanged.
+- Bump deployment version to `2026.08.28.2`.
+
+### Verification and scores
+
+- Chromium journey: Amen offers the control; Fill blanks shows that ref with
+  `1 / 1`; topic Drill still opens the playlist.
+- Site structure now requires `#med-practice-verse` and the practiceVerse API.
+- Meditation `replaceState`s the share query before live hydration so Next
+  cannot leave a stale `v=` in the address bar.
+
+### Explicit next opportunity
+
+No higher-impact unblocked VerseKeep item is currently recorded. Rotate
+repositories and return when new runtime or content evidence appears.
+
+## Previous cycle: stop stale read-aloud on verse changes
 
 ### Why this was selected
 
