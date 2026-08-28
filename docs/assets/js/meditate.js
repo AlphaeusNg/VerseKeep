@@ -245,9 +245,11 @@
     const btn = $("#med-practice-verse");
     if (!btn) return;
     const v = current();
+    btn.classList.remove("is-offered");
+    btn.classList.add("ghost");
+    btn.classList.remove("primary");
     if (!v?.ref) {
       btn.hidden = true;
-      btn.classList.remove("is-offered");
       delete btn.dataset.ref;
       return;
     }
@@ -262,6 +264,8 @@
     const btn = $("#med-practice-verse");
     if (!btn || btn.hidden) return;
     btn.classList.add("is-offered");
+    btn.classList.remove("ghost");
+    btn.classList.add("primary");
   }
 
   function locateVerse(ref, topicId) {
