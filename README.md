@@ -9,14 +9,22 @@ Christian **Scripture memory** games in the browser — by theme.
 ## Themes
 
 - Trusting in God  
-- God's character  
-- Reality of sin  
-- The gospel  
-- Nourish & cherish your wife  
-- Apologetic anchors  
+- God's Character  
+- Reality of Sin  
+- The Gospel  
+- Nourish & Cherish Your Wife  
+- Apologetic Anchors  
 - Prayer & the Word  
-- Strength in trials  
+- Strength in Trials  
 - Identity in Christ  
+- Sovereignty & Providence  
+- Justification by Grace  
+- Union with Christ  
+- Repentance & Holiness  
+- Assurance of Salvation  
+- The Holy Spirit  
+- Worship & Adoration  
+- Humility & Service  
 
 Edit / extend verses in `docs/data/verses.json`. Progress (mastery, streaks, accuracy) is stored in `localStorage` on this device.
 
