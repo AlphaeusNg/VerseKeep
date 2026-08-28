@@ -1,99 +1,65 @@
 # VerseKeep
 
-Christian **Scripture memory** games in the browser — by theme.
+Christian **Scripture memory** games in the browser, grouped by theme.
 
-**Play:** https://alphaeusng.github.io/VerseKeep/  
-**Portfolio:** https://alphaeusng.github.io/  
-**Related faith projects:** [ChristoDay](https://alphaeusng.github.io/ChristoDay/) · [Seeking Biblical Truth](https://alphaeusng.github.io/pages/seeking-biblical-truth/)
+**[Play VerseKeep](https://alphaeusng.github.io/VerseKeep/)** · [Portfolio](https://alphaeusng.github.io/) · also [ChristoDay](https://alphaeusng.github.io/ChristoDay/)
+
+The live site *is* the demo. Pick a theme, pick a mode, practice a verse.
+
+## Try it
+
+1. Open **[VerseKeep](https://alphaeusng.github.io/VerseKeep/)**.
+2. Choose a theme (for example Trusting in God, The Gospel, or Identity in Christ).
+3. Start with **Study**, then try **Fill blanks** or **Type it**.
+4. Keyboard: `1`–`5` switch modes · `N`/`B` next/back · `R` reveal · `Enter` check.
 
 ## Themes
 
-- Trusting in God  
-- God's character  
-- Reality of sin  
-- The gospel  
-- Nourish & cherish your wife  
-- Apologetic anchors  
-- Prayer & the Word  
-- Strength in trials  
-- Identity in Christ  
+- Trusting in God
+- God's Character
+- Reality of Sin
+- The Gospel
+- Nourish & Cherish Your Wife
+- Apologetic Anchors
+- Prayer & the Word
+- Strength in Trials
+- Identity in Christ
+- Sovereignty & Providence
+- Justification by Grace
+- Union with Christ
+- Repentance & Holiness
+- Assurance of Salvation
+- The Holy Spirit
+- Worship & Adoration
+- Humility & Service
 
-Edit / extend verses in `docs/data/verses.json`. Progress (mastery, streaks, accuracy) is stored in `localStorage` on this device.
+Progress (mastery, streaks, accuracy) stays in `localStorage` on this device. Edit verses in `docs/data/verses.json`.
 
 ## Modes
 
-1. **Study** — read the verse  
-2. **Fill blanks** — missing words  
-3. **Type it** — free recall (fuzzy match) + first-letter hint  
-4. **Order words** — rebuild sequence  
-5. **Which verse?** — pick the reference  
+1. **Study** — read the verse
+2. **Fill blanks** — missing words
+3. **Type it** — free recall (fuzzy match) plus first-letter hint
+4. **Order words** — rebuild the sequence
+5. **Which verse?** — pick the reference
 
-Keyboard: `1`–`5` modes · `N`/`B` next/back · `R` reveal · `C` copy · `S` shuffle · `Enter` check  
+## Also in the app
 
+- **Worship** — curated YouTube and Spotify stations (Spotify may need a free login)
+- **Live Bible text** — ESV (default), NIV, NKJV when Live text is on; bundled `verses.json` always works offline
+- **Wallpapers** — daily creation photos, desktop/phone sizes, hearts, offline classics under `docs/assets/wallpapers/`
 
-## Worship music
+Starter wording is ESV-style for study. Confirm against your preferred translation before printing or teaching.
 
-Curated **YouTube** and **Spotify** embeds in the Worship section — tap a station to play. Spotify may require a free login. Preferences stick in `localStorage`.
+## Develop
 
-## Live Bible text
-
-| Option | Notes |
-|--------|--------|
-| **ESV** (default), **NIV**, **NKJV** | Live text via `docs/assets/js/bible-live.js` when “Live text” is on |
-| **Bundled** `docs/data/verses.json` | Always available offline / if live fetch fails |
-
-Optional: set `esvApiKey` in `docs/assets/js/bible-config.js` if you route official ESV API through a proxy.
-
-## Wallpapers
-
-- **Daily suggestions** — six calm creation photos each day (Unsplash CDN; no API key), plus **New suggestions** to reshuffle.
-- **One gallery** — every wallpaper appears in a single grid; search and tag chips provide filtering without separate collections.
-- **Desktop / phone formats** — switch previews and downloads between 4K landscape (3840 × 2160) and HD portrait (1080 × 1920).
-- **Classics** — bundled desktop images under `docs/assets/wallpapers/` and reference-guided, vertically recomposed phone editions under `docs/assets/wallpapers/phone/` (work offline).
-- **Hearts** — ♥ a wallpaper; counts try to sync globally (counter API, best-effort). The **most loved** wallpaper is highlighted above the gallery.
-- First visit / “Use today’s” follows the daily wallpaper; picking one locks your choice until you change it.
-
-## Stack
-
-Static HTML / CSS / JS with no build step. The deployable site is isolated under `docs/`:
-
-```text
-docs/
-  index.html
-  404.html
-  assets/
-    css/
-    js/
-    wallpapers/
-  data/
-  manifest.webmanifest
-```
-
-## Local
+Static HTML/CSS/JS. The site lives under `docs/`. GitHub Pages: `main` / `docs`.
 
 ```bash
 python3 -m http.server 8080 --directory docs
 # http://127.0.0.1:8080/
 
-node tools/test-site.mjs
-node tools/test-practice-core.mjs
-node tools/test-data-core.mjs
-node tools/test-bible-live.mjs
-node tools/test-workflow.mjs
 npm ci
 npx playwright install chromium
 npm run test:browser
 ```
-
-The browser suite covers primary meditation-to-practice navigation, normalized
-preference restoration, returning meditation/streak continuity, catalog failure
-recovery, meditation and practice-feedback accessibility semantics, and compact
-mobile controls.
-
-## GitHub Pages
-
-Repo **Settings → Pages → Deploy from branch → `main` / `docs`**
-
-## Note on translation
-
-Starter wording is ESV-style for study. Confirm against your preferred translation before printing or teaching.
