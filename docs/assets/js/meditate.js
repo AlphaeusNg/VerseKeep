@@ -388,11 +388,12 @@
     }
     state.index = ((i % state.pool.length) + state.pool.length) % state.pool.length;
     saveMed({ topicId: state.topicId, ref: current()?.ref, day: daySeed() });
+    // Canonical query must match the card before live text hydration returns.
+    writeMeditationLink();
     await hydrateCurrent();
     paintStreak();
     paintDrillBtn();
     paintPracticeVerseBtn();
-    writeMeditationLink();
   }
 
   async function setTopic(id) {
@@ -656,6 +657,7 @@
       const ref = v?.ref || $("#med-practice-verse")?.dataset.ref;
       if (!ref) return;
       setMoreOpen(false);
+      if (state.focusMode) setFocusMode(false);
       if (typeof window.VerseKeepPractice?.practiceVerse === "function") {
         window.VerseKeepPractice.practiceVerse(ref, v?.themeId);
       }

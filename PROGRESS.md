@@ -31,6 +31,8 @@ then Drill practiced a ranked set instead of the verse on the card.
 - Chromium journey: Amen offers the control; Fill blanks shows that ref with
   `1 / 1`; topic Drill still opens the playlist.
 - Site structure now requires `#med-practice-verse` and the practiceVerse API.
+- Meditation `replaceState`s the share query before live hydration so Next
+  cannot leave a stale `v=` in the address bar.
 
 ### Explicit next opportunity
 

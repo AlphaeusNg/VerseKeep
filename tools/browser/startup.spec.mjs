@@ -708,9 +708,9 @@ test("opens a shared meditation URL and copies a canonical link", async ({ page,
 
   await page.locator("#med-next").click();
   await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("Proverbs 3:5–6");
+  await expect.poll(() => new URL(page.url()).searchParams.get("v")).not.toBe("Proverbs 3:5–6");
   const afterNext = new URL(page.url());
   expect(afterNext.searchParams.get("t")).toBe("trusting-god");
-  expect(afterNext.searchParams.get("v")).not.toBe("Proverbs 3:5–6");
   expect(afterNext.searchParams.get("tr")).toBe("niv");
 
   await page.locator("#med-more").click();
@@ -737,6 +737,7 @@ test("opens a shared meditation URL and copies a canonical link", async ({ page,
 test("practices the meditation verse only from Practice this verse", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
   const ref = (await page.locator("#meditate-card .med-ref").textContent())?.trim();
   expect(ref).toBeTruthy();
   await expect(page.locator("#med-practice-verse")).toBeVisible();
@@ -745,6 +746,7 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
 
   await page.locator("#med-amen").click();
   await expect(page.locator("#med-practice-verse")).toHaveClass(/is-offered/);
+  await expect(page.locator("#med-practice-verse")).toHaveClass(/primary/);
 
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#play-panel")).toBeVisible();
@@ -756,8 +758,14 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
   await expect(page.locator("#hud-progress")).toContainText("1 / 1");
   await expect(page.locator("#stage .blank-input").first()).toBeVisible();
 
+  await expect(page.locator("#med-drill")).toBeVisible();
+  const drillTitle = (await page.locator("#med-drill").textContent())
+    ?.replace(/^Drill ·\s*/, "")
+    .trim();
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
-  await expect(page.locator("#hud-progress")).not.toContainText("1 / 1");
-  await expect(page.locator("#theme-label")).not.toHaveText(ref);
+  await expect(page.locator("#hud-progress")).toHaveText(/Verse\s+1 \/ [2-9]/);
+  if (drillTitle) {
+    await expect(page.locator("#theme-label")).toContainText(drillTitle);
+  }
 });
