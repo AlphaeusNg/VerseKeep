@@ -73,6 +73,9 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="med-focus"') || !html.includes('id="med-amen"')) {
     failures.push("Meditation dock must keep Focus and Amen button IDs");
   }
+  if (!html.includes('id="med-practice-verse"')) {
+    failures.push("Meditation dock must include Practice this verse");
+  }
   if (!html.includes('id="nav-music"')) {
     failures.push("Primary nav must keep #nav-music to toggle the dock");
   }
@@ -126,6 +129,9 @@ if (existsSync(appPath)) {
   if (!appSource.includes("parseMeditationLink") || !appSource.includes("applyTranslation")) {
     failures.push("app.js must apply shared translation before meditation boot");
   }
+  if (!appSource.includes("async function practiceVerse(ref, themeId)")) {
+    failures.push("app.js must open Fill blanks for a single meditation ref");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");
@@ -147,6 +153,9 @@ if (existsSync(meditatePath)) {
   }
   if (!meditateSource.includes("resumeOffer") || !meditateSource.includes("med-resume")) {
     failures.push("meditate.js must offer last verse as a visible resume chip");
+  }
+  if (!meditateSource.includes("practiceVerse") || !meditateSource.includes("offerPracticeThisVerse")) {
+    failures.push("meditate.js must offer Practice this verse after Amen");
   }
 }
 
