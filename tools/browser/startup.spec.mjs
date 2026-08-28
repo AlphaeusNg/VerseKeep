@@ -733,3 +733,31 @@ test("opens a shared meditation URL and copies a canonical link", async ({ page,
   expect(recovered.searchParams.get("v")).toBeTruthy();
   expect(recovered.searchParams.get("v")).not.toBe("DefinitelyNotAVerse");
 });
+
+test("practices the meditation verse only from Practice this verse", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const ref = (await page.locator("#meditate-card .med-ref").textContent())?.trim();
+  expect(ref).toBeTruthy();
+  await expect(page.locator("#med-practice-verse")).toBeVisible();
+  await expect(page.locator("#med-practice-verse")).toHaveText("Practice this verse");
+  await expect(page.locator("#play-panel")).toBeHidden();
+
+  await page.locator("#med-amen").click();
+  await expect(page.locator("#med-practice-verse")).toHaveClass(/is-offered/);
+
+  await page.locator("#med-practice-verse").click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+  await expect(page.locator('#play-panel [data-mode="blank"]')).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await expect(page.locator("#stage .ref")).toHaveText(ref);
+  await expect(page.locator("#hud-progress")).toContainText("1 / 1");
+  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+
+  await page.locator("#med-drill").click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+  await expect(page.locator("#hud-progress")).not.toContainText("1 / 1");
+  await expect(page.locator("#theme-label")).not.toHaveText(ref);
+});
