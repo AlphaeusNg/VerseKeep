@@ -1,17 +1,56 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-08-28 (VerseKeep Cycle 63)
+Last updated: 2026-09-01 (VerseKeep Cycle 64)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty-one browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.08.28.2`.
+- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty-two browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.09.01.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: practice this verse, not the whole topic
+## Latest cycle: stop stale meditation speech when practice starts
+
+### Why this was selected
+
+Opening **Practice this verse** exposed the practice loading state immediately,
+but read-aloud from meditation continued until live Bible hydration finished.
+On a slow request, the visible activity and spoken Scripture could therefore
+remain out of sync for several seconds.
+
+### Changes
+
+- Cancel page-global speech at the start of every practice queue transition,
+  before waiting for live Bible hydration.
+- Add a Chromium journey that deliberately stalls practice hydration and
+  requires meditation speech to stop while the loading state is still shown.
+- Bump deployment version to `2026.09.01.1`.
+
+### Verification and scores
+
+- Test-first: the stalled-hydration journey timed out with the cancellation
+  count unchanged at 2; cancellation happened only after hydration completed.
+- Focused Chromium regression passes after moving cleanup to `beginQueue()`.
+- Workflow 10, practice core 66, data core 35, live Bible 17, 63-entry site
+  structure, recursive JavaScript syntax, diff checks, and the
+  zero-vulnerability npm audit pass.
+- `CI=1 npm run test:browser`: 22/22 Chromium journeys pass in 21 seconds, up
+  from 21; the new stalled-hydration path passes independently in 1.1 seconds.
+- Correctness/reliability: 6/10 -> 10/10 (speech and the practice transition
+  now share the same immediate boundary).
+- Verifiability: 5/10 -> 10/10 (the regression holds hydration unresolved while
+  observing the page-global speech probe).
+- User experience/accessibility: 5/10 -> 10/10 (the previous passage no longer
+  speaks over a newly requested practice session).
+
+### Explicit next opportunity
+
+No higher-impact unblocked VerseKeep item is currently recorded. Rotate
+repositories and return when new runtime or content evidence appears.
+
+## Previous cycle: practice this verse, not the whole topic
 
 ### Why this was selected
 

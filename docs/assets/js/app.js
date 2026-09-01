@@ -427,6 +427,9 @@
   }
 
   async function beginQueue(queue, label, initialOperation) {
+    // Practice replaces the active listening context before live text arrives.
+    // Cancel page-global speech now; hydration can legitimately take seconds.
+    stopSpeech();
     $("#play-panel").hidden = false;
     paintMemorizeEmpty();
     $("#theme-label").textContent = label;

@@ -119,6 +119,34 @@ test("stops meditation speech before showing another verse", async ({ page }) =>
     .toBeGreaterThan(cancelsAfterStart);
 });
 
+test("stops meditation speech as soon as practice starts loading", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+
+  await page.keyboard.press("l");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+  const cancelsAfterStart = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+
+  await page.evaluate(() => {
+    globalThis.__versekeepReleasePracticeHydration = null;
+    window.VerseKeepBible.resolveVerse = (ref, localText) =>
+      new Promise((resolve) => {
+        globalThis.__versekeepReleasePracticeHydration = () =>
+          resolve({ text: localText, translation: "ESV", source: "test" });
+      });
+  });
+
+  await page.locator("#med-practice-verse").click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+  await expect(page.locator("#stage")).toContainText("Loading verses");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
+    .toBeGreaterThan(cancelsAfterStart);
+
+  await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration?.());
+  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+});
+
 test("stops practice speech before showing another drill verse", async ({ page }) => {
   await installSpeechProbe(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
