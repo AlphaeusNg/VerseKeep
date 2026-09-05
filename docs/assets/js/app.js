@@ -426,44 +426,80 @@
     }));
   }
 
+  function paintPracticeModeChips() {
+    $$("#play-panel [data-mode]").forEach((c) => {
+      c.classList.toggle("is-active", c.dataset.mode === state.mode);
+      c.setAttribute("aria-pressed", c.dataset.mode === state.mode ? "true" : "false");
+    });
+  }
+
+  function applyLiveQueueUpgrade(hydratedQueue) {
+    const index = state.index;
+    const score = state.score;
+    const streak = state.streak;
+    const bestStreakSession = state.bestStreakSession;
+    const answered = state.answered;
+    state.queue = hydratedQueue;
+    state.index = Math.min(index, Math.max(0, state.queue.length - 1));
+    state.score = score;
+    state.streak = streak;
+    state.bestStreakSession = bestStreakSession;
+    state.answered = answered;
+
+    const current = state.queue[state.index] || state.queue[0];
+    state.liveMeta = current?.liveTranslation
+      ? `${current.liveTranslation} · ${current.liveSource || "live"}`
+      : "local JSON";
+    const lbl = $("#live-bible-label");
+    if (lbl && state.liveBible) lbl.textContent = `(${state.liveMeta})`;
+
+    // Refresh the stage with live text when the visitor has not checked yet.
+    // Keep score/index; do not wipe an in-progress answered round.
+    if (!answered) startRound();
+  }
+
+  async function hydrateQueueInBackground(localQueue, initialOperation) {
+    let operation = initialOperation;
+    while (true) {
+      const settings = queueSettingsKey();
+      const hydrated = await queueHydrator.hydrate(
+        localQueue,
+        operation,
+        state.liveBible && !!window.VerseKeepBible?.resolveVerse
+      );
+      if (!hydrated.current) return;
+      if (settings !== queueSettingsKey()) {
+        operation = queueHydrator.begin();
+        continue;
+      }
+      applyLiveQueueUpgrade(hydrated.queue);
+      return;
+    }
+  }
+
   async function beginQueue(queue, label, initialOperation) {
     // Practice replaces the active listening context before live text arrives.
-    // Cancel page-global speech now; hydration can legitimately take seconds.
     stopSpeech();
     $("#play-panel").hidden = false;
     paintMemorizeEmpty();
     $("#theme-label").textContent = label;
-    $("#stage").innerHTML = `<p class="hint">Loading verses${state.liveBible ? " (live text)…" : "…"}</p>`;
-    let operation = initialOperation;
-    let hydrated;
-    while (true) {
-      const settings = queueSettingsKey();
-      hydrated = await queueHydrator.hydrate(
-        bundledQueue(queue),
-        operation,
-        state.liveBible && !!window.VerseKeepBible?.resolveVerse
-      );
-      if (!hydrated.current) return false;
-      if (settings === queueSettingsKey()) break;
-      operation = queueHydrator.begin();
-    }
 
-    state.queue = hydrated.queue;
+    const localQueue = bundledQueue(queue);
+    state.queue = localQueue;
     state.index = 0;
     state.score = 0;
     state.streak = 0;
     state.bestStreakSession = 0;
     state.answered = false;
-
-    const first = state.queue[0];
-    state.liveMeta = first?.liveTranslation
-      ? `${first.liveTranslation} · ${first.liveSource || "live"}`
-      : "local JSON";
+    state.liveMeta = "local JSON";
     const lbl = $("#live-bible-label");
     if (lbl && state.liveBible) lbl.textContent = `(${state.liveMeta})`;
 
     startRound();
     $("#play-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Live text upgrades in the background with the same hydration token.
+    void hydrateQueueInBackground(localQueue, initialOperation);
     return true;
   }
 
@@ -566,10 +602,7 @@
     if (!MODE_LABELS[mode]) return;
     state.mode = mode;
     // Scope to practice chips only — music tabs also use .mode-row .chip
-    $$("#play-panel [data-mode]").forEach((c) => {
-      c.classList.toggle("is-active", c.dataset.mode === mode);
-      c.setAttribute("aria-pressed", c.dataset.mode === mode ? "true" : "false");
-    });
+    paintPracticeModeChips();
     savePrefs({ mode });
     if (state.themeId) startRound();
   }
@@ -1327,6 +1360,9 @@
     const operation = queueHydrator.begin();
     state.selecting = true;
     state.themeId = theme.id;
+    state.mode = "blank";
+    paintPracticeModeChips();
+    savePrefs({ mode: "blank" });
     paintThemes();
     try {
       const item = {
@@ -1337,7 +1373,6 @@
       };
       const applied = await beginQueue([item], found.ref, operation);
       if (!applied || selectionId !== state.selectionId) return;
-      setMode("blank");
     } finally {
       if (selectionId === state.selectionId) state.selecting = false;
     }

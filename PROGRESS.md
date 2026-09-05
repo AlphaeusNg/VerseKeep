@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-01 (VerseKeep Cycle 64)
+Last updated: 2026-09-06 (VerseKeep Cycle 65)
 
 ## Current state
 
@@ -8,10 +8,39 @@ Last updated: 2026-09-01 (VerseKeep Cycle 64)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty-two browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.01.1`.
+- Deployment version: `2026.09.06.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: stop stale meditation speech when practice starts
+## Latest cycle: start Fill blanks on local text before live hydrate
+
+### Why this was selected
+
+Speech cancel shipped, but `beginQueue()` still awaited full live Bible hydration
+before `startRound()`. **Practice this verse** already had `localText`, so a stalled
+Bible left the visitor on “Loading verses…” instead of Fill blanks.
+
+### Changes
+
+- Start practice immediately on `bundledQueue(queue)` after `stopSpeech()` and
+  showing the play panel.
+- Hydrate live text in the background with the same operation token, then upgrade
+  verse texts without resetting score or index.
+- `practiceVerse` selects Fill blanks before `beginQueue` so the first paint is
+  blanks for that ref.
+- Bump deployment version to `2026.09.06.1`.
+
+### Verification and scores
+
+- Chromium: stalled `resolveVerse` still cancels meditation speech, shows Fill
+  blanks on local text (`1 / 1`), then upgrades when live text is released.
+- Site structure requires `hydrateQueueInBackground` / `applyLiveQueueUpgrade`.
+
+### Explicit next opportunity
+
+No higher-impact unblocked VerseKeep item is currently recorded. Rotate
+repositories and return when new runtime or content evidence appears.
+
+## Previous cycle: stop stale meditation speech when practice starts
 
 ### Why this was selected
 

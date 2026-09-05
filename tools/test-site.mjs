@@ -132,6 +132,9 @@ if (existsSync(appPath)) {
   if (!appSource.includes("async function practiceVerse(ref, themeId)")) {
     failures.push("app.js must open Fill blanks for a single meditation ref");
   }
+  if (!appSource.includes("hydrateQueueInBackground") || !appSource.includes("applyLiveQueueUpgrade")) {
+    failures.push("app.js must start practice on local text before live hydrate");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");
