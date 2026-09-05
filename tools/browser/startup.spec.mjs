@@ -119,10 +119,11 @@ test("stops meditation speech before showing another verse", async ({ page }) =>
     .toBeGreaterThan(cancelsAfterStart);
 });
 
-test("stops meditation speech as soon as practice starts loading", async ({ page }) => {
+test("starts Fill blanks on local text while live Bible hydration is stalled", async ({ page }) => {
   await installSpeechProbe(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+  const ref = (await page.locator("#meditate-card .med-ref").textContent())?.trim();
+  expect(ref).toBeTruthy();
 
   await page.keyboard.press("l");
   await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
@@ -133,18 +134,32 @@ test("stops meditation speech as soon as practice starts loading", async ({ page
     window.VerseKeepBible.resolveVerse = (ref, localText) =>
       new Promise((resolve) => {
         globalThis.__versekeepReleasePracticeHydration = () =>
-          resolve({ text: localText, translation: "ESV", source: "test" });
+          resolve({
+            text: `${localText} · live`,
+            translation: "ESV",
+            source: "test",
+          });
       });
   });
 
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#play-panel")).toBeVisible();
-  await expect(page.locator("#stage")).toContainText("Loading verses");
+  await expect(page.locator('#play-panel [data-mode="blank"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("#stage .ref")).toHaveText(ref);
+  await expect(page.locator("#hud-progress")).toContainText("1 / 1");
+  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+  await expect(page.locator("#stage")).not.toContainText("Loading verses");
   await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
     .toBeGreaterThan(cancelsAfterStart);
 
   await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration?.());
   await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+  await expect(page.locator("#hud-progress")).toContainText("1 / 1");
+  await expect.poll(async () => page.locator("#live-bible-label").textContent())
+    .toContain("ESV");
 });
 
 test("stops practice speech before showing another drill verse", async ({ page }) => {
