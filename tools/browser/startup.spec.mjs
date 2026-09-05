@@ -153,6 +153,36 @@ test("paints bundled practice before live hydration and preserves started input"
   await expect(page.locator("#live-bible-label")).toContainText("ESV");
 });
 
+test("keeps shortcut speech playing when live practice text arrives", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+
+  await page.evaluate(() => {
+    const pending = [];
+    globalThis.__versekeepReleasePracticeHydration = null;
+    window.VerseKeepBible.resolveVerse = (ref, localText) =>
+      new Promise((resolve) => {
+        pending.push(() => resolve({ text: localText, translation: "ESV", source: "test" }));
+        globalThis.__versekeepReleasePracticeHydration = () => pending.splice(0).forEach((done) => done());
+      });
+  });
+
+  await page.locator("#med-drill").click();
+  await expect(page.locator("#stage #study-text")).not.toHaveText("");
+  await expect.poll(() => page.evaluate(() => typeof globalThis.__versekeepReleasePracticeHydration))
+    .toBe("function");
+
+  await page.keyboard.press("l");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+  const cancelsAfterSpeech = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+  await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration());
+
+  await expect(page.locator("#live-bible-label")).toContainText("ESV");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
+    .toBe(cancelsAfterSpeech);
+});
+
 test("stops practice speech before showing another drill verse", async ({ page }) => {
   await installSpeechProbe(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });

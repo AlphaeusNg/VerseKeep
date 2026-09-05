@@ -261,33 +261,37 @@
       </div>`;
       })
       .join("");
-    // Primary: open meditation on this topic (low friction)
-    host.querySelectorAll("[data-theme]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const id = btn.dataset.theme;
-        state.themeId = id;
-        paintThemes();
-        if (window.VerseKeepMeditate?.setTopic) {
-          try {
-            await window.VerseKeepMeditate.setTopic(id);
-          } catch {
-            /* ignore */
-          }
+  }
+
+  function bindThemeGrid() {
+    const host = $("#theme-grid");
+    if (!host || host.dataset.bound) return;
+    host.dataset.bound = "1";
+    host.addEventListener("click", async (event) => {
+      const button = event.target.closest?.("[data-theme], [data-drill], [data-fav]");
+      if (!button || !host.contains(button)) return;
+      if (button.dataset.drill) {
+        selectTheme(button.dataset.drill);
+        return;
+      }
+      if (button.dataset.fav) {
+        toggleFavorite(button.dataset.fav);
+        return;
+      }
+
+      // Primary: open meditation on this topic (low friction).
+      const id = button.dataset.theme;
+      if (!id) return;
+      state.themeId = id;
+      paintThemes();
+      if (window.VerseKeepMeditate?.setTopic) {
+        try {
+          await window.VerseKeepMeditate.setTopic(id);
+        } catch {
+          /* ignore */
         }
-        $("#meditate")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    });
-    host.querySelectorAll("[data-drill]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        selectTheme(btn.dataset.drill);
-      });
-    });
-    host.querySelectorAll("[data-fav]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleFavorite(btn.dataset.fav);
-      });
+      }
+      $("#meditate")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
@@ -313,6 +317,7 @@
       showFeedback(false, "Speech not available in this browser.");
       return;
     }
+    state.roundEngaged = true;
     stopSpeech();
     const u = new SpeechSynthesisUtterance(`${v.ref}. ${v.text}`);
     u.rate = 0.92;
@@ -1094,6 +1099,7 @@
   }
 
   async function boot() {
+    bindThemeGrid();
     try {
       const res = await fetch("data/verses.json", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1135,9 +1141,9 @@
       showFeedback(true, `${v.ref}: ${v.text}`);
     });
     $("#theme-search")?.addEventListener("input", () => paintThemes());
-    const stage = $("#stage");
+    const playPanel = $("#play-panel");
     for (const eventName of ["pointerdown", "keydown", "input"]) {
-      stage?.addEventListener(eventName, () => {
+      playPanel?.addEventListener(eventName, () => {
         state.roundEngaged = true;
       });
     }
