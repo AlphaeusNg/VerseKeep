@@ -119,7 +119,7 @@ test("stops meditation speech before showing another verse", async ({ page }) =>
     .toBeGreaterThan(cancelsAfterStart);
 });
 
-test("stops meditation speech as soon as practice starts loading", async ({ page }) => {
+test("paints bundled practice before live hydration and preserves started input", async ({ page }) => {
   await installSpeechProbe(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
@@ -139,12 +139,18 @@ test("stops meditation speech as soon as practice starts loading", async ({ page
 
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#play-panel")).toBeVisible();
-  await expect(page.locator("#stage")).toContainText("Loading verses");
+  const firstBlank = page.locator("#stage .blank-input").first();
+  await expect(firstBlank).toBeVisible();
+  await expect(page.locator("#stage")).not.toContainText("Loading verses");
   await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
     .toBeGreaterThan(cancelsAfterStart);
+  await expect.poll(() => page.evaluate(() => typeof globalThis.__versekeepReleasePracticeHydration))
+    .toBe("function");
 
-  await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration?.());
-  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+  await firstBlank.fill("started");
+  await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration());
+  await expect(firstBlank).toHaveValue("started");
+  await expect(page.locator("#live-bible-label")).toContainText("ESV");
 });
 
 test("stops practice speech before showing another drill verse", async ({ page }) => {

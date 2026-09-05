@@ -23,6 +23,8 @@
     liveMeta: null,
     selecting: false,
     selectionId: 0,
+    roundId: 0,
+    roundEngaged: false,
     autoAdvance: false,
   };
 
@@ -426,20 +428,44 @@
     }));
   }
 
-  async function beginQueue(queue, label, initialOperation) {
+  function afterPracticePaint() {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => setTimeout(resolve, 0));
+    });
+  }
+
+  async function beginQueue(queue, label, initialOperation, initialMode) {
     // Practice replaces the active listening context before live text arrives.
     // Cancel page-global speech now; hydration can legitimately take seconds.
     stopSpeech();
+    if (initialMode) setMode(initialMode, false);
     $("#play-panel").hidden = false;
     paintMemorizeEmpty();
     $("#theme-label").textContent = label;
-    $("#stage").innerHTML = `<p class="hint">Loading verses${state.liveBible ? " (live text)…" : "…"}</p>`;
+    const localQueue = bundledQueue(queue);
+    state.queue = localQueue;
+    state.index = 0;
+    state.score = 0;
+    state.streak = 0;
+    state.bestStreakSession = 0;
+    state.answered = false;
+    state.liveMeta = "local JSON";
+
+    // Bundled text is ready now. Let the browser paint a usable round before
+    // starting live lookups, then upgrade only if the visitor has not begun.
+    startRound();
+    const firstRoundId = state.roundId;
+    $("#play-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    await afterPracticePaint();
+    if (!queueHydrator.isCurrent(initialOperation)) return false;
+    if (!state.liveBible || !window.VerseKeepBible?.resolveVerse) return true;
+
     let operation = initialOperation;
     let hydrated;
     while (true) {
       const settings = queueSettingsKey();
       hydrated = await queueHydrator.hydrate(
-        bundledQueue(queue),
+        localQueue,
         operation,
         state.liveBible && !!window.VerseKeepBible?.resolveVerse
       );
@@ -448,22 +474,21 @@
       operation = queueHydrator.begin();
     }
 
-    state.queue = hydrated.queue;
-    state.index = 0;
-    state.score = 0;
-    state.streak = 0;
-    state.bestStreakSession = 0;
-    state.answered = false;
+    const canRefreshCurrent = state.roundId === firstRoundId && !state.roundEngaged;
+    const liveByRef = new Map(hydrated.queue.map((verse) => [verse.ref, verse]));
+    state.queue = state.queue.map((verse, index) => {
+      if (!canRefreshCurrent && index === state.index) return verse;
+      return liveByRef.get(verse.ref) || verse;
+    });
 
-    const first = state.queue[0];
+    const first = hydrated.queue[0];
     state.liveMeta = first?.liveTranslation
       ? `${first.liveTranslation} · ${first.liveSource || "live"}`
       : "local JSON";
     const lbl = $("#live-bible-label");
     if (lbl && state.liveBible) lbl.textContent = `(${state.liveMeta})`;
 
-    startRound();
-    $("#play-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (canRefreshCurrent) startRound();
     return true;
   }
 
@@ -555,14 +580,13 @@
     state.themeId = pool[0]?.themeId || null;
     paintThemes();
     try {
-      const applied = await beginQueue(pool, "🎯 Weak verses drill", operation);
-      if (applied && selectionId === state.selectionId) setMode("blank");
+      await beginQueue(pool, "🎯 Weak verses drill", operation, "blank");
     } finally {
       if (selectionId === state.selectionId) state.selecting = false;
     }
   }
 
-  function setMode(mode) {
+  function setMode(mode, render = true) {
     if (!MODE_LABELS[mode]) return;
     state.mode = mode;
     // Scope to practice chips only — music tabs also use .mode-row .chip
@@ -571,7 +595,7 @@
       c.setAttribute("aria-pressed", c.dataset.mode === mode ? "true" : "false");
     });
     savePrefs({ mode });
-    if (state.themeId) startRound();
+    if (render && state.themeId) startRound();
   }
 
   function updateHud() {
@@ -627,6 +651,8 @@
 
   function startRound() {
     stopSpeech();
+    state.roundId += 1;
+    state.roundEngaged = false;
     const v = currentVerse();
     clearFeedback();
     state.answered = false;
@@ -1109,6 +1135,12 @@
       showFeedback(true, `${v.ref}: ${v.text}`);
     });
     $("#theme-search")?.addEventListener("input", () => paintThemes());
+    const stage = $("#stage");
+    for (const eventName of ["pointerdown", "keydown", "input"]) {
+      stage?.addEventListener(eventName, () => {
+        state.roundEngaged = true;
+      });
+    }
     $("#btn-reset-stats")?.addEventListener("click", () => {
       if (!confirm("Reset all VerseKeep progress on this device? (favorites, mastery, streaks)")) return;
       stats = defaultStats();
@@ -1335,9 +1367,7 @@
         localText: found.text,
         hits: stats.verseHits[found.ref] || 0,
       };
-      const applied = await beginQueue([item], found.ref, operation);
-      if (!applied || selectionId !== state.selectionId) return;
-      setMode("blank");
+      await beginQueue([item], found.ref, operation, "blank");
     } finally {
       if (selectionId === state.selectionId) state.selecting = false;
     }
