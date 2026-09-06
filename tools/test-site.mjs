@@ -157,6 +157,9 @@ if (existsSync(meditatePath)) {
   if (!meditateSource.includes("practiceVerse") || !meditateSource.includes("offerPracticeThisVerse")) {
     failures.push("meditate.js must offer Practice this verse after Amen");
   }
+  if (!meditateSource.includes("cancelNeighborPrefetch") || !meditateSource.includes("signal: controller.signal")) {
+    failures.push("meditation neighbor prefetch must be cancellable when navigation changes");
+  }
 }
 
 const stylePath = requirePath("assets/css/style.css");

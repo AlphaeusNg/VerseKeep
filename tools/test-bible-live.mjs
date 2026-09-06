@@ -159,4 +159,27 @@ async function within(promise, milliseconds = 150) {
   assert.equal(retry.text, "Fresh retry", "retry does not inherit the aborted request");
 }
 
-console.log("test-bible-live.mjs: 17 request, cancellation, and fallback assertions passed");
+{
+  let underlyingAborts = 0;
+  const { bible } = loadBible((_url, options = {}) =>
+    new Promise((_, reject) => {
+      options.signal?.addEventListener(
+        "abort",
+        () => {
+          underlyingAborts += 1;
+          reject(new Error("aborted"));
+        },
+        { once: true }
+      );
+    }), { requestTimeoutMs: 1000 });
+  const controller = new AbortController();
+  const speculative = bible.prefetch("Luke 1:37", undefined, {
+    signal: controller.signal,
+  });
+  assert.equal(typeof speculative?.then, "function", "an uncached prefetch exposes its completion");
+  controller.abort();
+  await within(speculative);
+  assert.equal(underlyingAborts, 1, "cancelling speculative work aborts its unshared fetch");
+}
+
+console.log("test-bible-live.mjs: 19 request, cancellation, and fallback assertions passed");

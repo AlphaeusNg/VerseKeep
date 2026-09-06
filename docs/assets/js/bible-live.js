@@ -412,14 +412,14 @@
   }
 
   /** Warm cache for a ref without throwing (used to prefetch next/prev). */
-  function prefetch(ref, translationSlug) {
-    if (!ref) return;
+  function prefetch(ref, translationSlug, options = {}) {
+    if (!ref) return null;
     const slug = normalizeTranslation(
       translationSlug || cfg().bibleApiTranslation || "esv"
     );
     const key = cacheKey(slug, ref);
-    if (memCache.has(key) || inflight.has(key) || readSessionCache(key)) return;
-    resolveVerse(ref, "").catch(() => {});
+    if (memCache.has(key) || readSessionCache(key)) return null;
+    return resolveVerse(ref, "", options).catch(() => bundledFallback(ref, "", true));
   }
 
   global.VerseKeepBible = {

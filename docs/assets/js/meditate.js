@@ -21,6 +21,7 @@
     loading: false,
     topicToken: 0,
     hydrateToken: 0,
+    neighborPrefetchController: null,
     focusMode: false,
     resumeOffer: null,
   };
@@ -336,12 +337,23 @@
     `;
   }
 
+  function cancelNeighborPrefetch() {
+    state.neighborPrefetchController?.abort();
+    state.neighborPrefetchController = null;
+  }
+
   function prefetchNeighbors() {
+    cancelNeighborPrefetch();
     if (!window.VerseKeepBible?.prefetch) return;
+    const controller = new AbortController();
+    state.neighborPrefetchController = controller;
     const a = neighbor(1);
     const b = neighbor(-1);
-    if (a?.ref) window.VerseKeepBible.prefetch(a.ref);
-    if (b?.ref) window.VerseKeepBible.prefetch(b.ref);
+    const options = { signal: controller.signal };
+    if (a?.ref) window.VerseKeepBible.prefetch(a.ref, undefined, options);
+    if (b?.ref && b.ref !== a?.ref) {
+      window.VerseKeepBible.prefetch(b.ref, undefined, options);
+    }
   }
 
   async function hydrateCurrent() {
@@ -362,6 +374,9 @@
       { ...v, text: v.localText || v.text },
       { translation: "…", loading: true }
     );
+    // Warm the next choices while the bundled current card is already usable.
+    // A new card/topic aborts only these speculative consumers.
+    prefetchNeighbors();
     if (window.VerseKeepBible?.resolveVerse) {
       try {
         const live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text);
@@ -369,7 +384,6 @@
         v.text = live.text || v.localText || v.text;
         v.liveTranslation = live.translation;
         paintCard(v, { translation: live.translation || "" });
-        prefetchNeighbors();
         return;
       } catch {
         /* fall through */
@@ -398,6 +412,7 @@
 
   async function setTopic(id) {
     const topicToken = ++state.topicToken;
+    cancelNeighborPrefetch();
     state.loading = true;
     try {
       state.topicId = window.VerseKeepPracticeCore.normalizeMeditationSession(
