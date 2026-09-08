@@ -30,9 +30,11 @@ jobs:
         run: node tools/test-bible-live.mjs
       - name: Site structure
         run: node tools/test-site.mjs
+      - name: Offline worker
+        run: node tools/test-service-worker.mjs
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser smoke test
         run: npm run test:browser
       - name: JavaScript syntax
-        run: node --check docs/assets/js/*.js && node --check tools/*.mjs
+        run: node --check docs/assets/js/*.js && node --check docs/sw.js && node --check tools/*.mjs

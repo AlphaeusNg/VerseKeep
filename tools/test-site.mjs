@@ -28,6 +28,7 @@ function readJson(relativePath) {
   "404.html",
   ".nojekyll",
   "manifest.webmanifest",
+  "sw.js",
   "assets/css/style.css",
   "assets/js/app.js",
   "assets/js/ambient.js",
@@ -57,6 +58,9 @@ if (existsSync(indexPath)) {
   }
   if (!html.includes('id="wp-grid-density"')) {
     failures.push("Missing wallpaper grid density control");
+  }
+  if (!html.includes('navigator.serviceWorker.register("./sw.js")')) {
+    failures.push("VerseKeep must register its scoped offline shell worker");
   }
   if (!html.includes('role="group" aria-label="Music source"')) {
     failures.push("Music source chips must be a named button group");
@@ -105,6 +109,52 @@ if (existsSync(indexPath)) {
   const densityOptions = [...html.matchAll(/\bdata-wp-grid="([1-4])"/g)].map((match) => match[1]);
   if (densityOptions.join(",") !== "1,2,3,4") {
     failures.push("Expected wallpaper grid density options 1x1 through 4x4");
+  }
+}
+
+const workerPath = requirePath("sw.js");
+if (existsSync(workerPath)) {
+  const workerSource = readFileSync(workerPath, "utf8");
+  if (!workerSource.includes('const CACHE_PREFIX = "versekeep-"')) {
+    failures.push("Service worker must own a VerseKeep-only cache prefix");
+  }
+  if (!workerSource.includes("key.startsWith(CACHE_PREFIX) && key !== CACHE")) {
+    failures.push("Service worker must preserve caches owned by other projects");
+  }
+  if (!workerSource.includes('request.mode === "navigate"') || !workerSource.includes("cache.match(SHELL_URL)")) {
+    failures.push("Offline navigation must fall back to the canonical VerseKeep shell");
+  }
+  const precacheBlock = /const PRECACHE = \[([\s\S]*?)\];/.exec(workerSource)?.[1];
+  if (!precacheBlock) {
+    failures.push("Service worker must declare its local precache");
+  } else {
+    const precache = [...precacheBlock.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+    for (const reference of precache) {
+      if (/^https?:/i.test(reference)) {
+        failures.push(`Service worker precache must stay local: ${reference}`);
+        continue;
+      }
+      const localPath = reference === "./" ? "index.html" : reference.replace(/^\.\//, "");
+      requirePath(localPath);
+    }
+    for (const required of [
+      "./assets/css/style.css",
+      "./assets/js/app.js",
+      "./assets/js/meditate.js",
+      "./data/verses.json",
+      "./data/playlists.json",
+      "./data/wallpapers.json",
+    ]) {
+      if (!precache.includes(required)) failures.push(`Service worker precache omits ${required}`);
+    }
+  }
+}
+
+const versionPath = requirePath("assets/js/version.js");
+if (existsSync(versionPath)) {
+  const versionSource = readFileSync(versionPath, "utf8");
+  if (!versionSource.includes('typeof window !== "undefined" ? window : globalThis')) {
+    failures.push("Version metadata must initialize in both page and service-worker contexts");
   }
 }
 

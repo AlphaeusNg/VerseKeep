@@ -1,17 +1,61 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-01 (VerseKeep Cycle 64)
+Last updated: 2026-09-08 (VerseKeep Cycle 68)
 
 ## Current state
 
 - Branch: `main`; completed cycles are committed and pushed per repository policy.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (10 assertions), site structure, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (17 assertions), twenty-two browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.01.1`.
+- Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (19 assertions), twenty-four browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.09.08.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: stop stale meditation speech when practice starts
+## Latest cycle: keep the meditation shell and bundled catalog usable offline
+
+### Why this was selected
+
+VerseKeep describes its bundled verses and classic wallpapers as offline-ready,
+but a first online visit did not install an application shell. Reloading an
+unseen shared meditation while disconnected therefore failed before the
+bundled Scripture fallback could run.
+
+### Changes
+
+- Add a VerseKeep-scoped service worker that precaches only the local shell,
+  scripts, styles, and catalogs; external Bible, music, font, and wallpaper
+  requests remain outside the precache.
+- Keep local catalogs network-first while online so verse and wallpaper updates
+  are visible immediately, with the cached copy used only when disconnected.
+- Fall back from unseen offline navigation URLs to the canonical cached shell,
+  allowing its query parser and bundled catalog to restore the requested verse.
+- Restrict fetch interception and cache cleanup to VerseKeep's GitHub Pages
+  scope and `versekeep-` cache prefix so sibling projects on the shared origin
+  remain untouched.
+- Register the worker before the rest of the page, couple its cache name to
+  `SITE_VERSION`, and bump deployment version to `2026.09.08.1`.
+
+### Verification and scores
+
+- Worker contracts cover sibling-scope bypass, unseen-navigation recovery,
+  cached catalog fallback, and foreign-cache preservation.
+- A Chromium journey installs the worker, disconnects the browser, opens an
+  unseen Psalm 56:3 share URL, and enters Fill blanks from bundled data.
+- Workflow 11, practice core 66, data core 35, live Bible 19, site structure,
+  worker contracts, recursive syntax, and diff checks pass.
+- `CI=1 npm run test:browser`: 24/24 Chromium journeys pass, including the
+  unseen offline share route and all catalog-validation regressions.
+- Reliability/offline use: 2/10 -> 9/10 (the app shell and bundled catalog now
+  survive a disconnected reload after one successful online visit).
+- Verifiability: 4/10 -> 10/10 (worker behavior is isolated in Node and the
+  visitor journey is exercised in Chromium).
+
+### Explicit next opportunity
+
+Exercise an installable-device offline visit during physical Android dogfood;
+remote translations, streaming music, and remote wallpapers remain online-only.
+
+## Previous cycle: stop stale meditation speech when practice starts
 
 ### Why this was selected
 

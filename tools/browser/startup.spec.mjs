@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+// Runtime fixtures deliberately replace catalog/network responses. Keep the
+// service worker boundary isolated in offline.spec.mjs so those routes remain
+// observable and deterministic here.
+test.use({ serviceWorkers: "block" });
+
 const runtimeErrors = new WeakMap();
 
 test.beforeEach(async ({ page }) => {
