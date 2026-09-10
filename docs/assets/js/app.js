@@ -676,6 +676,15 @@
     else if (state.mode === "type") renderType(v);
     else if (state.mode === "order") renderOrder(v);
     else if (state.mode === "quiz") renderQuiz(v);
+    prefetchPracticeNeighbors();
+  }
+
+  function prefetchPracticeNeighbors() {
+    if (!state.liveBible || !window.VerseKeepBible?.prefetch) return;
+    const next = state.queue[state.index + 1];
+    const prev = state.queue[state.index - 1];
+    if (next?.ref) window.VerseKeepBible.prefetch(next.ref);
+    if (prev?.ref) window.VerseKeepBible.prefetch(prev.ref);
   }
 
   function renderStudy(v) {

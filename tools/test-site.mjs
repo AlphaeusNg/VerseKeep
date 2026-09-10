@@ -182,6 +182,9 @@ if (existsSync(appPath)) {
   if (!appSource.includes("async function practiceVerse(ref, themeId)")) {
     failures.push("app.js must open Fill blanks for a single meditation ref");
   }
+  if (!appSource.includes("function prefetchPracticeNeighbors") || !appSource.includes("VerseKeepBible.prefetch")) {
+    failures.push("practice must prefetch neighboring verses while the current round is on screen");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");

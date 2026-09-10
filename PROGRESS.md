@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-08 (VerseKeep Cycle 68)
+Last updated: 2026-09-11 (VerseKeep Cycle 69)
 
 ## Current state
 
@@ -8,8 +8,25 @@ Last updated: 2026-09-08 (VerseKeep Cycle 68)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (19 assertions), twenty-four browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.08.1`.
+- Deployment version: `2026.09.11.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
+
+## Latest cycle: prefetch neighboring practice verses
+
+### Why this was selected
+
+Fill-blanks already hydrates the current ref from the live Bible, but the next
+and previous queue entries waited until the round changed.
+
+### Changes
+
+- After each practice round paints, prefetch the next and previous queue refs
+  through `VerseKeepBible.prefetch`.
+- Version `2026.09.11.1`.
+
+### Verification
+
+- `node tools/test-site.mjs` and `node tools/test-data-core.mjs` pass.
 
 ## Latest cycle: keep the meditation shell and bundled catalog usable offline
 
