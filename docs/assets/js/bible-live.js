@@ -366,7 +366,9 @@
   /**
    * Prefer selected translation; fall back to local text on failure.
    * Session + memory cache; in-flight requests are de-duped.
-   * @param {{ signal?: AbortSignal }} options cancels only this consumer.
+   * @param {{ signal?: AbortSignal, translation?: string }} options
+   *        `signal` cancels only this consumer. `translation` keeps a prefetch
+   *        on its original slug if the visitor switches mid-flight.
    * @returns {Promise<{text, reference, translation, source, fromCache?: boolean}>}
    */
   async function resolveVerse(ref, localText, options = {}) {
@@ -377,7 +379,9 @@
       return bundledFallback(ref, localText, false);
     }
 
-    const slug = normalizeTranslation(cfg().bibleApiTranslation || preferred);
+    const slug = normalizeTranslation(
+      options.translation || cfg().bibleApiTranslation || preferred
+    );
     const key = cacheKey(slug, ref);
 
     const mem = memCache.get(key);
@@ -419,7 +423,9 @@
     );
     const key = cacheKey(slug, ref);
     if (memCache.has(key) || readSessionCache(key)) return null;
-    return resolveVerse(ref, "", options).catch(() => bundledFallback(ref, "", true));
+    return resolveVerse(ref, "", { ...options, translation: slug }).catch(() =>
+      bundledFallback(ref, "", true)
+    );
   }
 
   global.VerseKeepBible = {

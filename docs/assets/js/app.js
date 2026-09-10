@@ -26,6 +26,7 @@
     roundId: 0,
     roundEngaged: false,
     autoAdvance: false,
+    neighborPrefetchController: null,
   };
 
   const queueHydrator = window.VerseKeepPracticeCore.createLatestQueueHydrator((ref, localText, options) =>
@@ -440,6 +441,7 @@
   }
 
   async function beginQueue(queue, label, initialOperation, initialMode) {
+    cancelPracticeNeighborPrefetch();
     // Practice replaces the active listening context before live text arrives.
     // Cancel page-global speech now; hydration can legitimately take seconds.
     stopSpeech();
@@ -498,7 +500,9 @@
   }
 
   async function rehydrateCurrentQueue(message, liveEnabled = state.liveBible) {
+    cancelPracticeNeighborPrefetch();
     if (state.selecting || !state.themeId || !state.queue.length) return false;
+    prefetchPracticeNeighbors();
     const operation = queueHydrator.begin();
     const settings = queueSettingsKey();
     $("#stage").innerHTML = `<p class="hint">${message}</p>`;
@@ -679,12 +683,30 @@
     prefetchPracticeNeighbors();
   }
 
+  function cancelPracticeNeighborPrefetch() {
+    state.neighborPrefetchController?.abort();
+    state.neighborPrefetchController = null;
+  }
+
   function prefetchPracticeNeighbors() {
+    cancelPracticeNeighborPrefetch();
     if (!state.liveBible || !window.VerseKeepBible?.prefetch) return;
+    const controller = new AbortController();
+    state.neighborPrefetchController = controller;
+    const current = currentVerse();
     const next = state.queue[state.index + 1];
     const prev = state.queue[state.index - 1];
-    if (next?.ref) window.VerseKeepBible.prefetch(next.ref);
-    if (prev?.ref) window.VerseKeepBible.prefetch(prev.ref);
+    const slug =
+      window.VERSEKEEP_BIBLE?.bibleApiTranslation ||
+      window.VERSEKEEP_BIBLE?.preferred ||
+      "esv";
+    const options = { signal: controller.signal };
+    const seen = new Set();
+    for (const verse of [current, next, prev]) {
+      if (!verse?.ref || seen.has(verse.ref)) continue;
+      seen.add(verse.ref);
+      window.VerseKeepBible.prefetch(verse.ref, slug, options);
+    }
   }
 
   function renderStudy(v) {

@@ -185,6 +185,39 @@ if (existsSync(appPath)) {
   if (!appSource.includes("function prefetchPracticeNeighbors") || !appSource.includes("VerseKeepBible.prefetch")) {
     failures.push("practice must prefetch neighboring verses while the current round is on screen");
   }
+  if (
+    !appSource.includes("function cancelPracticeNeighborPrefetch") ||
+    !appSource.includes("signal: controller.signal")
+  ) {
+    failures.push("practice neighbor prefetch must be cancellable when translation or theme changes");
+  }
+  if (
+    !/async function beginQueue[\s\S]{0,250}cancelPracticeNeighborPrefetch/.test(appSource) ||
+    !/async function rehydrateCurrentQueue[\s\S]{0,250}cancelPracticeNeighborPrefetch/.test(appSource)
+  ) {
+    failures.push("practice must abort previous-slug neighbor prefetches when translation or theme changes");
+  }
+  const prefetchAt = appSource.indexOf("function prefetchPracticeNeighbors");
+  const prefetchBody =
+    prefetchAt >= 0 ? appSource.slice(prefetchAt, prefetchAt + 900) : "";
+  if (
+    !prefetchBody.includes("currentVerse()") ||
+    !prefetchBody.includes("state.index + 1") ||
+    !prefetchBody.includes("state.index - 1")
+  ) {
+    failures.push("practice must prefetch current, next, and previous verses under the active translation");
+  }
+}
+
+const bibleLivePath = requirePath("assets/js/bible-live.js");
+if (existsSync(bibleLivePath)) {
+  const bibleLiveSource = readFileSync(bibleLivePath, "utf8");
+  if (
+    !bibleLiveSource.includes("options.translation") ||
+    !bibleLiveSource.includes("translation: slug")
+  ) {
+    failures.push("live Bible prefetch must keep the requested translation slug if the visitor switches");
+  }
 }
 
 const meditatePath = requirePath("assets/js/meditate.js");
@@ -212,6 +245,16 @@ if (existsSync(meditatePath)) {
   }
   if (!meditateSource.includes("cancelNeighborPrefetch") || !meditateSource.includes("signal: controller.signal")) {
     failures.push("meditation neighbor prefetch must be cancellable when navigation changes");
+  }
+  const medPrefetchAt = meditateSource.indexOf("function prefetchNeighbors");
+  const medPrefetchBody =
+    medPrefetchAt >= 0 ? meditateSource.slice(medPrefetchAt, medPrefetchAt + 900) : "";
+  if (
+    !medPrefetchBody.includes("current()") ||
+    !medPrefetchBody.includes("neighbor(1)") ||
+    !medPrefetchBody.includes("neighbor(-1)")
+  ) {
+    failures.push("meditation must prefetch current, next, and previous verses under the active translation");
   }
 }
 

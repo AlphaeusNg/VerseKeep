@@ -347,12 +347,19 @@
     if (!window.VerseKeepBible?.prefetch) return;
     const controller = new AbortController();
     state.neighborPrefetchController = controller;
+    const here = current();
     const a = neighbor(1);
     const b = neighbor(-1);
+    const slug =
+      window.VERSEKEEP_BIBLE?.bibleApiTranslation ||
+      $("#tr-select")?.value ||
+      "esv";
     const options = { signal: controller.signal };
-    if (a?.ref) window.VerseKeepBible.prefetch(a.ref, undefined, options);
-    if (b?.ref && b.ref !== a?.ref) {
-      window.VerseKeepBible.prefetch(b.ref, undefined, options);
+    const seen = new Set();
+    for (const verse of [here, a, b]) {
+      if (!verse?.ref || seen.has(verse.ref)) continue;
+      seen.add(verse.ref);
+      window.VerseKeepBible.prefetch(verse.ref, slug, options);
     }
   }
 
@@ -365,6 +372,7 @@
     const token = ++state.hydrateToken;
     const liveOn = $("#live-bible")?.checked !== false;
     if (!liveOn) {
+      cancelNeighborPrefetch();
       v.text = v.localText || v.text;
       paintCard(v, {});
       return;

@@ -1,17 +1,41 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-11 (VerseKeep Cycle 69)
+Last updated: 2026-09-11 (VerseKeep Cycle 70)
 
 ## Current state
 
-- Branch: `main`; completed cycles are committed and pushed per repository policy.
+- Branch: `main`; completed cycles are committed locally (this cycle is not pushed).
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (19 assertions), twenty-four browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.11.1`.
+- Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (26 assertions), twenty-four browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.09.11.2`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: prefetch neighboring practice verses
+## Latest cycle: cancel stale Bible prefetch on translation/theme change
+
+### Why this was selected
+
+Neighbor prefetch kept running under the previous translation slug after the
+visitor changed translation or theme, so the next card could still be warming
+the wrong text.
+
+### Changes
+
+- Abort practice neighbor prefetches when a theme queue starts or translation
+  is rehydrated, then prefetch current/next/prev under the active slug.
+- Meditation does the same for current/next/prev and drops speculative work
+  when live text is turned off.
+- Live prefetch keeps the requested slug if config changes mid-flight;
+  bundled catalog remains the fallback.
+- Version `2026.09.11.2`.
+
+### Verification
+
+- `node --check` on the touched scripts, `node tools/test-site.mjs`, and
+  `node tools/test-data-core.mjs` pass. Live Bible contracts now include
+  previous-slug abort vs new-slug completion.
+
+## Previous cycle: prefetch neighboring practice verses
 
 ### Why this was selected
 

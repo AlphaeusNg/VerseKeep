@@ -50,6 +50,7 @@ function loadBible(fetchImplementation, config = {}) {
   vm.runInContext(source, sandbox, { filename: "bible-live.js" });
   return {
     bible: sandbox.window.VerseKeepBible,
+    config: sandbox.window.VERSEKEEP_BIBLE,
     setFetch(next) {
       activeFetch = next;
     },
@@ -182,4 +183,47 @@ async function within(promise, milliseconds = 150) {
   assert.equal(underlyingAborts, 1, "cancelling speculative work aborts its unshared fetch");
 }
 
-console.log("test-bible-live.mjs: 19 request, cancellation, and fallback assertions passed");
+{
+  const urls = [];
+  let underlyingAborts = 0;
+  const pending = [];
+  const harness = loadBible((url, options = {}) => {
+    urls.push(String(url));
+    return new Promise((resolve, reject) => {
+      pending.push({ url: String(url), resolve, reject });
+      options.signal?.addEventListener(
+        "abort",
+        () => {
+          underlyingAborts += 1;
+          reject(new Error("aborted"));
+        },
+        { once: true }
+      );
+    });
+  }, { requestTimeoutMs: 5000, preferred: "niv", bibleApiTranslation: "niv" });
+
+  const oldController = new AbortController();
+  const stale = harness.bible.prefetch("John 3:16", "niv", {
+    signal: oldController.signal,
+  });
+  assert.equal(typeof stale?.then, "function", "previous-slug neighbor prefetch is in flight");
+
+  harness.config.bibleApiTranslation = "esv";
+  harness.config.preferred = "esv";
+  const next = harness.bible.prefetch("John 3:16", "esv");
+  assert.equal(typeof next?.then, "function", "new-slug neighbor prefetch starts after the switch");
+
+  oldController.abort();
+  await within(stale);
+  assert.equal(underlyingAborts, 1, "cancelling the previous slug leaves the new slug in flight");
+  assert.equal(urls.filter((url) => url.includes("/NIV/")).length, 1, "old prefetch stays on NIV");
+  assert.equal(urls.filter((url) => url.includes("/ESV/")).length, 1, "new prefetch uses ESV");
+
+  const esv = pending.find((entry) => entry.url.includes("/ESV/"));
+  esv.resolve(response("For God so loved the world"));
+  const live = await within(next);
+  assert.equal(live.text, "For God so loved the world", "new slug completes after the old prefetch is cancelled");
+  assert.equal(live.translation, "ESV", "completed prefetch stays on the requested slug");
+}
+
+console.log("test-bible-live.mjs: 26 request, cancellation, and fallback assertions passed");
