@@ -285,6 +285,15 @@ if (existsSync(wallpapersPath)) {
   const wallpapersSource = readFileSync(wallpapersPath, "utf8");
   if (!wallpapersSource.includes("validateBundledWallpaperCatalog")) {
     failures.push("wallpapers.js must validate bundled wallpapers before rendering");
+  }
+  if (wallpapersSource.includes("refreshHeartCounts().then(() => paintAll())")) {
+    failures.push("wallpapers.js must not fan out remote heart counts immediately on boot");
+  }
+  if (!wallpapersSource.includes("scheduleDeferredHeartRefresh")) {
+    failures.push("wallpapers.js must defer remote heart refresh off cold boot");
+  }
+  if (!wallpapersSource.includes("HEART_REFRESH_CONCURRENCY")) {
+    failures.push("wallpapers.js must cap remote heart refresh concurrency");
   } else if (
     wallpapersSource.indexOf("validateBundledWallpaperCatalog") >
     wallpapersSource.indexOf("classics = (local.wallpapers || [])")

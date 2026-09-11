@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-11 (VerseKeep Cycle 70)
+Last updated: 2026-09-11 (VerseKeep Cycle 71)
 
 ## Current state
 
@@ -8,10 +8,34 @@ Last updated: 2026-09-11 (VerseKeep Cycle 70)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (26 assertions), twenty-four browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.11.2`.
+- Deployment version: `2026.09.11.3`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: cancel stale Bible prefetch on translation/theme change
+## Latest cycle: defer wallpaper heart fan-out off cold boot
+
+### Why this was selected
+
+Cold boot still `Promise.all`ed up to 40 `api.counterapi.dev` GETs right after
+the first wallpaper paint, competing with Bible prefetch and first interaction.
+Local hearts already paint from `localStorage` without network.
+
+### Changes
+
+- Keep `loadHearts()` and local count paint on boot.
+- Remove the immediate boot-time `refreshHeartCounts()` fan-out.
+- Defer remote heart refresh until `#wp-details` opens, first wallpaper-panel
+  interaction, or `requestIdleCallback` (8s timeout fallback).
+- Cap remote refresh concurrency at 5; **New suggestions** still refreshes.
+- Version `2026.09.11.3`. Practice/Bible prefetch paths are unchanged.
+
+### Verification
+
+- Source contracts: boot no longer calls `refreshHeartCounts` immediately;
+  deferred helpers and concurrency cap are present; New suggestions still awaits
+  a refresh.
+
+## Previous cycle: cancel stale Bible prefetch on translation/theme change
+
 
 ### Why this was selected
 
