@@ -609,6 +609,23 @@
     }
   }
 
+  const HEART_REFRESH_CONCURRENCY = 5;
+  let remoteHeartsPromise = null;
+
+  async function mapWithConcurrency(items, limit, mapper) {
+    const results = new Array(items.length);
+    let next = 0;
+    async function worker() {
+      while (next < items.length) {
+        const index = next++;
+        results[index] = await mapper(items[index], index);
+      }
+    }
+    const workers = Math.max(1, Math.min(limit, items.length));
+    await Promise.all(Array.from({ length: workers }, () => worker()));
+    return results;
+  }
+
   async function refreshHeartCounts() {
     const ids = new Set([
       ...daily.map((w) => w.id),
@@ -618,17 +635,41 @@
     ]);
     ids.delete("none");
     const list = [...ids].slice(0, 40);
-    const results = await Promise.all(
-      list.map(async (id) => {
+    const results = await mapWithConcurrency(
+      list,
+      HEART_REFRESH_CONCURRENCY,
+      async (id) => {
         const remote = await fetchRemoteCount(id);
         const localOnly = heartsLocal[id] ? 1 : 0;
         // Prefer remote when available; ensure local heart shows at least 1
         const count = Math.max(remote, localOnly, Number(heartCounts[id] || 0));
         return [id, count];
-      })
+      }
     );
     for (const [id, count] of results) {
       heartCounts[id] = count;
+    }
+  }
+
+  /** One shared remote refresh; safe to call from idle, details open, or interaction. */
+  function ensureRemoteHearts() {
+    if (remoteHeartsPromise) return remoteHeartsPromise;
+    remoteHeartsPromise = refreshHeartCounts()
+      .then(() => paintAll())
+      .catch((err) => {
+        console.warn("[wallpapers] heart refresh", err);
+      });
+    return remoteHeartsPromise;
+  }
+
+  function scheduleDeferredHeartRefresh() {
+    const run = () => {
+      ensureRemoteHearts();
+    };
+    if (typeof requestIdleCallback === "function") {
+      requestIdleCallback(run, { timeout: 8000 });
+    } else {
+      setTimeout(run, 8000);
     }
   }
 
@@ -1106,7 +1147,19 @@
       } catch {
         /* ignore */
       }
+      if (det.open) ensureRemoteHearts();
     });
+    // Already-open from memory still waits for idle/interaction — no boot fan-out.
+  }
+
+  function bindWallpaperHeartDeferral() {
+    const panel = document.getElementById("wallpapers");
+    if (!panel) return;
+    const kick = () => {
+      ensureRemoteHearts();
+    };
+    panel.addEventListener("pointerdown", kick, { once: true, passive: true });
+    panel.addEventListener("focusin", kick, { once: true });
   }
 
   async function boot() {
@@ -1148,10 +1201,11 @@
       for (const w of classics) rememberCatalog(w);
       rebuildDaily({ reshuffle: false });
       bindUi();
+      bindWallpaperHeartDeferral();
       restoreOrDaily();
       paintAll();
-      // Background: refresh community heart counts
-      refreshHeartCounts().then(() => paintAll());
+      // Defer community heart GETs off cold boot (local hearts already painted).
+      scheduleDeferredHeartRefresh();
     } catch (err) {
       console.warn("[wallpapers]", err);
       const el = $("#ambient-error");
