@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-11 (VerseKeep Cycle 71)
+Last updated: 2026-09-11 (VerseKeep Cycle 72)
 
 ## Current state
 
@@ -8,10 +8,30 @@ Last updated: 2026-09-11 (VerseKeep Cycle 71)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (26 assertions), twenty-four browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.11.3`.
+- Deployment version: `2026.09.11.4`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: defer wallpaper heart fan-out off cold boot
+## Latest cycle: skip unchanged practice HUD writes
+
+### Why this was selected
+
+Every practice round rewrote `#hud-progress`, `#hud-score`, and `#hud-streak`
+via `innerHTML` even when the values had not changed.
+
+### Changes
+
+- Compare-before-write with `textContent` (`setHudText`) for progress, score,
+  streak, mode, and theme label.
+- Version `2026.09.11.4`. Wallpaper heart deferral and practice/Bible prefetch
+  paths are unchanged.
+
+### Verification
+
+- Site contracts assert `setHudText` and no HUD `innerHTML` for those three
+  spans. Existing Chromium practice drill paths still read `#hud-progress`.
+
+## Previous cycle: defer wallpaper heart fan-out off cold boot
+
 
 ### Why this was selected
 

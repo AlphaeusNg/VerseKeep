@@ -825,6 +825,29 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
   );
   await expect(page.locator("#stage .ref")).toHaveText(ref);
   await expect(page.locator("#hud-progress")).toContainText("1 / 1");
+  await expect(page.locator("#hud-score")).toContainText("Score");
+  await expect(page.locator("#hud-streak")).toContainText("Streak");
+  // Re-entering the same mode calls updateHud; identical strings must not rewrite the DOM.
+  const hudWrites = await page.evaluate(async () => {
+    const ids = ["hud-progress", "hud-score", "hud-streak"];
+    let writes = 0;
+    const observers = ids.map((id) => {
+      const el = document.getElementById(id);
+      if (!el) throw new Error(`missing ${id}`);
+      const obs = new MutationObserver(() => {
+        writes += 1;
+      });
+      obs.observe(el, { characterData: true, childList: true, subtree: true });
+      return obs;
+    });
+    document.querySelector('#play-panel [data-mode="blank"]')?.click();
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+    observers.forEach((obs) => obs.disconnect());
+    return writes;
+  });
+  expect(hudWrites).toBe(0);
   await expect(page.locator("#stage .blank-input").first()).toBeVisible();
 
   await expect(page.locator("#med-drill")).toBeVisible();

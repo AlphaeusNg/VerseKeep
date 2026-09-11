@@ -607,14 +607,25 @@
     if (render && state.themeId) startRound();
   }
 
+  /** Skip DOM writes when the HUD string is already current. */
+  function setHudText(el, text) {
+    if (!el) return;
+    const next = String(text);
+    if (el.textContent === next) return;
+    el.textContent = next;
+  }
+
   function updateHud() {
     const theme = currentTheme();
     const total = state.queue.length || 0;
-    $("#hud-progress").innerHTML = `Verse <strong>${Math.min(state.index + 1, total)} / ${total}</strong>`;
-    $("#hud-score").innerHTML = `Score <strong>${state.score}</strong>`;
-    $("#hud-streak").innerHTML = `Streak <strong>${state.streak}</strong>`;
-    $("#hud-mode").textContent = MODE_LABELS[state.mode] || state.mode;
-    if (theme) $("#theme-label").textContent = `${theme.emoji} ${theme.title}`;
+    setHudText(
+      $("#hud-progress"),
+      `Verse ${Math.min(state.index + 1, total)} / ${total}`
+    );
+    setHudText($("#hud-score"), `Score ${state.score}`);
+    setHudText($("#hud-streak"), `Streak ${state.streak}`);
+    setHudText($("#hud-mode"), MODE_LABELS[state.mode] || state.mode);
+    if (theme) setHudText($("#theme-label"), `${theme.emoji} ${theme.title}`);
     const prev = $("#btn-prev");
     if (prev) prev.disabled = state.index <= 0;
   }
