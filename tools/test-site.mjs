@@ -182,6 +182,16 @@ if (existsSync(appPath)) {
   if (!appSource.includes("async function practiceVerse(ref, themeId)")) {
     failures.push("app.js must open Fill blanks for a single meditation ref");
   }
+  if (!appSource.includes("function setHudText")) {
+    failures.push("app.js must compare-before-write practice HUD text");
+  }
+  if (
+    appSource.includes('$("#hud-progress").innerHTML') ||
+    appSource.includes('$("#hud-score").innerHTML') ||
+    appSource.includes('$("#hud-streak").innerHTML')
+  ) {
+    failures.push("app.js must not rewrite practice HUD spans with innerHTML");
+  }
   if (!appSource.includes("function prefetchPracticeNeighbors") || !appSource.includes("VerseKeepBible.prefetch")) {
     failures.push("practice must prefetch neighboring verses while the current round is on screen");
   }
