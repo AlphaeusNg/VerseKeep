@@ -27,6 +27,9 @@
     roundEngaged: false,
     autoAdvance: false,
     neighborPrefetchController: null,
+    completed: false,
+    countsAsTheme: false,
+    queueLabel: "Practice",
   };
 
   const queueHydrator = window.VerseKeepPracticeCore.createLatestQueueHydrator((ref, localText, options) =>
@@ -440,7 +443,13 @@
     });
   }
 
-  async function beginQueue(queue, label, initialOperation, initialMode) {
+  async function beginQueue(
+    queue,
+    label,
+    initialOperation,
+    initialMode,
+    { countsAsTheme = false } = {}
+  ) {
     cancelPracticeNeighborPrefetch();
     // Practice replaces the active listening context before live text arrives.
     // Cancel page-global speech now; hydration can legitimately take seconds.
@@ -457,6 +466,10 @@
     state.bestStreakSession = 0;
     state.answered = false;
     state.liveMeta = "local JSON";
+    state.completed = false;
+    state.countsAsTheme = countsAsTheme;
+    state.queueLabel = label;
+    setPracticeControlsVisible(true);
 
     // Bundled text is ready now. Let the browser paint a usable round before
     // starting live lookups, then upgrade only if the visitor has not begun.
@@ -554,7 +567,13 @@
     }
 
     try {
-      const applied = await beginQueue(queue, `${theme.emoji} ${theme.title}`, operation);
+      const applied = await beginQueue(
+        queue,
+        `${theme.emoji} ${theme.title}`,
+        operation,
+        undefined,
+        { countsAsTheme: true }
+      );
       if (!applied || selectionId !== state.selectionId) return;
       stats.themePlays[id] = (stats.themePlays[id] || 0) + 1;
       stats.lastTheme = id;
@@ -604,7 +623,10 @@
       c.setAttribute("aria-pressed", c.dataset.mode === mode ? "true" : "false");
     });
     savePrefs({ mode });
-    if (render && state.themeId) startRound();
+    if (render && state.themeId) {
+      if (state.completed) restartCompletedDrill();
+      else startRound();
+    }
   }
 
   /** Skip DOM writes when the HUD string is already current. */
@@ -616,7 +638,6 @@
   }
 
   function updateHud() {
-    const theme = currentTheme();
     const total = state.queue.length || 0;
     setHudText(
       $("#hud-progress"),
@@ -625,7 +646,7 @@
     setHudText($("#hud-score"), `Score ${state.score}`);
     setHudText($("#hud-streak"), `Streak ${state.streak}`);
     setHudText($("#hud-mode"), MODE_LABELS[state.mode] || state.mode);
-    if (theme) setHudText($("#theme-label"), `${theme.emoji} ${theme.title}`);
+    setHudText($("#theme-label"), state.queueLabel || "Practice");
     const prev = $("#btn-prev");
     if (prev) prev.disabled = state.index <= 0;
   }
@@ -671,6 +692,8 @@
 
   function startRound() {
     stopSpeech();
+    state.completed = false;
+    setPracticeControlsVisible(true);
     state.roundId += 1;
     state.roundEngaged = false;
     const v = currentVerse();
@@ -1042,19 +1065,77 @@
     }, 1100);
   }
 
-  function nextVerse() {
+  function setPracticeControlsVisible(visible) {
+    const actions = $("#practice-actions");
+    const autoAdvance = $("#practice-auto-advance");
+    if (actions) actions.hidden = !visible;
+    if (autoAdvance) autoAdvance.hidden = !visible;
+  }
+
+  function closeCompletedDrill() {
+    stopSpeech();
+    cancelPracticeNeighborPrefetch();
+    queueHydrator.begin();
+    state.completed = false;
+    $("#play-panel").hidden = true;
+    paintMemorizeEmpty();
+    const topics = $("#topics");
+    topics?.scrollIntoView({ behavior: "smooth", block: "start" });
+    requestAnimationFrame(() => $("#theme-search")?.focus({ preventScroll: true }));
+  }
+
+  function restartCompletedDrill() {
     if (!state.queue.length) return;
-    if (state.index >= state.queue.length - 1) {
+    state.completed = false;
+    state.queue = shuffle(state.queue);
+    state.index = 0;
+    state.score = 0;
+    state.streak = 0;
+    state.bestStreakSession = 0;
+    startRound();
+  }
+
+  function finishDrill() {
+    if (state.completed || !state.queue.length) return;
+    stopSpeech();
+    cancelPracticeNeighborPrefetch();
+    state.completed = true;
+    if (state.countsAsTheme) {
       stats.themesCompleted += 1;
       saveStats(stats);
       paintStatsBar();
-      showFeedback(
-        true,
-        `Theme complete · score ${state.score} · best streak ${state.bestStreakSession}. Queue reshuffled — keep going or pick another theme.`
-      );
-      state.index = 0;
-      state.queue = shuffle(state.queue);
-      startRound();
+    }
+    clearFeedback();
+    setPracticeControlsVisible(false);
+    setHudText($("#hud-progress"), `Complete · ${state.queue.length} / ${state.queue.length}`);
+    const heading = state.countsAsTheme ? "Topic complete" : "Practice complete";
+    const completion = state.countsAsTheme
+      ? "This topic has been added to Themes done."
+      : "This focused practice does not change Themes done.";
+    $("#stage").innerHTML = `
+      <div class="practice-complete" role="status" aria-live="polite" tabindex="-1">
+        <p class="eyebrow">${escapeHtml(heading)}</p>
+        <h3>${escapeHtml(state.queueLabel)}</h3>
+        <p>You reached the end of this ${state.queue.length}-verse set. ${escapeHtml(completion)}</p>
+        <div class="practice-complete-stats mono">
+          <span>Score <strong>${state.score}</strong></span>
+          <span>Best streak <strong>${state.bestStreakSession}</strong></span>
+        </div>
+        <div class="actions practice-complete-actions">
+          <button type="button" class="btn primary" data-practice-again>Practice again</button>
+          <button type="button" class="btn ghost" data-practice-topics>Choose another topic</button>
+        </div>
+      </div>`;
+    const card = $("#stage .practice-complete");
+    card?.querySelector("[data-practice-again]")?.addEventListener("click", restartCompletedDrill);
+    card?.querySelector("[data-practice-topics]")?.addEventListener("click", closeCompletedDrill);
+    card?.focus({ preventScroll: true });
+  }
+
+  function nextVerse() {
+    if (!state.queue.length) return;
+    if (state.index >= state.queue.length - 1) {
+      finishDrill();
       return;
     }
     state.index += 1;
@@ -1282,6 +1363,14 @@
         if (mode) {
           e.preventDefault();
           setMode(mode);
+        }
+        return;
+      }
+
+      if (!typing && state.completed) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeCompletedDrill();
         }
         return;
       }

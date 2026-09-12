@@ -588,6 +588,48 @@ main {
   color: #f0b4b4;
 }
 
+.practice-complete {
+  margin-top: 0.75rem;
+  padding: 1.15rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 0.9rem;
+  background: linear-gradient(155deg, rgba(48, 57, 40, 0.7), rgba(12, 16, 14, 0.76));
+  outline: none;
+}
+
+.practice-complete:focus-visible {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.practice-complete h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--cream);
+}
+
+.practice-complete > p:not(.eyebrow) {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+}
+
+.practice-complete-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.2rem;
+  margin-top: 0.85rem;
+  color: var(--dim);
+  font-size: 0.78rem;
+}
+
+.practice-complete-stats strong {
+  color: var(--cream);
+}
+
+.practice-complete-actions {
+  margin-top: 0.9rem;
+}
+
 .study-box {
   margin-top: 0.75rem;
   padding: 1rem 1.1rem;

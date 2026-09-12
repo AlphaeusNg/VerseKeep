@@ -92,6 +92,9 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="memorize-empty"')) {
     failures.push("Memorize section must include an empty state");
   }
+  if (!html.includes('id="practice-actions"') || !html.includes('id="practice-auto-advance"')) {
+    failures.push("Practice controls must be addressable for the drill completion state");
+  }
   const practiceCoreIndex = html.indexOf('src="assets/js/practice-core.js"');
   const dataCoreIndex = html.indexOf('src="assets/js/data-core.js"');
   const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
@@ -184,6 +187,13 @@ if (existsSync(appPath)) {
   }
   if (!appSource.includes("function setHudText")) {
     failures.push("app.js must compare-before-write practice HUD text");
+  }
+  if (
+    !appSource.includes("function finishDrill") ||
+    !appSource.includes("function restartCompletedDrill") ||
+    !appSource.includes("countsAsTheme")
+  ) {
+    failures.push("practice must present a deliberate finish state and count only complete topics");
   }
   if (
     appSource.includes('$("#hud-progress").innerHTML') ||

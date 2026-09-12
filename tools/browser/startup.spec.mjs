@@ -861,3 +861,67 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
     await expect(page.locator("#theme-label")).toContainText(drillTitle);
   }
 });
+
+test("finishes focused verse practice without inflating completed topics", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#med-practice-verse")).toBeVisible();
+
+  await page.locator("#med-practice-verse").click();
+  await expect(page.locator("#hud-progress")).toContainText("1 / 1");
+  await page.locator("#btn-next").click();
+
+  const completion = page.locator("#stage .practice-complete");
+  await expect(completion).toBeVisible();
+  await expect(completion).toContainText("Practice complete");
+  await expect(completion).toContainText("does not change Themes done");
+  await expect(completion).toBeFocused();
+  await expect(page.locator("#practice-actions")).toBeHidden();
+  await expect(page.locator("#practice-auto-advance")).toBeHidden();
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+  ).toBe(true);
+
+  await completion.getByRole("button", { name: "Practice again" }).click();
+  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+  await expect(page.locator("#practice-actions")).toBeVisible();
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
+
+  await page.locator("#btn-next").click();
+  await page.locator("#stage [data-practice-topics]").click();
+  await expect(page.locator("#play-panel")).toBeHidden();
+  await expect(page.locator("#memorize-empty")).toBeVisible();
+  await expect(page.locator("#theme-search")).toBeFocused();
+});
+
+test("shows a stable topic completion summary before an intentional restart", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#theme-grid [data-drill]").first().click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+
+  const progress = await page.locator("#hud-progress").textContent();
+  const total = Number(/\/\s*(\d+)/.exec(progress || "")?.[1]);
+  expect(total).toBeGreaterThan(1);
+  for (let index = 1; index < total; index += 1) {
+    await page.locator("#btn-next").click();
+  }
+  await expect(page.locator("#btn-next")).toHaveText("Finish theme");
+  await page.locator("#btn-next").click();
+
+  const completion = page.locator("#stage .practice-complete");
+  await expect(completion).toContainText("Topic complete");
+  await expect(completion).toContainText(`${total}-verse set`);
+  await expect(completion).toContainText("added to Themes done");
+  await expect(page.locator("#hud-progress")).toHaveText(`Complete · ${total} / ${total}`);
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 1");
+
+  await page.keyboard.press("r");
+  await expect(page.locator("#feedback")).toBeHidden();
+  await page.keyboard.press("n");
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 1");
+  await completion.getByRole("button", { name: "Practice again" }).click();
+  await expect(completion).toHaveCount(0);
+  await expect(page.locator("#hud-progress")).toHaveText(`Verse 1 / ${total}`);
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 1");
+});
