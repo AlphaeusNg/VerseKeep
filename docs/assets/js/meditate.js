@@ -19,6 +19,7 @@
     index: 0,
     topicId: "all",
     loading: false,
+    liveHydrating: false,
     topicToken: 0,
     hydrateToken: 0,
     neighborPrefetchController: null,
@@ -363,9 +364,23 @@
     }
   }
 
+  function syncListenControl() {
+    const btn = $("#med-listen");
+    if (!btn) return;
+    const blocked = !!state.liveHydrating;
+    btn.disabled = blocked;
+    btn.setAttribute("aria-disabled", blocked ? "true" : "false");
+  }
+
+  function setLiveHydrating(on) {
+    state.liveHydrating = !!on;
+    syncListenControl();
+  }
+
   async function hydrateCurrent() {
     const v = current();
     if (!v) {
+      setLiveHydrating(false);
       paintCard(null);
       return;
     }
@@ -373,11 +388,14 @@
     const liveOn = $("#live-bible")?.checked !== false;
     if (!liveOn) {
       cancelNeighborPrefetch();
+      setLiveHydrating(false);
       v.text = v.localText || v.text;
       paintCard(v, {});
       return;
     }
-    // Show local text immediately, then upgrade if live arrives
+    // Show local text immediately, then upgrade if live arrives.
+    // Suspend Listen so speech does not start on bundled text under a loading marker.
+    setLiveHydrating(true);
     paintCard(
       { ...v, text: v.localText || v.text },
       { translation: "…", loading: true }
@@ -385,21 +403,25 @@
     // Warm the next choices while the bundled current card is already usable.
     // A new card/topic aborts only these speculative consumers.
     prefetchNeighbors();
-    if (window.VerseKeepBible?.resolveVerse) {
-      try {
-        const live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text);
-        if (token !== state.hydrateToken || current()?.ref !== v.ref) return;
-        v.text = live.text || v.localText || v.text;
-        v.liveTranslation = live.translation;
-        paintCard(v, { translation: live.translation || "" });
-        return;
-      } catch {
-        /* fall through */
+    try {
+      if (window.VerseKeepBible?.resolveVerse) {
+        try {
+          const live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text);
+          if (token !== state.hydrateToken || current()?.ref !== v.ref) return;
+          v.text = live.text || v.localText || v.text;
+          v.liveTranslation = live.translation;
+          paintCard(v, { translation: live.translation || "" });
+          return;
+        } catch {
+          /* fall through */
+        }
       }
+      if (token !== state.hydrateToken) return;
+      v.text = v.localText || v.text;
+      paintCard(v, {});
+    } finally {
+      if (token === state.hydrateToken) setLiveHydrating(false);
     }
-    if (token !== state.hydrateToken) return;
-    v.text = v.localText || v.text;
-    paintCard(v, {});
   }
 
   async function showIndex(i) {
@@ -564,6 +586,10 @@
   }
 
   function readAloud() {
+    if (state.liveHydrating) {
+      flashFeedback("Waiting for live verse…");
+      return;
+    }
     const v = current();
     if (!v || !window.speechSynthesis) {
       flashFeedback("Speech not available.");
