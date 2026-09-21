@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-11 (VerseKeep Cycle 72)
+Last updated: 2026-09-21 (VerseKeep Cycle 73)
 
 ## Current state
 
@@ -8,10 +8,32 @@ Last updated: 2026-09-11 (VerseKeep Cycle 72)
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (26 assertions), twenty-four browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.11.4`.
+- Deployment version: `2026.09.13.2`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: skip unchanged practice HUD writes
+## Latest cycle: suspend meditation Listen while live verse loads
+
+### Why this was selected
+
+`hydrateCurrent()` paints bundled text with a loading marker, but Listen / L
+could still speak that bundled text before live translation settled.
+
+### Changes
+
+- Track `liveHydrating`; disable `#med-listen` (and ignore Listen via the same
+  `readAloud` guard for L) while hydrate is pending.
+- Re-enable on settle or bundled fallback; flash “Waiting for live verse…” if
+  Listen is attempted mid-hydrate.
+- Chromium stall journey covers disabled Listen, no speech, then re-enable.
+- Version `2026.09.13.2`. Practice paths unchanged.
+
+### Verification
+
+- Site contracts assert `liveHydrating` / `syncListenControl`. Chromium stall
+  path asserts `#med-listen` disabled during loading and speech only after settle.
+
+## Previous cycle: skip unchanged practice HUD writes
+
 
 ### Why this was selected
 
