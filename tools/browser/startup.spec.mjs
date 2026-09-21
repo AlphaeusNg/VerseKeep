@@ -161,7 +161,8 @@ test("suspends meditation Listen while live verse is still loading", async ({ pa
   await expect(page.locator("#meditate-card .med-verse")).not.toHaveClass(/is-loading/);
   await expect(page.locator("#med-listen")).toBeEnabled();
 
-  await page.locator("#med-listen").click();
+  // Listen lives in the collapsed More panel; L is the supported path (same as other smoke tests).
+  await page.keyboard.press("l");
   await expect
     .poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length))
     .toBe(spokenBefore + 1);
