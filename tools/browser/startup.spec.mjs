@@ -199,7 +199,8 @@ test("paints bundled practice before live hydration and preserves started input"
   await firstBlank.fill("started");
   await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration());
   await expect(firstBlank).toHaveValue("started");
-  await expect(page.locator("#live-bible-label")).toContainText("ESV");
+  // Started rounds retain bundled text, so the label must retain its source too.
+  await expect(page.locator("#live-bible-label")).toHaveText("(bundled)");
 });
 
 test("keeps shortcut speech playing when live practice text arrives", async ({ page }) => {
@@ -225,9 +226,11 @@ test("keeps shortcut speech playing when live practice text arrives", async ({ p
   await page.keyboard.press("l");
   await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
   const cancelsAfterSpeech = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+  const spokenText = await page.locator("#stage #study-text").textContent();
   await page.evaluate(() => globalThis.__versekeepReleasePracticeHydration());
 
-  await expect(page.locator("#live-bible-label")).toContainText("ESV");
+  await expect(page.locator("#stage #study-text")).toHaveText(spokenText);
+  await expect(page.locator("#live-bible-label")).toHaveText("(bundled)");
   await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.cancelled))
     .toBe(cancelsAfterSpeech);
 });

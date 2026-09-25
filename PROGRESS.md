@@ -1,10 +1,17 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-25 (VerseKeep device backup, review, wallpaper crop, and listen-while-loading)
+Last updated: 2026-09-26 (merged release verification)
+
+## Release verification — 2026-09-26
+
+All Node contracts and 27 Chromium journeys pass after merging the upstream
+listen-while-loading fix. Browser checks now require the bundled source label
+when an engaged round deliberately retains bundled text after live hydration;
+speech and typed input remain uninterrupted.
 
 ## Current state
 
-- Branch: `main`; this cycle is local only and has not been committed.
+- Branch: `main`; reviewed release ready for publication.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (12 assertions), site structure, offline-worker contracts, core contracts, device-backup and speech contracts, data contracts (35 assertions), live Bible requests (26 assertions), twenty-six browser paths, and syntax checks on Node 24.
