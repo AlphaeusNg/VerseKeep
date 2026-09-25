@@ -1,17 +1,37 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-11 (VerseKeep Cycle 72)
+Last updated: 2026-09-25 (VerseKeep device backup, review, and wallpaper crop)
 
 ## Current state
 
-- Branch: `main`; completed cycles are committed locally (this cycle is not pushed).
+- Branch: `main`; this cycle is local only and has not been committed.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
-- Automated verification: GitHub Actions runs CI policy (11 assertions), site structure, offline-worker contracts, core contracts (66 assertions), data contracts (35 assertions), live Bible requests (26 assertions), twenty-four browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.11.4`.
+- Automated verification: GitHub Actions runs CI policy (12 assertions), site structure, offline-worker contracts, core contracts, device-backup and speech contracts, data contracts (35 assertions), live Bible requests (26 assertions), twenty-six browser paths, and syntax checks on Node 24.
+- Deployment version: `2026.09.25.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
-## Latest cycle: skip unchanged practice HUD writes
+## Latest cycle: device backup, short review, shared session, wallpaper crop
+
+### Why this was selected
+
+Practice progress, preferences, Amen history, and wallpaper choice lived only in separate device keys, with no way to move them. Practice recorded hits but not why a verse was due. Preference writes and speech cancellation were duplicated in meditation and practice. Wallpaper download did not show which desktop or phone file a device would save. A failed live fetch could leave bundled wording under the selected translation name, and a later network return did not retry that same verse.
+
+### Changes
+
+- Version 1 `versekeep-device` export/import for practice progress, preferences, Amen history, and the saved wallpaper selection. Invalid files do not write. A failed write rolls back and says storage did not save.
+- Optional review of 3, 5, or 8 verses from misses and last-practiced dates, with the reason on the card. It lives under Topics, not on the meditation card. Practice this verse stays Fill blanks for the current ref.
+- Shared `session.js` for preference/storage writes and one speech session. Cancelling speech clears its continuation. Practice scoring stays in `practice-core.js`.
+- Wallpaper shape filter (this device, desktop, phone) and a preview that names the file, with one Download phone crop or Download desktop image action. Bundled files stay in the gallery offline.
+- Live text is labeled with the selected translation only when that translation actually arrived. Fallback is labeled Bundled. Overlapping verse or translation responses are dropped. When the network returns, the current verse is retried without navigating away.
+- Version `2026.09.25.1`.
+
+### Verification
+
+- `node tools/test-session.mjs`, `node tools/test-practice-core.mjs`, `node tools/test-data-core.mjs`, `node tools/test-bible-live.mjs`, `node tools/test-site.mjs`, `node tools/test-service-worker.mjs`, `node tools/test-workflow.mjs`, and `node --check` on the JavaScript files pass.
+- `CI=1 npm run test:browser`: 26/26 Chromium journeys pass, including cancelled speech, denied practice storage, and Practice this verse.
+
+## Previous cycle: skip unchanged practice HUD writes
 
 ### Why this was selected
 
@@ -765,6 +785,5 @@ to the primary meditation journey.
 
 ## Next cycle
 
-Local next: wait for new runtime or content evidence instead of revisiting a
-fully audited best-effort preference boundary.
+Local next: dogfood export/import and a 3-verse review on a phone, including a denied-storage import.
 Workspace next: rotate to another clean repository.

@@ -4,9 +4,6 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
-  const STATS_KEY = "versekeep-stats-v1";
-  const PREFS_KEY = "versekeep-prefs-v1";
-
   const state = {
     data: null,
     themeId: null,
@@ -124,13 +121,7 @@
   }
 
   function loadStats() {
-    try {
-      const raw = localStorage.getItem(STATS_KEY);
-      if (!raw) return defaultStats();
-      return window.VerseKeepPracticeCore.normalizeStats(JSON.parse(raw));
-    } catch {
-      return defaultStats();
-    }
+    return window.VerseKeepSession.loadStats();
   }
 
   let statsSaveWarned = false;
@@ -144,41 +135,76 @@
       : "Practice progress is kept for this visit only; device storage is blocked.";
   }
 
-  function saveStats(stats) {
-    try {
-      localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  function saveStats(next) {
+    const saved = window.VerseKeepSession.saveStats(next);
+    if (saved.ok) {
       statsSaveWarned = false;
       paintStatsStorageStatus(true);
       return true;
-    } catch (err) {
-      if (!statsSaveWarned) {
-        console.warn("[VerseKeep] practice statistics remain session-only", err);
-        statsSaveWarned = true;
-      }
-      paintStatsStorageStatus(false);
-      return false;
     }
+    if (!statsSaveWarned) {
+      console.warn("[VerseKeep] practice statistics remain session-only", saved.error);
+      statsSaveWarned = true;
+    }
+    paintStatsStorageStatus(false);
+    return false;
   }
 
   let stats = loadStats();
 
   function loadPrefs() {
-    try {
-      const raw = localStorage.getItem(PREFS_KEY);
-      if (!raw) return {};
-      return window.VerseKeepPracticeCore.normalizePrefs(JSON.parse(raw));
-    } catch {
-      return {};
-    }
+    return window.VerseKeepSession.loadPrefs();
   }
 
   function savePrefs(partial) {
-    try {
-      const next = window.VerseKeepPracticeCore.normalizePrefs({ ...loadPrefs(), ...partial });
-      localStorage.setItem(PREFS_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
+    window.VerseKeepSession.savePrefs(partial);
+  }
+
+  function selectedTranslation() {
+    return (
+      $("#tr-select")?.value ||
+      window.VERSEKEEP_BIBLE?.bibleApiTranslation ||
+      "esv"
+    ).toLowerCase();
+  }
+
+  function presentedVerse(verse) {
+    const decision = window.VerseKeepSession.labelScripture(selectedTranslation(), {
+      text: verse?.text || "",
+      translation: verse?.liveTranslation || "",
+      source: verse?.liveSource || "",
+    });
+    if (!decision.live) {
+      return {
+        ...verse,
+        text: verse?.localText || verse?.text || "",
+        liveTranslation: undefined,
+        liveSource: undefined,
+      };
     }
+    return { ...verse, text: decision.text || verse.text, liveTranslation: decision.label };
+  }
+
+  function paintFetchedLabel(verse) {
+    const lbl = $("#live-bible-label");
+    if (!lbl || !state.liveBible) return;
+    const decision = window.VerseKeepSession.labelScripture(selectedTranslation(), {
+      text: verse?.text || "",
+      translation: verse?.liveTranslation || "",
+      source: verse?.liveSource || "",
+    });
+    if (!decision.live) {
+      state.liveMeta = "bundled";
+      lbl.textContent = "(bundled)";
+      return;
+    }
+    state.liveMeta = `${decision.label} · ${verse?.liveSource || "live"}`;
+    lbl.textContent = `(${state.liveMeta})`;
+  }
+
+  function practiceDayKey() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   }
 
   function normalize(s) {
@@ -308,11 +334,7 @@
   }
 
   function stopSpeech() {
-    try {
-      window.speechSynthesis?.cancel();
-    } catch {
-      /* ignore */
-    }
+    window.VerseKeepSession.speech.cancel();
   }
 
   function readAloud() {
@@ -322,12 +344,8 @@
       return;
     }
     state.roundEngaged = true;
-    stopSpeech();
-    const u = new SpeechSynthesisUtterance(`${v.ref}. ${v.text}`);
-    u.rate = 0.92;
-    u.pitch = 1;
-    window.speechSynthesis.speak(u);
-    showFeedback(true, "Reading aloud…");
+    const spoken = window.VerseKeepSession.speech.speak(`${v.ref}. ${v.text}`, { rate: 0.92, pitch: 1 });
+    showFeedback(spoken, spoken ? "Reading aloud…" : "Speech not available in this browser.");
   }
 
   function paintMemorizeEmpty() {
@@ -497,16 +515,11 @@
     const canRefreshCurrent = state.roundId === firstRoundId && !state.roundEngaged;
     const liveByRef = new Map(hydrated.queue.map((verse) => [verse.ref, verse]));
     state.queue = state.queue.map((verse, index) => {
+      const live = liveByRef.get(verse.ref) || verse;
       if (!canRefreshCurrent && index === state.index) return verse;
-      return liveByRef.get(verse.ref) || verse;
+      return presentedVerse(live);
     });
-
-    const first = hydrated.queue[0];
-    state.liveMeta = first?.liveTranslation
-      ? `${first.liveTranslation} · ${first.liveSource || "live"}`
-      : "local JSON";
-    const lbl = $("#live-bible-label");
-    if (lbl && state.liveBible) lbl.textContent = `(${state.liveMeta})`;
+    paintFetchedLabel(currentVerse());
 
     if (canRefreshCurrent) startRound();
     return true;
@@ -525,7 +538,37 @@
       liveEnabled && !!window.VerseKeepBible?.resolveVerse
     );
     if (!hydrated.current || settings !== queueSettingsKey()) return false;
-    state.queue = hydrated.queue;
+    state.queue = hydrated.queue.map((verse) => presentedVerse(verse));
+    paintFetchedLabel(currentVerse());
+    startRound();
+    return true;
+  }
+
+  async function recoverPracticeLive() {
+    if (!state.liveBible || state.selecting || state.roundEngaged) return false;
+    if ($("#play-panel")?.hidden || !state.queue.length || !state.themeId) return false;
+    const visible = currentVerse();
+    const decision = window.VerseKeepSession.labelScripture(selectedTranslation(), {
+      text: visible?.text || "",
+      translation: visible?.liveTranslation || "",
+      source: visible?.liveSource || "",
+    });
+    if (decision.live) return false;
+    const index = state.index;
+    const ref = visible?.ref;
+    const roundId = state.roundId;
+    const operation = queueHydrator.begin();
+    const settings = queueSettingsKey();
+    const hydrated = await queueHydrator.hydrate(
+      bundledQueue(state.queue),
+      operation,
+      !!window.VerseKeepBible?.resolveVerse
+    );
+    if (!hydrated.current || settings !== queueSettingsKey()) return false;
+    if (state.index !== index || currentVerse()?.ref !== ref || state.roundId !== roundId) return false;
+    if (state.roundEngaged) return false;
+    state.queue = hydrated.queue.map((verse) => presentedVerse(verse));
+    paintFetchedLabel(currentVerse());
     startRound();
     return true;
   }
@@ -677,12 +720,27 @@
 
   function recordResult(ok, verse) {
     stats.checks += 1;
+    if (!stats.versePractice) stats.versePractice = {};
     if (ok) {
       stats.correct += 1;
       if (verse?.ref) {
         stats.verseHits[verse.ref] = (stats.verseHits[verse.ref] || 0) + 1;
       }
       if (state.streak > stats.bestStreak) stats.bestStreak = state.streak;
+    }
+    if (verse?.ref) {
+      const prev = stats.versePractice[verse.ref] || {
+        correct: 0,
+        missed: 0,
+        lastDay: null,
+        lastResult: null,
+      };
+      stats.versePractice[verse.ref] = {
+        correct: prev.correct + (ok ? 1 : 0),
+        missed: prev.missed + (ok ? 0 : 1),
+        lastDay: practiceDayKey(),
+        lastResult: ok ? "correct" : "missed",
+      };
     }
     stats.totalScore = (stats.totalScore || 0) + (ok ? 10 : 0);
     saveStats(stats);
@@ -714,7 +772,68 @@
     else if (state.mode === "type") renderType(v);
     else if (state.mode === "order") renderOrder(v);
     else if (state.mode === "quiz") renderQuiz(v);
+    paintReviewReason(v);
     prefetchPracticeNeighbors();
+  }
+
+  function paintReviewReason(verse) {
+    if (!verse?.reviewReason) return;
+    const stage = $("#stage");
+    if (!stage) return;
+    const note = document.createElement("p");
+    note.className = "review-why";
+    note.textContent = `Due: ${verse.reviewReason}`;
+    stage.insertBefore(note, stage.firstChild);
+  }
+
+  async function startReview() {
+    if (!state.data?.themes) return;
+    const limit = window.VerseKeepPracticeCore.reviewLimit($("#review-bound")?.value);
+    const refs = [];
+    const byRef = new Map();
+    for (const theme of state.data.themes) {
+      for (const verse of theme.verses || []) {
+        if (!verse?.ref || byRef.has(verse.ref)) continue;
+        refs.push(verse.ref);
+        byRef.set(verse.ref, { ...verse, themeId: theme.id, localText: verse.text });
+      }
+    }
+    const plan = window.VerseKeepPracticeCore.planReview(stats, {
+      today: practiceDayKey(),
+      limit,
+      refs,
+    });
+    const status = $("#review-status");
+    if (!plan.length) {
+      if (status) {
+        status.hidden = false;
+        status.textContent =
+          "Nothing is due. A verse is due after a miss, or 3 days after you last practiced it. Meditation stays as it is.";
+      }
+      return;
+    }
+    if (status) {
+      status.hidden = false;
+      status.textContent = plan.map((item) => `${item.ref}: ${item.reason}`).join(" · ");
+    }
+    const queue = plan
+      .map((item) => {
+        const verse = byRef.get(item.ref);
+        if (!verse) return null;
+        return { ...verse, hits: stats.verseHits[verse.ref] || 0, reviewReason: item.reason };
+      })
+      .filter(Boolean);
+    if (!queue.length) return;
+    const selectionId = ++state.selectionId;
+    const operation = queueHydrator.begin();
+    state.selecting = true;
+    state.themeId = queue[0].themeId || null;
+    paintThemes();
+    try {
+      await beginQueue(queue, "Review", operation, "blank");
+    } finally {
+      if (selectionId === state.selectionId) state.selecting = false;
+    }
   }
 
   function cancelPracticeNeighborPrefetch() {
@@ -1221,6 +1340,93 @@
     return tr;
   }
 
+  function paintDeviceStatus(ok, message) {
+    const status = $("#device-data-status");
+    if (!status) return;
+    status.hidden = false;
+    status.className = `feedback ${ok ? "ok" : "bad"}`;
+    status.textContent = message;
+  }
+
+  function currentDeviceSnapshot() {
+    let wallpapers = { mode: "daily" };
+    if (typeof window.VerseKeepWallpapers?.currentSelection === "function") {
+      wallpapers = window.VerseKeepWallpapers.currentSelection() || wallpapers;
+    }
+    return window.VerseKeepSession.exportSnapshot({
+      practice: stats,
+      preferences: loadPrefs(),
+      amen: window.VerseKeepMeditate?.currentStreak?.() || { count: 0, lastDay: null, history: [] },
+      wallpapers,
+    }).snapshot;
+  }
+
+  function downloadDeviceSnapshot(snapshot) {
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "versekeep-device.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2500);
+  }
+
+  function applyDeviceSnapshot(snapshot) {
+    stats = snapshot.practice;
+    paintStatsBar();
+    paintThemes();
+    paintMemorizeEmpty();
+    const prefs = snapshot.preferences || {};
+    if (prefs.translation) applyTranslation(prefs.translation);
+    if (typeof prefs.autoAdvance === "boolean") {
+      state.autoAdvance = prefs.autoAdvance;
+      const toggle = $("#auto-advance");
+      if (toggle) toggle.checked = prefs.autoAdvance;
+    }
+    if (prefs.mode && MODE_LABELS[prefs.mode]) setMode(prefs.mode, !!state.themeId && !$("#play-panel")?.hidden);
+    if (typeof prefs.medFocus === "boolean") window.VerseKeepMeditate?.setFocusMode?.(prefs.medFocus);
+    window.VerseKeepMeditate?.replaceStreak?.(snapshot.amen);
+    window.VerseKeepWallpapers?.reloadSaved?.();
+    if (prefs.translation) {
+      const updates = [];
+      if (!$("#play-panel")?.hidden) updates.push(rehydrateCurrentQueue(`Fetching ${prefs.translation.toUpperCase()}…`, true));
+      if (window.VerseKeepMeditate?.refresh) updates.push(window.VerseKeepMeditate.refresh());
+      Promise.allSettled(updates).catch(() => {});
+    }
+  }
+
+  async function importDeviceFile(file) {
+    let text = "";
+    try {
+      text = await file.text();
+    } catch {
+      paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
+      return;
+    }
+    const parsed = window.VerseKeepSession.parseSnapshot(text);
+    if (!parsed.ok) {
+      paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
+      return;
+    }
+    const saved = window.VerseKeepSession.persistSnapshot(parsed.snapshot);
+    if (!saved.ok || !saved.persisted) {
+      paintDeviceStatus(
+        false,
+        saved.rollbackFailed?.length
+          ? "Device storage failed while restoring the backup, and the previous copy could not be put back. Check this device before continuing."
+          : "The backup could not be saved on this device. Your current data was left unchanged."
+      );
+      return;
+    }
+    applyDeviceSnapshot(parsed.snapshot);
+    paintDeviceStatus(
+      true,
+      "Restored practice, preferences, Amen history, and wallpaper selection on this device."
+    );
+  }
+
   async function boot() {
     bindThemeGrid();
     try {
@@ -1287,6 +1493,32 @@
     });
 
     $("#btn-practice-weak")?.addEventListener("click", () => practiceWeak());
+    $("#btn-review-due")?.addEventListener("click", () => {
+      startReview().catch(() => {});
+    });
+    $("#btn-export-device")?.addEventListener("click", () => {
+      const snapshot = currentDeviceSnapshot();
+      if (!snapshot) {
+        paintDeviceStatus(false, "Could not prepare a backup. Nothing was exported.");
+        return;
+      }
+      downloadDeviceSnapshot(snapshot);
+      paintDeviceStatus(true, "Exported practice, preferences, Amen history, and wallpaper selection.");
+    });
+    $("#btn-import-device")?.addEventListener("click", () => {
+      $("#device-import-file")?.click();
+    });
+    $("#device-import-file")?.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      importDeviceFile(file).catch(() => {
+        paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
+      });
+    });
+    window.addEventListener("online", () => {
+      recoverPracticeLive().catch(() => {});
+    });
 
     const trSelect = $("#tr-select");
     if (trSelect && window.VERSEKEEP_BIBLE) {

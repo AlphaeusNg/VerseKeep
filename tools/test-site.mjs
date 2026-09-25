@@ -37,6 +37,7 @@ function readJson(relativePath) {
   "assets/js/data-core.js",
   "assets/js/meditate.js",
   "assets/js/practice-core.js",
+  "assets/js/session.js",
   "assets/js/version.js",
   "assets/js/wallpapers.js",
   "data/playlists.json",
@@ -96,6 +97,7 @@ if (existsSync(indexPath)) {
     failures.push("Practice controls must be addressable for the drill completion state");
   }
   const practiceCoreIndex = html.indexOf('src="assets/js/practice-core.js"');
+  const sessionIndex = html.indexOf('src="assets/js/session.js"');
   const dataCoreIndex = html.indexOf('src="assets/js/data-core.js"');
   const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
   const appIndex = html.indexOf('src="assets/js/app.js"');
@@ -104,6 +106,23 @@ if (existsSync(indexPath)) {
   if (practiceCoreIndex < 0) failures.push("index.html must load practice-core.js");
   else if (practiceCoreIndex > meditateIndex || practiceCoreIndex > appIndex) {
     failures.push("practice-core.js must load before meditate.js and app.js");
+  }
+  if (sessionIndex < 0) failures.push("index.html must load session.js");
+  else if (sessionIndex < practiceCoreIndex || sessionIndex > meditateIndex || sessionIndex > appIndex) {
+    failures.push("session.js must load after practice-core.js and before meditate.js and app.js");
+  }
+  const meditateMarkup = html.slice(html.indexOf('id="meditate"'), html.indexOf('id="topics"'));
+  if (meditateMarkup.includes("btn-review-due") || meditateMarkup.includes("Review due")) {
+    failures.push("Meditation must stay free of the review queue");
+  }
+  if (!html.includes('id="btn-review-due"') || !html.includes('id="review-bound"')) {
+    failures.push("Topics must offer a bounded review without putting it on the meditation card");
+  }
+  if (!html.includes('id="btn-export-device"') || !html.includes('id="device-import-file"') || !html.includes('id="device-data-status"')) {
+    failures.push("Device backup needs an export control, import control, and honest status");
+  }
+  if (!html.includes('id="wp-aspect-preview"') || !html.includes('id="wp-download-match"') || !html.includes('data-wp-aspect="device"')) {
+    failures.push("Wallpapers must preview the device crop and offer one matching download");
   }
   if (dataCoreIndex < 0) failures.push("index.html must load data-core.js");
   else if (dataCoreIndex > ambientIndex || dataCoreIndex > wallpapersIndex) {
@@ -143,6 +162,7 @@ if (existsSync(workerPath)) {
     for (const required of [
       "./assets/css/style.css",
       "./assets/js/app.js",
+      "./assets/js/session.js",
       "./assets/js/meditate.js",
       "./data/verses.json",
       "./data/playlists.json",
@@ -240,13 +260,40 @@ if (existsSync(bibleLivePath)) {
   }
 }
 
+const sessionPath = requirePath("assets/js/session.js");
+if (existsSync(sessionPath)) {
+  const sessionSource = readFileSync(sessionPath, "utf8");
+  for (const helper of ["normalizeMeditationSession", "normalizeMeditationStreak", "normalizePrefs", "normalizeStats"]) {
+    if (!sessionSource.includes(helper)) {
+      failures.push(`session.js must use ${helper} for persisted state`);
+    }
+  }
+  if (!sessionSource.includes("function labelScripture") || !sessionSource.includes("shouldApplyScripture")) {
+    failures.push("session.js must decide when live text can wear the selected translation");
+  }
+  if (!sessionSource.includes("rollbackFailed")) {
+    failures.push("session.js must keep a failed import from leaving a partial write");
+  }
+}
+
 const meditatePath = requirePath("assets/js/meditate.js");
 if (existsSync(meditatePath)) {
   const meditateSource = readFileSync(meditatePath, "utf8");
-  for (const helper of ["normalizeMeditationSession", "normalizeMeditationStreak"]) {
-    if (!meditateSource.includes(helper)) {
-      failures.push(`meditate.js must use ${helper} for persisted state`);
-    }
+  if (!meditateSource.includes("loadMeditation") || !meditateSource.includes("VerseKeepSession.speech")) {
+    failures.push("meditate.js must use the shared storage and speech session");
+  }
+  if (!meditateSource.includes("shouldApplyScripture") || !meditateSource.includes("labelScripture")) {
+    failures.push("meditation must not label fallback text as the selected translation");
+  }
+  if (!meditateSource.includes('addEventListener("online", recoverLiveText)')) {
+    failures.push("meditation must retry the selected verse when the network returns");
+  }
+  const recovery = meditateSource.slice(
+    meditateSource.indexOf("function recoverLiveText"),
+    meditateSource.indexOf("async function showIndex")
+  );
+  if (!recovery.includes("hydrateCurrent()") || /setTopic|showIndex/.test(recovery)) {
+    failures.push("live recovery must reload the selected verse without navigating away");
   }
   if (!meditateSource.includes("parseMeditationLink") || !meditateSource.includes("meditationSearch")) {
     failures.push("meditate.js must parse and write meditation share URLs");

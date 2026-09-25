@@ -38,6 +38,22 @@
     return result;
   }
 
+  function versePracticeMap(value) {
+    if (!isRecord(value)) return {};
+    const result = {};
+    for (const [key, entry] of Object.entries(value)) {
+      if (!key || key.length > 200 || UNSAFE_KEYS.has(key) || !isRecord(entry)) continue;
+      const correct = boundedInteger(entry.correct);
+      const missed = boundedInteger(entry.missed);
+      const lastDay = isDayKey(entry.lastDay) ? entry.lastDay : null;
+      const lastResult =
+        entry.lastResult === "correct" || entry.lastResult === "missed" ? entry.lastResult : null;
+      if (!lastDay && !lastResult && correct === 0 && missed === 0) continue;
+      result[key] = { correct, missed, lastDay, lastResult };
+    }
+    return result;
+  }
+
   function defaultStats() {
     return {
       checks: 0,
@@ -47,6 +63,7 @@
       verseHits: {},
       themePlays: {},
       favorites: {},
+      versePractice: {},
       lastTheme: null,
       totalScore: 0,
     };
@@ -67,9 +84,78 @@
       verseHits: counterMap(source.verseHits),
       themePlays: counterMap(source.themePlays),
       favorites: trueMap(source.favorites),
+      versePractice: versePracticeMap(source.versePractice),
       lastTheme,
       totalScore: boundedInteger(source.totalScore),
     };
+  }
+
+  /** Short optional review. 3, 5, or 8 verses — never an open-ended drill. */
+  function reviewLimit(value) {
+    const limit = Number(value);
+    return limit === 3 || limit === 5 || limit === 8 ? limit : 5;
+  }
+
+  function dayNumber(day) {
+    const match = String(day).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return null;
+    return Math.floor(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) / 86400000);
+  }
+
+  function reviewReason(entry, today) {
+    if (!entry) return null;
+    if (entry.lastResult === "missed") {
+      const when = entry.lastDay ? ` on ${entry.lastDay}` : "";
+      return { rank: 0, text: `Missed the last time you practiced it${when}` };
+    }
+    if (entry.lastDay && today) {
+      const age = dayNumber(today) - dayNumber(entry.lastDay);
+      if (Number.isFinite(age) && age >= 3) {
+        return { rank: 1, text: `Last practiced ${age} days ago` };
+      }
+      return null;
+    }
+    if ((entry.correct || 0) + (entry.missed || 0) > 0) {
+      return { rank: 2, text: "Practiced before a date was saved" };
+    }
+    return null;
+  }
+
+  /**
+   * Due verses from recorded outcomes and last-practiced dates.
+   * A correct answer inside the last 3 days is not due.
+   */
+  function planReview(stats, options = {}) {
+    const source = isRecord(stats) ? stats : {};
+    const today = isDayKey(options.today) ? options.today : "";
+    const limit = reviewLimit(options.limit);
+    const allowed = Array.isArray(options.refs)
+      ? new Set(options.refs.filter((ref) => typeof ref === "string" && ref.trim()))
+      : null;
+    const practice = versePracticeMap(source.versePractice);
+    const hits = counterMap(source.verseHits);
+    const rows = [];
+    const seen = new Set();
+    for (const [ref, entry] of Object.entries(practice)) {
+      if (allowed && !allowed.has(ref)) continue;
+      const reason = reviewReason(entry, today);
+      if (!reason) continue;
+      seen.add(ref);
+      rows.push({ ref, reason: reason.text, rank: reason.rank, lastDay: entry.lastDay || "" });
+    }
+    for (const [ref, count] of Object.entries(hits)) {
+      if (!count || seen.has(ref) || (allowed && !allowed.has(ref))) continue;
+      rows.push({
+        ref,
+        reason: "Correct before, but no practice date is saved",
+        rank: 3,
+        lastDay: "",
+      });
+    }
+    rows.sort(
+      (a, b) => a.rank - b.rank || a.lastDay.localeCompare(b.lastDay) || a.ref.localeCompare(b.ref)
+    );
+    return rows.slice(0, limit);
   }
 
   function normalizePrefs(value) {
@@ -388,7 +474,9 @@
     normalizePrefs,
     normalizeStats,
     parseMeditationLink,
+    planReview,
     recallSimilarity,
+    reviewLimit,
     validateVerseCatalog,
   });
 })(typeof window !== "undefined" ? window : globalThis);

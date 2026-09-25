@@ -1158,6 +1158,89 @@ main {
   color: var(--muted);
 }
 
+.wp-aspect-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.wp-aspect-preview {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0.75rem 0 0.35rem;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.wp-aspect-preview img {
+  width: 6.5rem;
+  height: 4.2rem;
+  object-fit: cover;
+  border-radius: 0.45rem;
+  background: #111;
+}
+
+html[data-wallpaper-format="phone"] .wp-aspect-preview img {
+  height: 6.5rem;
+}
+
+.wp-aspect-copy p {
+  margin: 0;
+}
+
+#wp-aspect-file {
+  margin-top: 0.2rem;
+  color: var(--gold);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.review-tools,
+.device-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin: 0.35rem 0 0.75rem;
+}
+
+.review-bound-label {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+#review-bound {
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--cream);
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+}
+
+.review-status {
+  margin-top: 0;
+}
+
+.review-why {
+  margin: 0 0 0.65rem;
+  color: var(--gold);
+}
+
+.device-import-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
 /* Wallpaper search / filter */
 .wp-search-bar {
   display: grid;
@@ -2617,6 +2700,24 @@ body.med-focus .med-topics {
 
   .wp-format-option {
     min-width: 0;
+  }
+
+  .wp-aspect-filter {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .wp-aspect-filter .wp-format-label {
+    grid-column: 1 / -1;
+  }
+
+  .wp-aspect-preview {
+    grid-template-columns: 4.6rem minmax(0, 1fr);
+  }
+
+  #wp-download-match {
+    grid-column: 1 / -1;
   }
 
   .wallpaper-scroll {

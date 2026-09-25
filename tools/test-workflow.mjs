@@ -20,10 +20,11 @@ assert.match(
 );
 assert.match(workflow, /run:\s*npm run test:browser\b/, "CI executes the browser smoke test");
 assert.match(workflow, /run:\s*node tools\/test-data-core\.mjs\b/, "CI executes data contracts");
+assert.match(workflow, /run:\s*node tools\/test-session\.mjs\b/, "CI executes device backup and speech contracts");
 assert.match(
   workflow,
   /run:\s*node tools\/test-service-worker\.mjs\b/,
   "CI executes offline worker contracts"
 );
 
-console.log("test-workflow.mjs: 11 CI policy assertions passed");
+console.log("test-workflow.mjs: 12 CI policy assertions passed");

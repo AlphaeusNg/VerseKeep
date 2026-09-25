@@ -35,6 +35,7 @@
   let applying = false;
   let searchQuery = "";
   let wallpaperFormat = "desktop";
+  let aspectChoice = "device";
   let gridPreferences = { desktop: 4, phone: 2 };
   let lastWallpaperTap = { id: "", at: 0 };
 
@@ -209,14 +210,42 @@
     }
   }
 
+  function deviceAspect() {
+    return PHONE_MEDIA.matches ? "phone" : "desktop";
+  }
+
   function loadFormatPreference() {
     try {
       const stored = localStorage.getItem(FORMAT_KEY);
-      if (stored === "desktop" || stored === "phone") return stored;
+      if (stored === "desktop" || stored === "phone") {
+        aspectChoice = stored;
+        return stored;
+      }
     } catch {
       /* ignore */
     }
-    return window.matchMedia("(max-width: 720px)").matches ? "phone" : "desktop";
+    aspectChoice = "device";
+    return deviceAspect();
+  }
+
+  function wallpaperDownloadName(w, format = wallpaperFormat) {
+    const url = wallpaperAsset(w, format, { download: true });
+    if (!url) return "";
+    const fallback = `${w?.id || "versekeep"}-${format}.jpg`;
+    if (window.VerseKeepSession?.wallpaperFileName) {
+      return window.VerseKeepSession.wallpaperFileName(url, fallback);
+    }
+    const name = url.split(/[?#]/, 1)[0].split("/").pop();
+    return name && /\.(?:jpe?g|png|webp)$/i.test(name) ? name : fallback;
+  }
+
+  function syncAspectUi() {
+    document.querySelectorAll("[data-wp-aspect]").forEach((btn) => {
+      const mode = btn.dataset.wpAspect;
+      const active = mode === aspectChoice;
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.classList.toggle("is-active", active);
+    });
   }
 
   function syncFormatUi() {
@@ -226,13 +255,16 @@
       btn.setAttribute("aria-pressed", active ? "true" : "false");
       btn.classList.toggle("is-active", active);
     });
+    syncAspectUi();
+    paintAspectPreview();
   }
 
   function setWallpaperFormat(format) {
     if (format !== "desktop" && format !== "phone") return;
     wallpaperFormat = format;
     try {
-      localStorage.setItem(FORMAT_KEY, format);
+      if (aspectChoice === "device") localStorage.removeItem(FORMAT_KEY);
+      else localStorage.setItem(FORMAT_KEY, format);
     } catch {
       /* ignore */
     }
@@ -702,7 +734,7 @@
     const count = Number(heartCounts[w.id] || 0);
     const formatName = wallpaperFormat === "phone" ? "Phone HD" : "Desktop 4K";
     const dimensions = wallpaperFormat === "phone" ? "1080 × 1920" : "3840 × 2160";
-    const dimensionSlug = wallpaperFormat === "phone" ? "1080x1920" : "3840x2160";
+    const fileName = wallpaperDownloadName(w, wallpaperFormat);
     const thumbSrc = wallpaperAsset(w);
     const thumb = thumbSrc
       ? `<img src="${escapeHtml(thumbSrc)}" alt="" loading="lazy" width="${wallpaperFormat === "phone" ? "540" : "320"}" height="${wallpaperFormat === "phone" ? "960" : "180"}" referrerpolicy="no-referrer" />`
@@ -714,7 +746,7 @@
       : "";
     // Mini download beside heart — uses blob fetch so daily/remote actually downloads
     const dlMini = open
-      ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(w.id || "wallpaper")}-${wallpaperFormat}-${dimensionSlug}.jpg" title="Download ${formatName}" aria-label="Download ${formatName} wallpaper at ${dimensions}">⬇</button>`
+      ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(fileName)}" title="Download ${formatName}" aria-label="Download ${formatName} wallpaper ${escapeHtml(fileName)}">⬇</button>`
       : "";
     const viewMini = `<button type="button" class="wp-view-mini" data-view-background="${escapeHtml(w.id)}" title="View this wallpaper with the page minimized" aria-label="View ${escapeHtml(w.title)} as a clean background">▣</button>`;
     const badge = badgeHtml(w, { showDailyBadge });
@@ -726,7 +758,7 @@
           <div class="wp-meta">
             <strong>${escapeHtml(w.title)}</strong>
             <small>${escapeHtml(w.blurb || "")}</small>
-            <span class="wp-format-meta mono">${formatName} · ${dimensions}</span>
+            <span class="wp-format-meta mono">${formatName} · ${dimensions}${fileName ? ` · ${escapeHtml(fileName)}` : ""}</span>
             ${openHd}
           </div>
         </button>
@@ -1000,10 +1032,74 @@
     });
   }
 
+  function paintAspectPreview() {
+    const label = $("#wp-aspect-label");
+    const file = $("#wp-aspect-file");
+    const thumb = $("#wp-aspect-thumb");
+    const button = $("#wp-download-match");
+    if (!label || !file || !button) return;
+    const current = selectedWallpaper() || classics[0] || null;
+    const format = wallpaperFormat;
+    const fileUrl = current ? wallpaperAsset(current, format, { download: true }) : "";
+    const fileName = fileUrl && current ? wallpaperDownloadName(current, format) : "";
+    const kind = format === "phone" ? "Phone crop" : "Desktop image";
+    const bundled = String(fileUrl).startsWith("assets/");
+    const matchesDevice = format === deviceAspect();
+    label.textContent = current
+      ? `${kind} for ${current.title || "this wallpaper"}${matchesDevice ? " · matches this device" : ""}${bundled ? " · bundled offline" : ""}`
+      : "Choose a wallpaper to see which file downloads";
+    file.textContent = current ? fileName : "";
+    if (thumb) {
+      const preview = current ? wallpaperDisplayAsset(current, format) : "";
+      thumb.hidden = !preview;
+      if (preview) thumb.src = preview;
+      thumb.alt = current ? `${kind} of ${current.title || "wallpaper"}` : "";
+    }
+    button.textContent = format === "phone" ? "Download phone crop" : "Download desktop image";
+    button.disabled = !fileUrl;
+    button.dataset.dlUrl = fileUrl || "";
+    button.dataset.dlName = fileName;
+  }
+
   function paintAll() {
     paintHeroLoved();
     paintGrid();
     paintSearchChips();
+    paintAspectPreview();
+  }
+
+  function currentSelection() {
+    return loadPref() || { mode: "daily" };
+  }
+
+  function reloadSaved() {
+    const pref = loadPref();
+    if (pref?.format === "desktop" || pref?.format === "phone") {
+      aspectChoice = pref.format;
+      wallpaperFormat = pref.format;
+      syncFormatUi();
+    }
+    if (pref?.mode === "manual" && pref.id) {
+      const saved = findWallpaper(pref.id) || {
+        id: pref.id,
+        title: pref.title || pref.id,
+        src: pref.desktopSrc || pref.src || "",
+        download: pref.desktopDownload || pref.desktopSrc || pref.src || "",
+        phoneSrc: pref.phoneSrc || "",
+        phoneDownload: pref.phoneDownload || pref.phoneSrc || "",
+        unsplash: pref.unsplash || "",
+        blurb: "",
+      };
+      applyWallpaper(saved, { mode: "manual" });
+      return true;
+    }
+    const featured = getTodayFeatured();
+    if (featured) {
+      applyWallpaper(featured, { mode: "daily" });
+      return true;
+    }
+    paintAll();
+    return false;
   }
 
   function rebuildDaily({ reshuffle = false } = {}) {
@@ -1056,14 +1152,37 @@
     document.querySelector(".wp-format-picker")?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-wp-format]");
       if (!btn) return;
-      setWallpaperFormat(btn.dataset.wpFormat);
+      aspectChoice = btn.dataset.wpFormat === "phone" ? "phone" : "desktop";
+      setWallpaperFormat(aspectChoice);
+    });
+    document.querySelector(".wp-aspect-filter")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-wp-aspect]");
+      if (!btn) return;
+      aspectChoice = btn.dataset.wpAspect === "phone" || btn.dataset.wpAspect === "desktop"
+        ? btn.dataset.wpAspect
+        : "device";
+      setWallpaperFormat(aspectChoice === "device" ? deviceAspect() : aspectChoice);
+    });
+    $("#wp-download-match")?.addEventListener("click", () => {
+      const button = $("#wp-download-match");
+      const url = button?.dataset.dlUrl;
+      const name = button?.dataset.dlName || "versekeep-wallpaper.jpg";
+      if (!url || !button) return;
+      button.disabled = true;
+      downloadWallpaperFile(url, name).finally(() => {
+        button.disabled = false;
+      });
     });
     $("#wp-grid-density")?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-wp-grid]");
       if (!btn) return;
       setGridDensity(btn.dataset.wpGrid);
     });
-    const handleViewportChange = () => syncGridUi();
+    const handleViewportChange = () => {
+      syncGridUi();
+      if (aspectChoice === "device") setWallpaperFormat(deviceAspect());
+      else syncAspectUi();
+    };
     if (typeof PHONE_MEDIA.addEventListener === "function") {
       PHONE_MEDIA.addEventListener("change", handleViewportChange);
     } else {
@@ -1215,6 +1334,11 @@
       }
     }
   }
+
+  window.VerseKeepWallpapers = {
+    currentSelection,
+    reloadSaved,
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

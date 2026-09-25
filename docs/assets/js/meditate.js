@@ -8,10 +8,7 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
-  const PREFS_KEY = "versekeep-prefs-v1";
-  const MED_KEY = "versekeep-meditate-v1";
-  const STREAK_KEY = "versekeep-med-streak-v1";
-  let sessionStreak = null;
+  const streakStore = window.VerseKeepSession.createStreakStore();
 
   const state = {
     data: null,
@@ -21,75 +18,61 @@
     loading: false,
     topicToken: 0,
     hydrateToken: 0,
+    hydrateInFlight: false,
+    showingBundled: false,
     neighborPrefetchController: null,
     focusMode: false,
     resumeOffer: null,
   };
+  let recoverAfterHydrate = false;
+
+  function themeIds() {
+    return state.data?.themes?.map((theme) => theme.id) || [];
+  }
 
   function loadPrefs() {
-    try {
-      return window.VerseKeepPracticeCore.normalizePrefs(
-        JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")
-      );
-    } catch {
-      return {};
-    }
+    return window.VerseKeepSession.loadPrefs();
   }
 
   function savePrefs(partial) {
-    try {
-      const next = window.VerseKeepPracticeCore.normalizePrefs({ ...loadPrefs(), ...partial });
-      localStorage.setItem(PREFS_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
+    window.VerseKeepSession.savePrefs(partial);
   }
 
   function loadMed() {
-    try {
-      return window.VerseKeepPracticeCore.normalizeMeditationSession(
-        JSON.parse(localStorage.getItem(MED_KEY) || "{}"),
-        state.data?.themes?.map((theme) => theme.id) || []
-      );
-    } catch {
-      return { topicId: "all" };
-    }
+    return window.VerseKeepSession.loadMeditation(themeIds());
   }
 
   function saveMed(partial) {
-    try {
-      const next = window.VerseKeepPracticeCore.normalizeMeditationSession(
-        { ...loadMed(), ...partial },
-        state.data?.themes?.map((theme) => theme.id) || []
-      );
-      localStorage.setItem(MED_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
+    window.VerseKeepSession.saveMeditation(partial, themeIds());
   }
 
   function loadStreak() {
-    if (sessionStreak) return sessionStreak;
-    try {
-      sessionStreak = window.VerseKeepPracticeCore.normalizeMeditationStreak(
-        JSON.parse(localStorage.getItem(STREAK_KEY) || "{}")
-      );
-      return sessionStreak;
-    } catch {
-      sessionStreak = { count: 0, lastDay: null, history: [] };
-      return sessionStreak;
-    }
+    return streakStore.load();
   }
 
   function saveStreak(data) {
-    sessionStreak = window.VerseKeepPracticeCore.normalizeMeditationStreak(data);
-    try {
-      localStorage.setItem(STREAK_KEY, JSON.stringify(sessionStreak));
-      return true;
-    } catch (err) {
-      console.warn("[VerseKeep] Amen streak remains session-only", err);
-      return false;
+    const saved = streakStore.save(data);
+    if (!saved.ok) console.warn("[VerseKeep] Amen streak remains session-only", saved.error);
+    return saved.ok;
+  }
+
+  function selectedTranslation() {
+    return (
+      $("#tr-select")?.value ||
+      window.VERSEKEEP_BIBLE?.bibleApiTranslation ||
+      "esv"
+    ).toLowerCase();
+  }
+
+  function paintLiveLabel(live, label) {
+    if ($("#play-panel") && !$("#play-panel").hidden) return;
+    const element = $("#live-bible-label");
+    if (!element) return;
+    if ($("#live-bible")?.checked === false) {
+      element.textContent = "(bundled)";
+      return;
     }
+    element.textContent = live ? `(${label})` : "(bundled)";
   }
 
   function escapeHtml(s) {
@@ -363,6 +346,14 @@
     }
   }
 
+  function paintBundledCard(verse) {
+    verse.text = verse.localText || verse.text;
+    verse.liveTranslation = "";
+    state.showingBundled = true;
+    paintCard(verse, { translation: "Bundled" });
+    paintLiveLabel(false);
+  }
+
   async function hydrateCurrent() {
     const v = current();
     if (!v) {
@@ -370,36 +361,71 @@
       return;
     }
     const token = ++state.hydrateToken;
+    const requestedRef = v.ref;
+    const selected = selectedTranslation();
     const liveOn = $("#live-bible")?.checked !== false;
-    if (!liveOn) {
-      cancelNeighborPrefetch();
-      v.text = v.localText || v.text;
-      paintCard(v, {});
-      return;
-    }
-    // Show local text immediately, then upgrade if live arrives
-    paintCard(
-      { ...v, text: v.localText || v.text },
-      { translation: "…", loading: true }
-    );
-    // Warm the next choices while the bundled current card is already usable.
-    // A new card/topic aborts only these speculative consumers.
-    prefetchNeighbors();
-    if (window.VerseKeepBible?.resolveVerse) {
-      try {
-        const live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text);
-        if (token !== state.hydrateToken || current()?.ref !== v.ref) return;
-        v.text = live.text || v.localText || v.text;
-        v.liveTranslation = live.translation;
-        paintCard(v, { translation: live.translation || "" });
+    state.hydrateInFlight = true;
+    try {
+      if (!liveOn) {
+        cancelNeighborPrefetch();
+        paintBundledCard(v);
         return;
-      } catch {
-        /* fall through */
+      }
+      // Show local text immediately, then upgrade only a matching live result.
+      state.showingBundled = true;
+      paintCard(
+        { ...v, text: v.localText || v.text },
+        { translation: "…", loading: true }
+      );
+      paintLiveLabel(false);
+      // Warm the next choices while the bundled current card is already usable.
+      // A new card/topic aborts only these speculative consumers.
+      prefetchNeighbors();
+      let live = null;
+      if (window.VerseKeepBible?.resolveVerse) {
+        try {
+          live = await window.VerseKeepBible.resolveVerse(v.ref, v.localText || v.text, {
+            translation: selected,
+          });
+        } catch {
+          live = null;
+        }
+      }
+      const request = { token, ref: requestedRef, translation: selected };
+      const stillCurrent = {
+        token: state.hydrateToken,
+        ref: current()?.ref,
+        translation: selectedTranslation(),
+      };
+      if (!window.VerseKeepSession.shouldApplyScripture(request, stillCurrent)) return;
+      const decision = window.VerseKeepSession.labelScripture(selected, live);
+      if (!decision.live) {
+        paintBundledCard(v);
+        return;
+      }
+      v.text = decision.text || v.localText || v.text;
+      v.liveTranslation = decision.label;
+      state.showingBundled = false;
+      paintCard(v, { translation: decision.label });
+      paintLiveLabel(true, decision.label);
+    } finally {
+      if (token === state.hydrateToken) state.hydrateInFlight = false;
+      if (recoverAfterHydrate && state.showingBundled && token === state.hydrateToken) {
+        recoverAfterHydrate = false;
+        hydrateCurrent();
       }
     }
-    if (token !== state.hydrateToken) return;
-    v.text = v.localText || v.text;
-    paintCard(v, {});
+  }
+
+  function recoverLiveText() {
+    if ($("#live-bible")?.checked === false) return;
+    if ($("#play-panel") && !$("#play-panel").hidden) return;
+    if (!state.showingBundled && !state.hydrateInFlight) return;
+    if (state.hydrateInFlight) {
+      recoverAfterHydrate = true;
+      return;
+    }
+    hydrateCurrent();
   }
 
   async function showIndex(i) {
@@ -556,11 +582,7 @@
   }
 
   function stopSpeech() {
-    try {
-      window.speechSynthesis?.cancel();
-    } catch {
-      /* ignore */
-    }
+    window.VerseKeepSession.speech.cancel();
   }
 
   function readAloud() {
@@ -569,14 +591,11 @@
       flashFeedback("Speech not available.");
       return;
     }
-    stopSpeech();
     const parts = [v.ref, v.text, "Context.", v.context, "Application.", v.application, "Prayer.", v.prayer]
       .filter(Boolean)
       .join(" ");
-    const u = new SpeechSynthesisUtterance(parts);
-    u.rate = 0.92;
-    window.speechSynthesis.speak(u);
-    flashFeedback("Reading aloud…");
+    const spoken = window.VerseKeepSession.speech.speak(parts, { rate: 0.92 });
+    flashFeedback(spoken ? "Reading aloud…" : "Speech not available.");
   }
 
   function markAmen() {
@@ -741,6 +760,8 @@
       );
     }
 
+    window.addEventListener("online", recoverLiveText);
+
     document.addEventListener("keydown", (e) => {
       const tag = e.target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target?.isContentEditable) {
@@ -873,6 +894,13 @@
     refresh: hydrateCurrent,
     setFocusMode,
     syncLink: writeMeditationLink,
+    replaceStreak(data) {
+      streakStore.replace(data);
+      paintStreak();
+    },
+    currentStreak() {
+      return streakStore.load();
+    },
   };
 
   if (document.readyState === "loading") {

@@ -306,7 +306,10 @@ if (core?.normalizeStats && core?.normalizePrefs) {
   const first = core.defaultStats();
   const second = core.defaultStats();
   first.verseHits.example = 1;
+  first.versePractice.example = { correct: 1, missed: 0, lastDay: null, lastResult: "correct" };
   assert.equal(second.verseHits.example, undefined, "default stats do not share mutable maps");
+  assert.equal(second.versePractice.example, undefined, "default practice logs do not share mutable maps");
+  assert.deepEqual(stats.versePractice, {}, "missing practice logs normalize to an empty map");
 
   const prefs = JSON.parse(
     JSON.stringify(
@@ -405,4 +408,42 @@ if (core?.parseMeditationLink && core?.meditationSearch) {
   );
 }
 
-console.log("test-practice-core.mjs: 66 scoring, state, catalog, link, and cancellation assertions passed");
+if (core?.planReview && core?.reviewLimit) {
+  assert.equal(core.reviewLimit(4), 5, "review length falls back to a short session");
+  assert.equal(core.reviewLimit("8"), 8, "an allowed review length is preserved");
+  const today = "2026-09-25";
+  const plan = core.planReview(
+    {
+      verseHits: { "Psalm 23:1": 2, "John 3:16": 1 },
+      versePractice: {
+        "Psalm 56:3": { correct: 1, missed: 1, lastDay: "2026-09-25", lastResult: "missed" },
+        "Proverbs 3:5–6": { correct: 2, missed: 0, lastDay: "2026-09-24", lastResult: "correct" },
+        "Isaiah 26:3": { correct: 1, missed: 0, lastDay: "2026-09-20", lastResult: "correct" },
+        "Romans 8:1": { correct: 1, missed: 0, lastDay: "2026-09-25", lastResult: "correct" },
+      },
+    },
+    { today, limit: 3, refs: ["Psalm 56:3", "Proverbs 3:5–6", "Isaiah 26:3", "Romans 8:1", "Psalm 23:1"] }
+  );
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(plan.map((item) => item.ref))),
+    ["Psalm 56:3", "Isaiah 26:3", "Psalm 23:1"],
+    "review prefers a miss, then the oldest gap, and stays inside the chosen bound"
+  );
+  assert.match(plan[0].reason, /Missed the last time/, "a miss explains why the verse is due");
+  assert.match(plan[1].reason, /5 days ago/, "a three-day gap explains why the verse is due");
+  assert.equal(
+    plan.some((item) => item.ref === "Proverbs 3:5–6" || item.ref === "Romans 8:1"),
+    false,
+    "a recent correct answer is not due"
+  );
+  assert.equal(
+    core.planReview(
+      { versePractice: { "John 11:35": { correct: 1, missed: 0, lastDay: today, lastResult: "correct" } } },
+      { today, limit: 5 }
+    ).length,
+    0,
+    "an empty due list does not invent a drill"
+  );
+}
+
+console.log("test-practice-core.mjs: scoring, state, catalog, link, review, and cancellation assertions passed");

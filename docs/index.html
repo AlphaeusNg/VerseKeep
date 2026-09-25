@@ -167,6 +167,22 @@
         <button type="button" class="btn ghost" id="btn-reset-stats" title="Clear mastery and stats on this device">Reset progress</button>
       </div>
       <div class="stats-bar mono" id="stats-bar" aria-label="Your progress"></div>
+      <div class="review-tools">
+        <label class="review-bound-label" for="review-bound">Review length</label>
+        <select id="review-bound" title="How many due verses to review">
+          <option value="3">3 verses</option>
+          <option value="5" selected>5 verses</option>
+          <option value="8">8 verses</option>
+        </select>
+        <button type="button" class="btn ghost" id="btn-review-due">Review due</button>
+      </div>
+      <p id="review-status" class="hint review-status" role="status" aria-atomic="true" hidden></p>
+      <div class="device-data-actions">
+        <button type="button" class="btn ghost" id="btn-export-device">Export progress</button>
+        <button type="button" class="btn ghost" id="btn-import-device">Import progress</button>
+        <input id="device-import-file" class="device-import-input" type="file" accept="application/json,.json" hidden />
+      </div>
+      <p id="device-data-status" class="feedback" role="status" aria-atomic="true" hidden></p>
       <div class="theme-grid" id="theme-grid" tabindex="0" aria-label="Topics. Scroll for more."></div>
     </section>
 
@@ -254,6 +270,20 @@
               <small>1080 × 1920</small>
             </button>
           </div>
+          <div class="wp-aspect-filter" role="group" aria-label="Wallpaper shape">
+            <span class="wp-format-label mono">Shape</span>
+            <button type="button" class="wp-format-option" data-wp-aspect="device" aria-pressed="true">This device</button>
+            <button type="button" class="wp-format-option" data-wp-aspect="desktop" aria-pressed="false">Desktop</button>
+            <button type="button" class="wp-format-option" data-wp-aspect="phone" aria-pressed="false">Phone</button>
+          </div>
+          <div id="wp-aspect-preview" class="wp-aspect-preview">
+            <img id="wp-aspect-thumb" alt="" width="160" height="90" hidden />
+            <div class="wp-aspect-copy">
+              <p id="wp-aspect-label">Choose a wallpaper to see which file downloads</p>
+              <p id="wp-aspect-file" class="mono"></p>
+            </div>
+            <button type="button" class="btn primary" id="wp-download-match">Download desktop image</button>
+          </div>
           <div class="wp-search-bar" role="search">
             <label class="wp-search-label" for="wp-search">
               <span class="sr-only">Search wallpapers</span>
@@ -316,6 +346,7 @@
   <script src="assets/js/ambient.js" defer></script>
   <script src="assets/js/wallpapers.js" defer></script>
   <script src="assets/js/practice-core.js" defer></script>
+  <script src="assets/js/session.js" defer></script>
   <script src="assets/js/meditate.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </body>
