@@ -1,6 +1,6 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-25 (VerseKeep device backup, review, and wallpaper crop)
+Last updated: 2026-09-25 (VerseKeep device backup, review, wallpaper crop, and listen-while-loading)
 
 ## Current state
 
@@ -24,6 +24,7 @@ Practice progress, preferences, Amen history, and wallpaper choice lived only in
 - Shared `session.js` for preference/storage writes and one speech session. Cancelling speech clears its continuation. Practice scoring stays in `practice-core.js`.
 - Wallpaper shape filter (this device, desktop, phone) and a preview that names the file, with one Download phone crop or Download desktop image action. Bundled files stay in the gallery offline.
 - Live text is labeled with the selected translation only when that translation actually arrived. Fallback is labeled Bundled. Overlapping verse or translation responses are dropped. When the network returns, the current verse is retried without navigating away.
+- Listen stays disabled while that hydration is pending, including the incoming origin fix. `readAloud` says “Waiting for live verse…” instead of speaking bundled text.
 - Version `2026.09.25.1`.
 
 ### Verification
@@ -31,7 +32,29 @@ Practice progress, preferences, Amen history, and wallpaper choice lived only in
 - `node tools/test-session.mjs`, `node tools/test-practice-core.mjs`, `node tools/test-data-core.mjs`, `node tools/test-bible-live.mjs`, `node tools/test-site.mjs`, `node tools/test-service-worker.mjs`, `node tools/test-workflow.mjs`, and `node --check` on the JavaScript files pass.
 - `CI=1 npm run test:browser`: 26/26 Chromium journeys pass, including cancelled speech, denied practice storage, and Practice this verse.
 
+## Previous cycle: suspend meditation Listen while live verse loads
+
+### Why this was selected
+
+`hydrateCurrent()` paints bundled text with a loading marker, but Listen / L
+could still speak that bundled text before live translation settled.
+
+### Changes
+
+- Track `liveHydrating`; disable `#med-listen` (and ignore Listen via the same
+  `readAloud` guard for L) while hydrate is pending.
+- Re-enable on settle or bundled fallback; flash “Waiting for live verse…” if
+  Listen is attempted mid-hydrate.
+- Chromium stall journey covers disabled Listen, no speech, then re-enable.
+- Merged into `2026.09.25.1` without dropping the backup and review work.
+
+### Verification
+
+- Site contracts assert `liveHydrating` / `syncListenControl`. Chromium stall
+  path asserts `#med-listen` disabled during loading and speech only after settle.
+
 ## Previous cycle: skip unchanged practice HUD writes
+
 
 ### Why this was selected
 

@@ -313,6 +313,13 @@ if (existsSync(meditatePath)) {
   if (!meditateSource.includes("cancelNeighborPrefetch") || !meditateSource.includes("signal: controller.signal")) {
     failures.push("meditation neighbor prefetch must be cancellable when navigation changes");
   }
+  if (
+    !meditateSource.includes("liveHydrating") ||
+    !meditateSource.includes("syncListenControl") ||
+    !meditateSource.includes("setLiveHydrating")
+  ) {
+    failures.push("meditate.js must suspend Listen while live verse hydration is pending");
+  }
   const medPrefetchAt = meditateSource.indexOf("function prefetchNeighbors");
   const medPrefetchBody =
     medPrefetchAt >= 0 ? meditateSource.slice(medPrefetchAt, medPrefetchAt + 900) : "";

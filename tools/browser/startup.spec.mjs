@@ -124,6 +124,50 @@ test("stops meditation speech before showing another verse", async ({ page }) =>
     .toBeGreaterThan(cancelsAfterStart);
 });
 
+test("suspends meditation Listen while live verse is still loading", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+  await expect(page.locator("#live-bible")).toBeChecked();
+
+  await page.evaluate(() => {
+    globalThis.__versekeepReleaseMedHydration = null;
+    window.VerseKeepBible.resolveVerse = (ref, localText) =>
+      new Promise((resolve) => {
+        globalThis.__versekeepReleaseMedHydration = () =>
+          resolve({
+            text: `LIVE ${localText}`,
+            translation: "ESV",
+            source: "test",
+          });
+      });
+  });
+
+  await page.locator("#med-next").click();
+  await expect(page.locator("#meditate-card .med-verse")).toHaveClass(/is-loading/);
+  await expect(page.locator("#med-listen")).toBeDisabled();
+
+  const spokenBefore = await page.evaluate(() => globalThis.__versekeepSpeech.spoken.length);
+  await page.keyboard.press("l");
+  await expect(page.locator("#med-feedback")).toContainText("Waiting for live verse");
+  expect(await page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(
+    spokenBefore
+  );
+
+  await expect
+    .poll(() => page.evaluate(() => typeof globalThis.__versekeepReleaseMedHydration))
+    .toBe("function");
+  await page.evaluate(() => globalThis.__versekeepReleaseMedHydration());
+  await expect(page.locator("#meditate-card .med-verse")).not.toHaveClass(/is-loading/);
+  await expect(page.locator("#med-listen")).toBeEnabled();
+
+  // Listen lives in the collapsed More panel; L is the supported path (same as other smoke tests).
+  await page.keyboard.press("l");
+  await expect
+    .poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length))
+    .toBe(spokenBefore + 1);
+});
+
 test("paints bundled practice before live hydration and preserves started input", async ({ page }) => {
   await installSpeechProbe(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });

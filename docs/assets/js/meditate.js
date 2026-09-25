@@ -16,6 +16,7 @@
     index: 0,
     topicId: "all",
     loading: false,
+    liveHydrating: false,
     topicToken: 0,
     hydrateToken: 0,
     hydrateInFlight: false,
@@ -354,9 +355,23 @@
     paintLiveLabel(false);
   }
 
+  function syncListenControl() {
+    const btn = $("#med-listen");
+    if (!btn) return;
+    const blocked = !!state.liveHydrating;
+    btn.disabled = blocked;
+    btn.setAttribute("aria-disabled", blocked ? "true" : "false");
+  }
+
+  function setLiveHydrating(on) {
+    state.liveHydrating = !!on;
+    syncListenControl();
+  }
+
   async function hydrateCurrent() {
     const v = current();
     if (!v) {
+      setLiveHydrating(false);
       paintCard(null);
       return;
     }
@@ -365,6 +380,7 @@
     const selected = selectedTranslation();
     const liveOn = $("#live-bible")?.checked !== false;
     state.hydrateInFlight = true;
+    setLiveHydrating(liveOn);
     try {
       if (!liveOn) {
         cancelNeighborPrefetch();
@@ -372,14 +388,13 @@
         return;
       }
       // Show local text immediately, then upgrade only a matching live result.
+      // Listen stays disabled until this hydration settles.
       state.showingBundled = true;
       paintCard(
         { ...v, text: v.localText || v.text },
         { translation: "…", loading: true }
       );
       paintLiveLabel(false);
-      // Warm the next choices while the bundled current card is already usable.
-      // A new card/topic aborts only these speculative consumers.
       prefetchNeighbors();
       let live = null;
       if (window.VerseKeepBible?.resolveVerse) {
@@ -409,7 +424,10 @@
       paintCard(v, { translation: decision.label });
       paintLiveLabel(true, decision.label);
     } finally {
-      if (token === state.hydrateToken) state.hydrateInFlight = false;
+      if (token === state.hydrateToken) {
+        state.hydrateInFlight = false;
+        setLiveHydrating(false);
+      }
       if (recoverAfterHydrate && state.showingBundled && token === state.hydrateToken) {
         recoverAfterHydrate = false;
         hydrateCurrent();
@@ -586,6 +604,10 @@
   }
 
   function readAloud() {
+    if (state.liveHydrating) {
+      flashFeedback("Waiting for live verse…");
+      return;
+    }
     const v = current();
     if (!v || !window.speechSynthesis) {
       flashFeedback("Speech not available.");
