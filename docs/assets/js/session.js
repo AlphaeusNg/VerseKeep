@@ -304,6 +304,22 @@
     };
   }
 
+  function summarizeSnapshot(snapshot) {
+    const parsed = parseSnapshot(snapshot);
+    if (!parsed.ok) return null;
+    const { practice, amen, wallpapers } = parsed.snapshot;
+    const refs = new Set(Object.keys(practice.versePractice));
+    for (const [ref, hits] of Object.entries(practice.verseHits)) {
+      if (hits > 0) refs.add(ref);
+    }
+    return {
+      practicedVerses: refs.size,
+      amenDays: new Set(amen.history.map((entry) => entry.day)).size,
+      wallpaperIncluded: !!(wallpapers.id || wallpapers.src || wallpapers.unsplash),
+      wallpaperMode: wallpapers.mode,
+    };
+  }
+
   function persistSnapshot(snapshot, storage) {
     const parsed = parseSnapshot(snapshot);
     if (!parsed.ok) return { ok: false, persisted: false, error: "invalid", rollbackFailed: [] };
@@ -472,6 +488,7 @@
     saveStats,
     shouldApplyScripture,
     speech,
+    summarizeSnapshot,
     wallpaperFileName,
   });
 })(typeof window !== "undefined" ? window : globalThis);

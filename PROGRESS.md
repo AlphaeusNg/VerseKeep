@@ -1,6 +1,19 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-09-26 (merged release verification)
+Last updated: 2026-10-05 (backup import preview)
+
+## Backup import preview — 2026-10-05
+
+- VERSE-07: validated backups now show distinct practiced verses, recorded Amen
+  days (not streak length), and whether a wallpaper selection is included.
+- Native confirmation explicitly says that importing replaces rather than
+  merges device data. Cancel and invalid files do not write storage; existing
+  transactional restore/rollback remains unchanged.
+- Verification: all seven `tools/test-*.mjs` gates and all 28 Chromium journeys
+  passed. The new 375px browser journey covers preview, cancellation, accepted
+  restore, and malformed-file rejection; unit checks cover legacy/per-verse
+  deduplication, missed-only practice, duplicate days, and no wallpaper selection.
+- Release: `2026.10.05.1`.
 
 ## Release verification — 2026-09-26
 
@@ -15,7 +28,7 @@ speech and typed input remain uninterrupted.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (12 assertions), site structure, offline-worker contracts, core contracts, device-backup and speech contracts, data contracts (35 assertions), live Bible requests (26 assertions), twenty-six browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.09.25.1`.
+- Deployment version: `2026.10.05.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
 ## Latest cycle: device backup, short review, shared session, wallpaper crop

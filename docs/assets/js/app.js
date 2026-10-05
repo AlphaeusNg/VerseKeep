@@ -1410,6 +1410,21 @@
       paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
       return;
     }
+    const summary = window.VerseKeepSession.summarizeSnapshot(parsed.snapshot);
+    const wallpaper = summary.wallpaperIncluded
+      ? "Wallpaper selection: included."
+      : "Wallpaper selection: none (use daily wallpaper).";
+    const confirmed = window.confirm(
+      `Import this VerseKeep backup?\n\n` +
+      `Practiced verses: ${summary.practicedVerses}\n` +
+      `Recorded Amen days: ${summary.amenDays}\n` +
+      `${wallpaper}\n\n` +
+      "This replaces practice progress, preferences, Amen history, and wallpaper settings on this device. It does not merge them."
+    );
+    if (!confirmed) {
+      paintDeviceStatus(true, "Import cancelled. Your current data was left unchanged.");
+      return;
+    }
     const saved = window.VerseKeepSession.persistSnapshot(parsed.snapshot);
     if (!saved.ok || !saved.persisted) {
       paintDeviceStatus(

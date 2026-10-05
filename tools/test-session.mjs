@@ -63,6 +63,19 @@ const exported = session.exportSnapshot({
   },
 });
 assert.equal(exported.ok, true, "a real device snapshot can be exported");
+assert.equal(session.summarizeSnapshot(exported.snapshot).practicedVerses, 1, "legacy hits and outcomes for the same verse count once");
+assert.equal(session.summarizeSnapshot(exported.snapshot).amenDays, 1, "count recorded days, not the current streak");
+assert.equal(session.summarizeSnapshot(exported.snapshot).wallpaperIncluded, true);
+const summaryFixture = structuredClone(exported.snapshot);
+summaryFixture.practice.versePractice["John 3:16"] = { missed: 1 };
+summaryFixture.practice.verseHits["Unpracticed"] = 0;
+summaryFixture.amen.history.push({ day: "2026-09-24", ref: "John 3:16" });
+summaryFixture.wallpapers = { mode: "daily" };
+const summary = session.summarizeSnapshot(summaryFixture);
+assert.equal(summary.practicedVerses, 2, "missed-only practice counts, zero legacy hits do not");
+assert.equal(summary.amenDays, 1, "duplicate dates count once");
+assert.equal(summary.wallpaperIncluded, false, "daily default has no saved selection");
+assert.equal(session.summarizeSnapshot("{"), null, "invalid input has no preview");
 
 const fresh = memoryStorage();
 const restored = session.persistSnapshot(exported.snapshot, fresh);

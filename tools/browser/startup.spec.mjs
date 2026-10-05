@@ -46,6 +46,45 @@ test.afterEach(async ({ page }) => {
   expect(runtimeErrors.get(page), "unexpected browser runtime errors").toEqual([]);
 });
 
+test("previews device backup counts and only replaces data after confirmation", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#theme-grid [data-theme]")).not.toHaveCount(0);
+  const backup = await page.evaluate(() => window.VerseKeepSession.exportSnapshot({
+    practice: { checks: 3, correct: 1, verseHits: { "Psalm 56:3": 1 },
+      versePractice: { "Psalm 56:3": { correct: 1 }, "John 3:16": { missed: 2 } } },
+    amen: { count: 7, history: [{ day: "2026-09-24", ref: "Psalm 56:3" }] },
+    wallpapers: { mode: "manual", id: "dawn-hills", src: "assets/wallpapers/dawn-hills.jpg" },
+  }).snapshot);
+  const readStored = () => page.evaluate(() => Object.fromEntries(
+    Object.values(window.VerseKeepSession.KEYS).map((key) => [key, localStorage.getItem(key)])
+  ));
+  const before = await readStored();
+  const file = { name: "device.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(backup)) };
+  const cancelled = page.waitForEvent("dialog").then(async (dialog) => {
+    expect(dialog.type()).toBe("confirm");
+    expect(dialog.message()).toContain("Practiced verses: 2");
+    expect(dialog.message()).toContain("Recorded Amen days: 1");
+    expect(dialog.message()).toContain("Wallpaper selection: included");
+    expect(dialog.message()).toContain("does not merge");
+    await dialog.dismiss();
+  });
+  await page.locator("#device-import-file").setInputFiles(file);
+  await cancelled;
+  await expect(page.locator("#device-data-status")).toContainText("Import cancelled");
+  expect(await readStored()).toEqual(before);
+
+  const accepted = page.waitForEvent("dialog").then((dialog) => dialog.accept());
+  await page.locator("#device-import-file").setInputFiles(file);
+  await accepted;
+  await expect(page.locator("#device-data-status")).toContainText("Restored practice");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-stats-v1")).checks)).toBe(3);
+  const after = await readStored();
+  await page.locator("#device-import-file").setInputFiles({ ...file, buffer: Buffer.from("{invalid") });
+  await expect(page.locator("#device-data-status")).toContainText("Nothing was changed");
+  expect(await readStored()).toEqual(after);
+});
+
 async function installSpeechProbe(page) {
   await page.addInitScript(() => {
     globalThis.__versekeepSpeech = { cancelled: 0, spoken: [] };
