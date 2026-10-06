@@ -955,6 +955,7 @@ test("finishes focused verse practice without inflating completed topics", async
 
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#hud-progress")).toContainText("1 / 1");
+  await expect(page.locator("#btn-next")).toHaveText("Finish practice");
   await page.locator("#btn-next").click();
 
   const completion = page.locator("#stage .practice-complete");

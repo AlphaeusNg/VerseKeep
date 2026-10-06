@@ -1,6 +1,15 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-05 (backup import preview)
+Last updated: 2026-10-06 (finish practice label)
+
+## Finish practice label — 2026-10-06
+
+- The last step of Review, Weak-verse and Practice-this-verse sets now says
+  "Finish practice" (theme drills keep "Finish theme"), matching the completion
+  card that says focused practice does not change Themes done.
+- The focused-practice browser journey now asserts the label.
+- Verification: all seven `tools/test-*.mjs` gates and the Chromium journeys pass.
+- Release: `2026.10.06.1`.
 
 ## Backup import preview — 2026-10-05
 
@@ -28,7 +37,7 @@ speech and typed input remain uninterrupted.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (12 assertions), site structure, offline-worker contracts, core contracts, device-backup and speech contracts, data contracts (35 assertions), live Bible requests (26 assertions), twenty-six browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.10.05.1`.
+- Deployment version: `2026.10.06.1`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
 ## Latest cycle: device backup, short review, shared session, wallpaper crop

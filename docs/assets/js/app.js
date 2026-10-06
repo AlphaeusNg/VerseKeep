@@ -762,7 +762,7 @@
     updateHud();
     $("#btn-check").hidden = state.mode === "study" || state.mode === "quiz";
     $("#btn-next").textContent =
-      state.index >= state.queue.length - 1 ? "Finish theme" : "Next verse";
+      state.index >= state.queue.length - 1 ? (state.countsAsTheme ? "Finish theme" : "Finish practice") : "Next verse";
     if (!v) {
       $("#stage").innerHTML = `<p class="hint">Pick a theme to begin.</p>`;
       return;
