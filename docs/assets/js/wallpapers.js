@@ -28,6 +28,7 @@
   let classics = [];
   let remotePool = [];
   let daily = [];
+  const heartNotices = new Map();
   let heartsLocal = {}; // id -> true if user hearted
   let heartCounts = {}; // id -> number (local + remote best effort)
   let catalog = {}; // id -> { id, title, blurb, src, download }
@@ -163,8 +164,9 @@
     try {
       localStorage.setItem(HEARTS_KEY, JSON.stringify(heartsLocal));
       localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
+      return true;
     } catch {
-      /* ignore */
+      return false;
     }
   }
 
@@ -710,6 +712,7 @@
     if (!w || id === "none") return;
     rememberCatalog(w);
     if (heartsLocal[id]) {
+      heartNotices.delete(id);
       delete heartsLocal[id];
       heartCounts[id] = Math.max(0, (heartCounts[id] || 1) - 1);
       saveHearts();
@@ -718,13 +721,17 @@
     }
     heartsLocal[id] = true;
     heartCounts[id] = (heartCounts[id] || 0) + 1;
-    saveHearts();
+    const saved = saveHearts();
+    heartNotices.set(id, saved ? "Heart saved on this device." : "Heart kept for this visit; device storage unavailable.");
     paintAll();
     const remote = await bumpRemoteCount(id);
+    if (!heartsLocal[id]) return;
     if (remote != null) {
       heartCounts[id] = Math.max(heartCounts[id] || 0, remote);
-      paintAll();
+    } else {
+      heartNotices.set(id, `${saved ? "Heart saved on this device." : "Heart kept for this visit; device storage unavailable."} Community counter unavailable.`);
     }
+    paintAll();
   }
 
   function cardHtml(w, { showDailyBadge = false } = {}) {
@@ -765,11 +772,12 @@
         <div class="wp-side-actions">
           ${viewMini}
           ${dlMini}
-          <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
+          <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" aria-label="${hearted ? "Unheart" : "Heart"} ${escapeHtml(w.title)}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
             <span class="wp-heart-icon" aria-hidden="true">${hearted ? "♥" : "♡"}</span>
             <span class="wp-heart-count mono">${count}</span>
           </button>
         </div>
+        ${heartNotices.has(w.id) ? `<p class="hint wp-heart-status" role="status">${escapeHtml(heartNotices.get(w.id))}</p>` : ""}
       </article>`;
   }
 

@@ -1012,3 +1012,29 @@ test("shows a stable topic completion summary before an intentional restart", as
   await expect(page.locator("#hud-progress")).toHaveText(`Verse 1 / ${total}`);
   await expect(page.locator("#stats-bar")).toContainText("Themes done 1");
 });
+
+
+test("keeps a wallpaper heart locally when its community counter fails", async ({ page }) => {
+  await page.addInitScript(() => {
+    const originalFetch = window.fetch;
+    window.fetch = (input, options) => {
+      if (String(input).includes("api.counterapi.dev") && String(input).endsWith("/up")) {
+        return Promise.reject(new TypeError("Counter is offline"));
+      }
+      return originalFetch(input, options);
+    };
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#wp-details > summary").click();
+  const card = page.locator("#wallpaper-grid .wp-card").first();
+  await expect(card).toBeVisible();
+  const id = await card.getAttribute("data-wp-id");
+  await card.locator("[data-heart]").click();
+  const selected = page.locator(`#wallpaper-grid [data-wp-id="${id}"]`);
+  await expect(selected.locator("[data-heart]")).toHaveAttribute("aria-pressed", "true");
+  await expect(selected.getByRole("status")).toContainText("Community counter unavailable");
+  expect(await page.evaluate((key) => JSON.parse(localStorage.getItem("versekeep-wallpaper-hearts-v1"))[key], id)).toBe(true);
+  await selected.locator("[data-heart]").click();
+  await expect(selected.locator("[data-heart]")).toHaveAttribute("aria-pressed", "false");
+  await expect(selected.getByRole("status")).toHaveCount(0);
+});

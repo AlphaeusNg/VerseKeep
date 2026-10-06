@@ -839,3 +839,8 @@ to the primary meditation journey.
 
 Local next: dogfood export/import and a 3-verse review on a phone, including a denied-storage import.
 Workspace next: rotate to another clean repository.
+
+
+## 2026-10-07 — Explain unavailable community heart counters
+
+Wallpaper hearts retain their local selection and announce when the community counter is unavailable. Denied device storage is described as visit-only. Heart controls name the wallpaper. All Node gates and 29 Chromium checks passed.

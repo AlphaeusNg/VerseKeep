@@ -1690,6 +1690,8 @@ html[data-wallpaper-format="phone"] .wp-thumb {
   color: #f0d878;
 }
 
+.wp-heart-status { margin: 0; padding: .5rem .6rem 2.5rem; }
+
 /* Download + heart cluster (bottom-right of card) */
 .wp-side-actions {
   position: absolute;
