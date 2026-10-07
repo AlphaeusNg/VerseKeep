@@ -1,6 +1,19 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-06 (finish practice label)
+Last updated: 2026-10-07 (honest meditation and preference saves)
+
+## Honest meditation-session and shared-preference saves — 2026-10-07
+
+- Meditation place and shared preferences keep an in-memory visit copy when
+  device storage rejects a write, matching Amen streak and practice stats.
+- `saveMeditation` and `savePrefs` return `{ ok, error?, session|prefs }` and
+  never drop earlier visit-only partials. Meditation shows a persistent
+  visit-only status; silent prefs stay quiet besides a once-per-episode console
+  warning. Backup import replaces preference memory so restored prefs stay coherent.
+- This closes the explicit next opportunity under the denied practice-stats
+  cycle (audit meditation-session and shared-preference writes).
+- Verification: all seven `tools/test-*.mjs` gates and the Chromium journeys pass.
+- Release: `2026.10.07.2`.
 
 ## Finish practice label — 2026-10-06
 
@@ -37,7 +50,7 @@ speech and typed input remain uninterrupted.
 - Runtime: zero-build static site deployed from `docs/`.
 - Baseline verification: deterministic Node contracts, real-browser smoke coverage, and syntax checks for every JavaScript file.
 - Automated verification: GitHub Actions runs CI policy (12 assertions), site structure, offline-worker contracts, core contracts, device-backup and speech contracts, data contracts (35 assertions), live Bible requests (26 assertions), twenty-six browser paths, and syntax checks on Node 24.
-- Deployment version: `2026.10.06.1`.
+- Deployment version: `2026.10.07.2`.
 - Browser dependency: locked `@playwright/test` 1.62.1; Chromium is downloaded explicitly only for browser testing and does not enter the static deployment.
 
 ## Latest cycle: device backup, short review, shared session, wallpaper crop
@@ -819,7 +832,7 @@ to the primary meditation journey.
 |---|---|---|---|---|---|---|
 | — | Stop stale speech when meditation or practice replaces its verse | Correctness / UX | Medium-high | Small / low | Two new Chromium journeys require cancellation across both independent read-aloud paths | Completed in Cycle 62 |
 | — | Render validated theme emoji only as text | Correctness / security | High | Small / low | 17th Chromium journey injects element-shaped text through both renderers | Completed in Cycle 58 |
-| — | Audit meditation-session and shared-preference write promises | Reliability / UX | Low-medium | Small / low | No visible durability promise was found; these preferences intentionally remain best-effort | Audited in Cycle 58; no change |
+| — | Audit meditation-session and shared-preference write promises | Reliability / UX | Low-medium | Small / low | Denied meditation writes keep the card and a visit-only status; prefs stay coherent in memory | Completed in the honest-storage-saves cycle |
 | — | Keep practice statistics honest when device writes are denied | Reliability / UX | Medium | Small / low | 16th Chromium journey covers denial, session counts, reset copy, recovery, and full flush | Completed in Cycle 57 |
 | — | Retain and disclose denied Amen streak writes for the current visit | Reliability / UX | Medium | Small / low | 15th Chromium journey proves no durable value, coherent session state, and idempotence | Completed in Cycle 56 |
 | — | Tighten Topics-grid density on phone | UX | Medium | Small / low | 7rem rows, hidden redundant blurbs/bars, and static density contract | Completed in Cycle 55 |

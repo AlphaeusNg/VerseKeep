@@ -35,16 +35,49 @@
     return window.VerseKeepSession.loadPrefs();
   }
 
+  let prefsSaveWarned = false;
+
   function savePrefs(partial) {
-    window.VerseKeepSession.savePrefs(partial);
+    const saved = window.VerseKeepSession.savePrefs(partial);
+    if (saved.ok) {
+      prefsSaveWarned = false;
+      return true;
+    }
+    if (!prefsSaveWarned) {
+      console.warn("[VerseKeep] preferences remain session-only", saved.error);
+      prefsSaveWarned = true;
+    }
+    return false;
   }
 
   function loadMed() {
     return window.VerseKeepSession.loadMeditation(themeIds());
   }
 
+  let medSaveWarned = false;
+
+  function paintMedStorageStatus(saved) {
+    const status = $("#med-storage-status");
+    if (!status) return;
+    status.hidden = saved;
+    status.textContent = saved
+      ? ""
+      : "Meditation place is kept for this visit only; device storage is blocked.";
+  }
+
   function saveMed(partial) {
-    window.VerseKeepSession.saveMeditation(partial, themeIds());
+    const saved = window.VerseKeepSession.saveMeditation(partial, themeIds());
+    if (saved.ok) {
+      medSaveWarned = false;
+      paintMedStorageStatus(true);
+      return true;
+    }
+    if (!medSaveWarned) {
+      console.warn("[VerseKeep] meditation session remains session-only", saved.error);
+      medSaveWarned = true;
+    }
+    paintMedStorageStatus(false);
+    return false;
   }
 
   function loadStreak() {

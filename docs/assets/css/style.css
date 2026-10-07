@@ -2361,6 +2361,11 @@ kbd {
   color: var(--gold);
 }
 
+#med-storage-status {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
 .med-streak {
   display: flex;
   flex-wrap: wrap;

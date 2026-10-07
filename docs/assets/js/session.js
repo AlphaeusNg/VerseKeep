@@ -51,15 +51,90 @@
     }
   }
 
+  function createPrefsStore(storage) {
+    let prefs = null;
+
+    function load() {
+      if (prefs) return prefs;
+      const read = readJson(KEYS.preferences, storage);
+      prefs = core().normalizePrefs(read.value || {});
+      return prefs;
+    }
+
+    function save(partial) {
+      prefs = core().normalizePrefs({ ...load(), ...(partial || {}) });
+      const written = writeJson(KEYS.preferences, prefs, storage);
+      return written.ok ? { ok: true, prefs } : { ok: false, error: written.error, prefs };
+    }
+
+    function replace(data) {
+      prefs = core().normalizePrefs(data || {});
+      return prefs;
+    }
+
+    return { load, save, replace };
+  }
+
+  function createMeditationStore(storage) {
+    let session = null;
+
+    function load(themeIds) {
+      if (session) return session;
+      const read = readJson(KEYS.meditation, storage);
+      session = core().normalizeMeditationSession(read.value || {}, themeIds || []);
+      return session;
+    }
+
+    function save(partial, themeIds) {
+      const ids = themeIds || [];
+      session = core().normalizeMeditationSession({ ...load(ids), ...(partial || {}) }, ids);
+      const written = writeJson(KEYS.meditation, session, storage);
+      return written.ok ? { ok: true, session } : { ok: false, error: written.error, session };
+    }
+
+    function replace(data, themeIds) {
+      session = core().normalizeMeditationSession(data || {}, themeIds || []);
+      return session;
+    }
+
+    return { load, save, replace };
+  }
+
+  const defaultPrefsStore = createPrefsStore();
+  const defaultMeditationStore = createMeditationStore();
+  const prefsStores = new WeakMap();
+  const meditationStores = new WeakMap();
+
+  function prefsStoreOf(storage) {
+    if (!storage) return defaultPrefsStore;
+    let store = prefsStores.get(storage);
+    if (!store) {
+      store = createPrefsStore(storage);
+      prefsStores.set(storage, store);
+    }
+    return store;
+  }
+
+  function meditationStoreOf(storage) {
+    if (!storage) return defaultMeditationStore;
+    let store = meditationStores.get(storage);
+    if (!store) {
+      store = createMeditationStore(storage);
+      meditationStores.set(storage, store);
+    }
+    return store;
+  }
+
   function loadPrefs(storage) {
-    const read = readJson(KEYS.preferences, storage);
-    if (!read.value) return {};
-    return core().normalizePrefs(read.value);
+    return prefsStoreOf(storage).load();
   }
 
   function savePrefs(partial, storage) {
-    const next = core().normalizePrefs({ ...loadPrefs(storage), ...(partial || {}) });
-    return writeJson(KEYS.preferences, next, storage).ok;
+    return prefsStoreOf(storage).save(partial);
+  }
+
+  function replacePrefs(data, storage) {
+    return prefsStoreOf(storage).replace(data);
   }
 
   function loadStats(storage) {
@@ -73,16 +148,15 @@
   }
 
   function loadMeditation(themeIds, storage) {
-    const read = readJson(KEYS.meditation, storage);
-    return core().normalizeMeditationSession(read.value || {}, themeIds || []);
+    return meditationStoreOf(storage).load(themeIds);
   }
 
   function saveMeditation(partial, themeIds, storage) {
-    const next = core().normalizeMeditationSession(
-      { ...loadMeditation(themeIds, storage), ...(partial || {}) },
-      themeIds || []
-    );
-    return writeJson(KEYS.meditation, next, storage).ok;
+    return meditationStoreOf(storage).save(partial, themeIds);
+  }
+
+  function replaceMeditation(data, themeIds, storage) {
+    return meditationStoreOf(storage).replace(data, themeIds);
   }
 
   function createStreakStore(storage) {
@@ -367,6 +441,7 @@
         };
       }
     }
+    prefsStoreOf(storage).replace(parsed.snapshot.preferences);
     return { ok: true, persisted: true, rollbackFailed: [], snapshot: parsed.snapshot };
   }
 
@@ -473,6 +548,8 @@
     FORMAT,
     KEYS,
     VERSION,
+    createMeditationStore,
+    createPrefsStore,
     createSpeechSession,
     createStreakStore,
     exportSnapshot,
@@ -483,6 +560,8 @@
     normalizeWallpaperSelection,
     parseSnapshot,
     persistSnapshot,
+    replaceMeditation,
+    replacePrefs,
     saveMeditation,
     savePrefs,
     saveStats,
