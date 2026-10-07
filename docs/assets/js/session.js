@@ -469,6 +469,7 @@
   }
 
   const speech = createSpeechSession(global);
+  global.addEventListener?.("pagehide", () => speech.cancel());
 
   global.VerseKeepSession = Object.freeze({
     FORMAT,

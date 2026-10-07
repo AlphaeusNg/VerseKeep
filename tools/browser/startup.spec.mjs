@@ -289,6 +289,18 @@ test("stops practice speech before showing another drill verse", async ({ page }
     .toBeGreaterThan(cancelsAfterStart);
 });
 
+test("page departure stops speech without queuing another utterance", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+  await page.keyboard.press("l");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+  const before = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+  await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+  expect(await page.evaluate(() => globalThis.__versekeepSpeech.cancelled)).toBeGreaterThan(before);
+  expect(await page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+});
+
 test("renders theme emoji text without interpreting catalog markup", async ({ page }) => {
   const probe = '<span id="catalog-markup-probe">unsafe</span>';
   await page.route("**/data/verses.json", async (route) => {

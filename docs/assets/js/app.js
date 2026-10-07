@@ -811,7 +811,7 @@
       if (status) {
         status.hidden = false;
         status.textContent =
-          "Nothing is due. A verse is due after a miss, or 3 days after you last practiced it. Meditation stays as it is.";
+          "Nothing is due. Misses return sooner. Clean recalls wait 3–30 days, with longer gaps after consecutive clean practice days. Meditation stays as it is.";
       }
       return;
     }

@@ -849,3 +849,8 @@ Wallpaper hearts retain their local selection and announce when the community co
 ## 2026-10-07 — Space reviews after consecutive clean recall days
 
 Clean recall days extend review intervals from 3 to 7, 14, 21 and 30 days, capped at five clean days. Same-day retries cannot inflate the streak; a miss resets it. Recent practice entries can no longer leak into the due queue through legacy verse-hit totals. Backup validation retains the bounded streak. Validation: all Node gates and 29 Chromium journeys passed. Version 2026.10.07.2.
+
+
+## 2026-10-07 — Stop page-departure speech and explain spaced review
+
+The shared speech session cancels on pagehide, clearing queued continuations. The empty-review explanation now accurately describes 3–30 day clean-recall spacing and earlier missed-verse reviews. Validation: all Node gates and 30 Chromium journeys passed, including page departure without a follow-up utterance. Version 2026.10.07.3.
