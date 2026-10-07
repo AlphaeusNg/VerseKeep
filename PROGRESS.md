@@ -844,3 +844,8 @@ Workspace next: rotate to another clean repository.
 ## 2026-10-07 — Explain unavailable community heart counters
 
 Wallpaper hearts retain their local selection and announce when the community counter is unavailable. Denied device storage is described as visit-only. Heart controls name the wallpaper. All Node gates and 29 Chromium checks passed.
+
+
+## 2026-10-07 — Space reviews after consecutive clean recall days
+
+Clean recall days extend review intervals from 3 to 7, 14, 21 and 30 days, capped at five clean days. Same-day retries cannot inflate the streak; a miss resets it. Recent practice entries can no longer leak into the due queue through legacy verse-hit totals. Backup validation retains the bounded streak. Validation: all Node gates and 29 Chromium journeys passed. Version 2026.10.07.2.

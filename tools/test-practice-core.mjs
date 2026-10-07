@@ -446,4 +446,17 @@ if (core?.planReview && core?.reviewLimit) {
   );
 }
 
+{
+  const state = { versePractice: { "John 11:35": {
+    correct: 4, missed: 0, lastDay: "2026-09-20", lastResult: "correct", cleanStreak: 3,
+  } }, verseHits: { "John 11:35": 4 } };
+  assert.equal(core.planReview(state, { today: "2026-09-30", limit: 5 }).length, 0,
+    "a clean recall streak waits fourteen days and cannot leak through legacy totals");
+  assert.equal(core.planReview(state, { today: "2026-10-04", limit: 5 }).length, 1,
+    "a clean recall streak becomes due at its interval");
+  state.versePractice["John 11:35"].lastResult = "missed";
+  assert.equal(core.planReview(state, { today: "2026-09-21", limit: 5 }).length, 1,
+    "a miss remains due regardless of the previous clean streak");
+}
+
 console.log("test-practice-core.mjs: scoring, state, catalog, link, review, and cancellation assertions passed");

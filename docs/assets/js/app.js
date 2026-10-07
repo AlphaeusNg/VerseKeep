@@ -740,6 +740,9 @@
         missed: prev.missed + (ok ? 0 : 1),
         lastDay: practiceDayKey(),
         lastResult: ok ? "correct" : "missed",
+        cleanStreak: ok
+          ? Math.min(5, (prev.cleanStreak || 0) + (prev.lastDay === practiceDayKey() ? 0 : 1))
+          : 0,
       };
     }
     stats.totalScore = (stats.totalScore || 0) + (ok ? 10 : 0);

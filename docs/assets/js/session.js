@@ -201,6 +201,7 @@
         if (!isPlain(entry)) return false;
         if ("correct" in entry && !finiteCount(entry.correct)) return false;
         if ("missed" in entry && !finiteCount(entry.missed)) return false;
+        if ("cleanStreak" in entry && (!finiteCount(entry.cleanStreak) || entry.cleanStreak > 5)) return false;
         if ("lastDay" in entry && entry.lastDay !== null && !isDayKey(entry.lastDay)) return false;
         if (
           "lastResult" in entry &&
