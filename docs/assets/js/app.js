@@ -1400,11 +1400,19 @@
     }
   }
 
+  let deviceImportGeneration = 0;
   async function importDeviceFile(file) {
+    const generation = ++deviceImportGeneration;
+    if (file.size > 8 * 1024 * 1024) {
+      paintDeviceStatus(false, "That backup exceeds 8 MB. Nothing was changed.");
+      return;
+    }
     let text = "";
     try {
       text = await file.text();
+      if (generation !== deviceImportGeneration) return;
     } catch {
+      if (generation !== deviceImportGeneration) return;
       paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
       return;
     }

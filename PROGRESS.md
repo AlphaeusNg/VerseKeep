@@ -854,3 +854,7 @@ Clean recall days extend review intervals from 3 to 7, 14, 21 and 30 days, cappe
 ## 2026-10-07 — Stop page-departure speech and explain spaced review
 
 The shared speech session cancels on pagehide, clearing queued continuations. The empty-review explanation now accurately describes 3–30 day clean-recall spacing and earlier missed-verse reviews. Validation: all Node gates and 30 Chromium journeys passed, including page departure without a follow-up utterance. Version 2026.10.07.3.
+
+## 2026-10-07 — Keep the newest backup selection authoritative
+
+Each device import has a selection identity. An older delayed read or read failure cannot restore data or overwrite the status after a newer selection. Backups above 8 MiB are rejected before reading or confirming replacement. All Node gates and 31 Chromium journeys passed, plus targeted newest-selection and oversize preflight checks. Scripture and review spacing stay unchanged.
