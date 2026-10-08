@@ -607,6 +607,38 @@ test("keeps Amen truthful and session-safe when device storage denies the streak
   await expect(page.locator("#med-streak")).toContainText("Streak 1 day · Amen today");
 });
 
+test("keeps meditation place session-safe and honest when device storage is denied", async ({ page }) => {
+  await page.addInitScript(() => {
+    const setItem = Storage.prototype.setItem;
+    globalThis.__versekeepMedWritesAllowed = false;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "versekeep-meditate-v1" && !globalThis.__versekeepMedWritesAllowed) {
+        throw new DOMException("Storage denied", "QuotaExceededError");
+      }
+      return setItem.call(this, key, value);
+    };
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const firstRef = await page.locator("#meditate-card .med-ref").innerText();
+  await page.locator("#med-next").click();
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText(firstRef);
+  const storageStatus = page.locator("#med-storage-status");
+  await expect(storageStatus).toBeVisible();
+  await expect(storageStatus).toHaveText(
+    "Meditation place is kept for this visit only; device storage is blocked.",
+  );
+  expect(await page.evaluate(() => localStorage.getItem("versekeep-meditate-v1"))).toBeNull();
+
+  await page.evaluate(() => {
+    globalThis.__versekeepMedWritesAllowed = true;
+  });
+  await page.locator("#med-next").click();
+  await expect(storageStatus).toBeHidden();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-meditate-v1")));
+  expect(saved.ref).toBeTruthy();
+});
+
 test("rejects an invalid playlist catalog without exposing diagnostics", async ({ page }) => {
   await page.route("**/data/playlists.json", (route) =>
     route.fulfill({ json: { youtube: {}, spotify: [] } })

@@ -156,8 +156,19 @@
     return window.VerseKeepSession.loadPrefs();
   }
 
+  let prefsSaveWarned = false;
+
   function savePrefs(partial) {
-    window.VerseKeepSession.savePrefs(partial);
+    const saved = window.VerseKeepSession.savePrefs(partial);
+    if (saved.ok) {
+      prefsSaveWarned = false;
+      return true;
+    }
+    if (!prefsSaveWarned) {
+      console.warn("[VerseKeep] preferences remain session-only", saved.error);
+      prefsSaveWarned = true;
+    }
+    return false;
   }
 
   function selectedTranslation() {
@@ -1381,6 +1392,7 @@
     paintStatsBar();
     paintThemes();
     paintMemorizeEmpty();
+    window.VerseKeepSession.replacePrefs(snapshot.preferences);
     const prefs = snapshot.preferences || {};
     if (prefs.translation) applyTranslation(prefs.translation);
     if (typeof prefs.autoAdvance === "boolean") {

@@ -245,4 +245,92 @@ const recovery = meditateSource.slice(
 assert.doesNotMatch(recovery, /setTopic|showIndex/, "network recovery does not navigate to another verse");
 assert.match(recovery, /hydrateCurrent/, "network recovery reloads the selected verse");
 
-console.log("test-session.mjs: backup, translation label, speech, and review wiring assertions passed");
+function denyKey(store, key) {
+  const originalSet = store.setItem.bind(store);
+  let allow = false;
+  store.setItem = (name, value) => {
+    if (name === key && !allow) throw new Error("denied");
+    originalSet(name, value);
+  };
+  return () => {
+    allow = true;
+  };
+}
+
+const deniedMed = memoryStorage();
+const allowMed = denyKey(deniedMed, "versekeep-meditate-v1");
+const medResult = session.saveMeditation(
+  { topicId: "trusting-god", ref: "Psalm 56:3", day: 20261007 },
+  ["trusting-god"],
+  deniedMed
+);
+assert.equal(medResult.ok, false, "a denied meditation write is not reported as saved");
+assert.equal(medResult.session.ref, "Psalm 56:3", "memory keeps the visit-only meditation");
+assert.deepEqual(
+  session.loadMeditation(["trusting-god"], deniedMed),
+  medResult.session,
+  "loadMeditation prefers the visit-only session after a denied write"
+);
+assert.equal(deniedMed.getItem("versekeep-meditate-v1"), null, "the denied meditation key is not created");
+allowMed();
+const recoveredMed = session.saveMeditation(
+  { topicId: "trusting-god", ref: "John 3:16", day: 20261007 },
+  ["trusting-god"],
+  deniedMed
+);
+assert.equal(recoveredMed.ok, true, "a later meditation write can recover");
+assert.equal(JSON.parse(deniedMed.getItem("versekeep-meditate-v1")).ref, "John 3:16", "recovery persists the current session");
+
+const durableMed = memoryStorage();
+const persistedMed = session.saveMeditation(
+  { topicId: "gospel", ref: "John 3:16", day: 20261007 },
+  ["gospel"],
+  durableMed
+);
+assert.equal(persistedMed.ok, true, "an allowed meditation write reports success");
+assert.equal(JSON.parse(durableMed.getItem("versekeep-meditate-v1")).topicId, "gospel");
+
+const deniedPrefs = memoryStorage({ "versekeep-prefs-v1": JSON.stringify({ mode: "study" }) });
+const beforePrefs = deniedPrefs.getItem("versekeep-prefs-v1");
+const allowPrefs = denyKey(deniedPrefs, "versekeep-prefs-v1");
+const firstPrefs = session.savePrefs({ lastMedTopic: "gospel" }, deniedPrefs);
+assert.equal(firstPrefs.ok, false, "a denied preference write is not reported as saved");
+assert.equal(firstPrefs.prefs.lastMedTopic, "gospel");
+assert.equal(firstPrefs.prefs.mode, "study", "memory starts from the existing device prefs");
+const secondPrefs = session.savePrefs({ translation: "niv" }, deniedPrefs);
+assert.equal(secondPrefs.ok, false);
+assert.equal(secondPrefs.prefs.lastMedTopic, "gospel", "a later denied save keeps the earlier visit-only partial");
+assert.equal(secondPrefs.prefs.translation, "niv");
+assert.equal(secondPrefs.prefs.mode, "study");
+assert.equal(deniedPrefs.getItem("versekeep-prefs-v1"), beforePrefs, "denied preference writes leave storage unchanged");
+assert.deepEqual(session.loadPrefs(deniedPrefs), secondPrefs.prefs, "loadPrefs prefers visit-only prefs after a denied write");
+allowPrefs();
+const recoveredPrefs = session.savePrefs({ medFocus: true }, deniedPrefs);
+assert.equal(recoveredPrefs.ok, true, "a later preference write can recover");
+assert.equal(JSON.parse(deniedPrefs.getItem("versekeep-prefs-v1")).lastMedTopic, "gospel");
+assert.equal(JSON.parse(deniedPrefs.getItem("versekeep-prefs-v1")).translation, "niv");
+assert.equal(JSON.parse(deniedPrefs.getItem("versekeep-prefs-v1")).medFocus, true);
+
+const importPrefs = memoryStorage({ "versekeep-prefs-v1": JSON.stringify({ mode: "study" }) });
+denyKey(importPrefs, "versekeep-prefs-v1");
+session.savePrefs({ lastMedTopic: "gospel" }, importPrefs);
+const replaced = session.replacePrefs({ mode: "quiz", translation: "nkjv" }, importPrefs);
+assert.equal(replaced.mode, "quiz");
+const afterReplace = session.savePrefs({ autoAdvance: true }, importPrefs);
+assert.equal(afterReplace.prefs.mode, "quiz", "replacePrefs becomes the baseline for later visit-only merges");
+assert.equal(afterReplace.prefs.autoAdvance, true);
+assert.equal(afterReplace.prefs.lastMedTopic, undefined, "replacePrefs drops visit-only partials from before the import");
+assert.equal(importPrefs.getItem("versekeep-prefs-v1"), JSON.stringify({ mode: "study" }), "replacePrefs does not write storage");
+
+const durablePrefs = memoryStorage();
+const savedPrefs = session.savePrefs({ mode: "blank", translation: "niv" }, durablePrefs);
+assert.equal(savedPrefs.ok, true, "an allowed preference write reports success");
+assert.equal(JSON.parse(durablePrefs.getItem("versekeep-prefs-v1")).mode, "blank");
+
+assert.equal(
+  session.loadPrefs(fresh).translation,
+  "niv",
+  "a successful backup restore replaces preference memory for that storage"
+);
+
+console.log("test-session.mjs: backup, translation label, speech, review wiring, and honest storage assertions passed");
