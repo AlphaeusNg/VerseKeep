@@ -751,6 +751,9 @@
         missed: prev.missed + (ok ? 0 : 1),
         lastDay: practiceDayKey(),
         lastResult: ok ? "correct" : "missed",
+        cleanStreak: ok
+          ? Math.min(5, (prev.cleanStreak || 0) + (prev.lastDay === practiceDayKey() ? 0 : 1))
+          : 0,
       };
     }
     stats.totalScore = (stats.totalScore || 0) + (ok ? 10 : 0);
@@ -819,7 +822,7 @@
       if (status) {
         status.hidden = false;
         status.textContent =
-          "Nothing is due. A verse is due after a miss, or 3 days after you last practiced it. Meditation stays as it is.";
+          "Nothing is due. Misses return sooner. Clean recalls wait 3–30 days, with longer gaps after consecutive clean practice days. Meditation stays as it is.";
       }
       return;
     }
@@ -1409,11 +1412,19 @@
     }
   }
 
+  let deviceImportGeneration = 0;
   async function importDeviceFile(file) {
+    const generation = ++deviceImportGeneration;
+    if (file.size > 8 * 1024 * 1024) {
+      paintDeviceStatus(false, "That backup exceeds 8 MB. Nothing was changed.");
+      return;
+    }
     let text = "";
     try {
       text = await file.text();
+      if (generation !== deviceImportGeneration) return;
     } catch {
+      if (generation !== deviceImportGeneration) return;
       paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
       return;
     }

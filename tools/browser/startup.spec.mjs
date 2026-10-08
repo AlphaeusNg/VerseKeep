@@ -289,6 +289,18 @@ test("stops practice speech before showing another drill verse", async ({ page }
     .toBeGreaterThan(cancelsAfterStart);
 });
 
+test("page departure stops speech without queuing another utterance", async ({ page }) => {
+  await installSpeechProbe(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+  await page.keyboard.press("l");
+  await expect.poll(() => page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+  const before = await page.evaluate(() => globalThis.__versekeepSpeech.cancelled);
+  await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+  expect(await page.evaluate(() => globalThis.__versekeepSpeech.cancelled)).toBeGreaterThan(before);
+  expect(await page.evaluate(() => globalThis.__versekeepSpeech.spoken.length)).toBe(1);
+});
+
 test("renders theme emoji text without interpreting catalog markup", async ({ page }) => {
   const probe = '<span id="catalog-markup-probe">unsafe</span>';
   await page.route("**/data/verses.json", async (route) => {
@@ -1069,4 +1081,48 @@ test("keeps a wallpaper heart locally when its community counter fails", async (
   await selected.locator("[data-heart]").click();
   await expect(selected.locator("[data-heart]")).toHaveAttribute("aria-pressed", "false");
   await expect(selected.getByRole("status")).toHaveCount(0);
+});
+
+test('only the newest selected device backup can replace progress', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = File.prototype.text;
+    File.prototype.text = function () {
+      if (this.name !== 'slow.json') return original.call(this);
+      return new Promise(resolve => { window.__releaseOldBackup = async () => resolve(await original.call(this)); });
+    };
+  });
+  await page.goto('/');
+  await expect(page.locator('#theme-grid [data-theme]')).not.toHaveCount(0);
+  const snapshot = await page.evaluate(() => window.VerseKeepSession.exportSnapshot({practice: {checks: 3}}).snapshot);
+  let dialogs = 0;
+  page.on('dialog', dialog => { dialogs++; return dialog.accept(); });
+  await page.locator('#device-import-file').setInputFiles({name:'slow.json', mimeType:'application/json', buffer:Buffer.from(JSON.stringify(snapshot))});
+  snapshot.practice.checks = 7;
+  await page.locator('#device-import-file').setInputFiles({name:'new.json', mimeType:'application/json', buffer:Buffer.from(JSON.stringify(snapshot))});
+  await expect(page.locator('#device-data-status')).toContainText('Restored practice');
+  await page.evaluate(() => window.__releaseOldBackup());
+  await page.waitForTimeout(100);
+  expect(dialogs).toBe(1);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('versekeep-stats-v1')).checks)).toBe(7);
+});
+
+test('rejects an oversized backup before reading it or confirming replacement', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#theme-grid [data-theme]')).not.toHaveCount(0);
+  const before = await page.evaluate(() => localStorage.getItem('versekeep-stats-v1'));
+  let dialogs = 0;
+  page.on('dialog', dialog => { dialogs++; return dialog.dismiss(); });
+  await page.evaluate(() => {
+    const file = new File(['{}'], 'large.json', {type:'application/json'});
+    Object.defineProperty(file, 'size', {value:8 * 1024 * 1024 + 1});
+    window.__backupReads = 0;
+    file.text = async () => { window.__backupReads++; return '{}'; };
+    const input = document.querySelector('#device-import-file');
+    Object.defineProperty(input, 'files', {configurable:true,value:[file]});
+    input.dispatchEvent(new Event('change', {bubbles:true}));
+  });
+  await expect(page.locator('#device-data-status')).toContainText('exceeds 8 MB');
+  expect(await page.evaluate(() => window.__backupReads)).toBe(0);
+  expect(await page.evaluate(() => localStorage.getItem('versekeep-stats-v1'))).toBe(before);
+  expect(dialogs).toBe(0);
 });

@@ -49,7 +49,8 @@
       const lastResult =
         entry.lastResult === "correct" || entry.lastResult === "missed" ? entry.lastResult : null;
       if (!lastDay && !lastResult && correct === 0 && missed === 0) continue;
-      result[key] = { correct, missed, lastDay, lastResult };
+      const cleanStreak = Math.min(5, boundedInteger(entry.cleanStreak));
+      result[key] = { correct, missed, lastDay, lastResult, cleanStreak };
     }
     return result;
   }
@@ -110,8 +111,9 @@
     }
     if (entry.lastDay && today) {
       const age = dayNumber(today) - dayNumber(entry.lastDay);
-      if (Number.isFinite(age) && age >= 3) {
-        return { rank: 1, text: `Last practiced ${age} days ago` };
+      const interval = [3, 3, 7, 14, 21, 30][entry.cleanStreak || 0];
+      if (Number.isFinite(age) && age >= interval) {
+        return { rank: 1, text: `Last practiced ${age} days ago · ${interval}-day review interval` };
       }
       return null;
     }
@@ -123,7 +125,7 @@
 
   /**
    * Due verses from recorded outcomes and last-practiced dates.
-   * A correct answer inside the last 3 days is not due.
+   * Clean recalls wait 3–30 days according to consecutive clean practice days.
    */
   function planReview(stats, options = {}) {
     const source = isRecord(stats) ? stats : {};
@@ -139,8 +141,8 @@
     for (const [ref, entry] of Object.entries(practice)) {
       if (allowed && !allowed.has(ref)) continue;
       const reason = reviewReason(entry, today);
-      if (!reason) continue;
       seen.add(ref);
+      if (!reason) continue;
       rows.push({ ref, reason: reason.text, rank: reason.rank, lastDay: entry.lastDay || "" });
     }
     for (const [ref, count] of Object.entries(hits)) {
