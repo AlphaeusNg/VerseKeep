@@ -879,3 +879,5 @@ Each device import has a selection identity. An older delayed read or read failu
 Refreshes streak labels and seven-day dots each minute, on focus and on return to visibility. The selected meditation verse stays in place.
 
 Validation: All Node gates; 33 existing Chromium journeys passed, and the added midnight journey passed after correcting its fixture selector (34 journeys total).
+
+Release check: bumped the newer upstream deployment stamp to 2026.10.11.1 in a follow-up commit; calendar behavior is unchanged.
