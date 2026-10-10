@@ -873,3 +873,9 @@ The shared speech session cancels on pagehide, clearing queued continuations. Th
 ## 2026-10-07 — Keep the newest backup selection authoritative
 
 Each device import has a selection identity. An older delayed read or read failure cannot restore data or overwrite the status after a newer selection. Backups above 8 MiB are rejected before reading or confirming replacement. All Node gates and 31 Chromium journeys passed, plus targeted newest-selection and oversize preflight checks. Scripture and review spacing stay unchanged.
+
+## 2026-10-11 — Refresh Amen calendar labels across midnight
+
+Refreshes streak labels and seven-day dots each minute, on focus and on return to visibility. The selected meditation verse stays in place.
+
+Validation: All Node gates; 33 existing Chromium journeys passed, and the added midnight journey passed after correcting its fixture selector (34 journeys total).

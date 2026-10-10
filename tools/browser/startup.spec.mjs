@@ -1126,3 +1126,17 @@ test('rejects an oversized backup before reading it or confirming replacement', 
   expect(await page.evaluate(() => localStorage.getItem('versekeep-stats-v1'))).toBe(before);
   expect(dialogs).toBe(0);
 });
+
+test("Amen calendar labels refresh after midnight without changing the selected verse", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-10-11T23:59:30") });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toBeEmpty();
+  await page.evaluate(() => window.VerseKeepMeditate.replaceStreak({
+    count: 3, lastDay: "2026-10-11", history: [{ day: "2026-10-11", ref: "Psalm 56:3" }],
+  }));
+  await expect(page.locator("#med-streak")).toContainText("Amen today");
+  const verse = await page.locator("#meditate-card .med-ref").textContent();
+  await page.clock.fastForward(60_000);
+  await expect(page.locator("#med-streak")).toContainText("mark Amen to continue");
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText(verse);
+});

@@ -816,6 +816,13 @@
     }
 
     window.addEventListener("online", recoverLiveText);
+    // Refresh calendar labels without replacing the verse the reader chose.
+    const refreshCalendar = () => { if (state.data) paintStreak(); };
+    window.addEventListener("focus", refreshCalendar);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshCalendar();
+    });
+    setInterval(refreshCalendar, 60_000);
 
     document.addEventListener("keydown", (e) => {
       const tag = e.target?.tagName;
