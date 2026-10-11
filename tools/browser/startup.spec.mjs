@@ -1140,3 +1140,22 @@ test("Amen calendar labels refresh after midnight without changing the selected 
   await expect(page.locator("#med-streak")).toContainText("mark Amen to continue");
   await expect(page.locator("#meditate-card .med-ref")).toHaveText(verse);
 });
+
+test("composition Enter finishes typing without submitting or advancing a drill", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("#theme-grid [data-drill]").first().click();
+  await page.locator('#play-panel [data-mode="type"]').click();
+  await page.locator("#type-input").fill("still composing");
+  const before = await page.locator("#feedback").textContent();
+  await page.locator("#type-input").evaluate((field) => field.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "Enter", ctrlKey: true, isComposing: true, bubbles: true, cancelable: true,
+  })));
+  await expect(page.locator("#feedback")).toHaveText(before || "");
+  await page.locator('#play-panel [data-mode="blank"]').click();
+  const first = page.locator("#stage .blank-input").first();
+  await first.focus();
+  await first.evaluate((field) => field.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "Enter", isComposing: true, bubbles: true, cancelable: true,
+  })));
+  await expect(first).toBeFocused();
+});

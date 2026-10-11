@@ -825,6 +825,7 @@
     setInterval(refreshCalendar, 60_000);
 
     document.addEventListener("keydown", (e) => {
+      if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return;
       const tag = e.target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target?.isContentEditable) {
         return;

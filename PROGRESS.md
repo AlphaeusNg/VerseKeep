@@ -881,3 +881,9 @@ Refreshes streak labels and seven-day dots each minute, on focus and on return t
 Validation: All Node gates; 33 existing Chromium journeys passed, and the added midnight journey passed after correcting its fixture selector (34 journeys total).
 
 Release check: bumped the newer upstream deployment stamp to 2026.10.11.1 in a follow-up commit; calendar behavior is unchanged.
+
+## 2026-10-11 — Preserve composition confirmation keys
+
+IME Enter confirmation cannot advance blanks or submit a Type-it answer. Meditation shortcuts also ignore composition and already-handled keys.
+
+Validation: All Node gates, 34 existing Chromium journeys and the new composition journey (35 distinct journeys total).
