@@ -41,7 +41,5 @@ platform with its own `--with-deps` package list (t64 package names), so
 ## Decision and limits
 
 No workflow change needed; the job stays on `ubuntu-latest`. If a future 26.04
-image update breaks the job, pin it to `ubuntu-24.04` with a dated comment
-citing the failure and the announcement, and link this note. Note that this
-file lives under docs/, which is the GitHub Pages root (with .nojekyll), so it
-is also served as a plain static file; the service worker does not precache it.
+image update breaks the job, pin it to `ubuntu-24.04` with a dated comment citing
+the failure and the announcement, and link this note.
