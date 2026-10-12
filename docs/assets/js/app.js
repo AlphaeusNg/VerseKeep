@@ -1318,7 +1318,7 @@
   function isTypingTarget(el) {
     if (!el) return false;
     const tag = el.tagName;
-    return tag === "INPUT" || tag === "TEXTAREA" || el.isContentEditable;
+    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
   }
 
   function translationFromStartup(catalog) {
@@ -1615,7 +1615,7 @@
 
     // Keyboard shortcuts (skip when typing in free-form fields except controlled cases)
     window.addEventListener("keydown", (e) => {
-      if (e.altKey || e.metaKey || e.ctrlKey) return;
+      if (e.defaultPrevented || e.isComposing || e.keyCode === 229 || e.altKey || e.metaKey || e.ctrlKey) return;
       const typing = isTypingTarget(document.activeElement);
 
       // In quiz mode, 1–4 pick answers; otherwise 1–5 switch practice modes
@@ -1682,7 +1682,7 @@
         toggleStudyHide();
         return;
       }
-      if (!typing && e.key === "Enter" && !$("#btn-check")?.hidden) {
+      if (!typing && e.key === "Enter" && !e.target.closest?.("button, a, summary, [role=button]") && !$("#btn-check")?.hidden) {
         e.preventDefault();
         checkAnswer();
         return;

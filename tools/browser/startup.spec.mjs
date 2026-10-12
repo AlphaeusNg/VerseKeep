@@ -1159,3 +1159,25 @@ test("composition Enter finishes typing without submitting or advancing a drill"
   })));
   await expect(first).toBeFocused();
 });
+
+
+test('practice shortcuts preserve native buttons, selects and composition', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#theme-grid [data-drill]').first().click();
+  await page.locator('#play-panel [data-mode="blank"]').click();
+  const reveal = page.locator('#btn-reveal');
+  await reveal.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#feedback')).toHaveClass(/\bok\b/);
+  await expect(page.locator('#feedback')).toContainText(':');
+  await page.locator('#play-panel [data-mode="study"]').click();
+  const select = page.locator('#tr-select');
+  await select.focus();
+  await select.evaluate(field => field.dispatchEvent(new KeyboardEvent('keydown', {key:'1',bubbles:true,cancelable:true})));
+  await expect(page.locator('#play-panel [data-mode="study"]')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#stage').evaluate(field => {
+    field.tabIndex = -1; field.focus();
+    field.dispatchEvent(new KeyboardEvent('keydown', {key:'2',isComposing:true,bubbles:true,cancelable:true}));
+  });
+  await expect(page.locator('#play-panel [data-mode="study"]')).toHaveAttribute('aria-pressed', 'true');
+});

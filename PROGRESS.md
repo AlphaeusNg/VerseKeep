@@ -887,3 +887,9 @@ Release check: bumped the newer upstream deployment stamp to 2026.10.11.1 in a f
 IME Enter confirmation cannot advance blanks or submit a Type-it answer. Meditation shortcuts also ignore composition and already-handled keys.
 
 Validation: All Node gates, 34 existing Chromium journeys and the new composition journey (35 distinct journeys total).
+
+## 2026-10-13 — Keep practice shortcuts clear of native controls
+
+Practice shortcuts ignore consumed events and composition, leave selects alone, and preserve Enter activation on buttons, links and disclosures. Reveal now activates through its native keyboard behavior.
+
+Validation: All seven Node gates and 36 Chromium journeys passed; final strengthened native-button regression passed.
