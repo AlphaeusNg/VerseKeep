@@ -321,6 +321,7 @@
   }
 
   function paintCard(v, meta) {
+    syncSaveControl();
     const host = $("#meditate-card");
     if (!host) return;
     if (!v) {
@@ -707,6 +708,74 @@
     await showIndex(index);
   }
 
+  function syncSaveControl() {
+    const button = $("#med-save");
+    if (!button) return;
+    const ref = current()?.ref;
+    button.disabled = !ref;
+    button.setAttribute("aria-pressed", window.VerseKeepPractice?.savedVerseRefs?.().includes(ref) ? "true" : "false");
+  }
+
+  function paintSavedVerses() {
+    const host = $("#med-saved-list");
+    if (!host) return;
+    const refs = window.VerseKeepPractice?.savedVerseRefs?.() || [];
+    $("#med-saved-count").textContent = `(${refs.length})`;
+    host.replaceChildren();
+    if (!refs.length) {
+      const empty = document.createElement("p");
+      empty.className = "hint";
+      empty.textContent = "No saved verses yet. Choose More, then Save verse.";
+      host.appendChild(empty);
+    }
+    for (const ref of refs) {
+      const row = document.createElement("div");
+      row.className = "med-saved-row";
+      const open = document.createElement("button");
+      open.type = "button";
+      open.className = "btn ghost";
+      open.dataset.savedRef = ref;
+      open.textContent = ref;
+      open.setAttribute("aria-label", `Meditate on ${ref}`);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "btn ghost";
+      remove.dataset.removeSavedRef = ref;
+      remove.textContent = "Remove";
+      remove.setAttribute("aria-label", `Remove ${ref} from saved verses`);
+      row.append(open, remove);
+      host.appendChild(row);
+    }
+    syncSaveControl();
+  }
+
+  function saveVerse(ref) {
+    const result = window.VerseKeepPractice?.toggleSavedVerse?.(ref);
+    if (!result) return;
+    paintSavedVerses();
+    const status = $("#med-saved-status");
+    status.hidden = result.persisted;
+    status.textContent = result.persisted ? "" : "Saved verse changes are kept for this visit only; device storage is blocked. Export a backup to keep them.";
+    flashFeedback(result.persisted
+      ? `${ref} ${result.saved ? "saved on this device" : "removed from saved verses"}.`
+      : `${ref} ${result.saved ? "saved" : "removed"} for this visit only. Device storage is blocked; export a backup to keep these changes.`);
+  }
+
+  async function openSavedVerse(ref) {
+    if (!window.VerseKeepPractice?.savedVerseRefs?.().includes(ref)) return;
+    const located = locateVerse(ref, "all");
+    if (!located) return;
+    state.topicId = "all";
+    state.pool = located.pool;
+    paintTopics();
+    savePrefs({ lastMedTopic: "all" });
+    await showIndex(located.index);
+    const card = $("#meditate-card");
+    card.tabIndex = -1;
+    card.focus({ preventScroll: true });
+    card.scrollIntoView({ block: "nearest" });
+  }
+
   function setFocusMode(on) {
     state.focusMode = !!on;
     document.body.classList.toggle("med-focus", state.focusMode);
@@ -723,6 +792,16 @@
   }
 
   function bindUi() {
+    $("#med-save")?.addEventListener("click", () => saveVerse(current()?.ref));
+    $("#med-saved-list")?.addEventListener("click", (event) => {
+      const open = event.target.closest("[data-saved-ref]");
+      if (open) { openSavedVerse(open.dataset.savedRef).catch(() => {}); return; }
+      const remove = event.target.closest("[data-remove-saved-ref]");
+      if (!remove) return;
+      saveVerse(remove.dataset.removeSavedRef);
+      ($("#med-saved-list [data-saved-ref]") || $("#med-saved summary"))?.focus();
+    });
+    paintSavedVerses();
     $("#med-next")?.addEventListener("click", () => next(1));
     $("#med-prev")?.addEventListener("click", () => next(-1));
     $("#med-more")?.addEventListener("click", () => {
@@ -884,6 +963,7 @@
   }
 
   async function bootWithData(data) {
+    paintSavedVerses();
     state.data = data;
     const prefs = loadPrefs();
     const med = loadMed();
@@ -961,6 +1041,7 @@
     next,
     current,
     refresh: hydrateCurrent,
+    paintSavedVerses,
     setFocusMode,
     syncLink: writeMeditationLink,
     replaceStreak(data) {

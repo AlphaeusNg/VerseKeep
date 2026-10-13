@@ -64,6 +64,7 @@
       verseHits: {},
       themePlays: {},
       favorites: {},
+      savedVerses: {},
       versePractice: {},
       lastTheme: null,
       totalScore: 0,
@@ -85,10 +86,24 @@
       verseHits: counterMap(source.verseHits),
       themePlays: counterMap(source.themePlays),
       favorites: trueMap(source.favorites),
+      savedVerses: trueMap(source.savedVerses),
       versePractice: versePracticeMap(source.versePractice),
       lastTheme,
       totalScore: boundedInteger(source.totalScore),
     };
+  }
+
+  function catalogSavedVerses(value, catalog) {
+    const selected = isRecord(value) ? value : {};
+    const result = {};
+    for (const theme of catalog?.themes || []) {
+      for (const verse of theme.verses || []) {
+        if (!UNSAFE_KEYS.has(verse.ref) && Object.hasOwn(selected, verse.ref) && selected[verse.ref] === true) {
+          result[verse.ref] = true;
+        }
+      }
+    }
+    return result;
   }
 
   /** Short optional review. 3, 5, or 8 verses — never an open-ended drill. */
@@ -475,6 +490,7 @@
     normalizeMeditationStreak,
     normalizePrefs,
     normalizeStats,
+    catalogSavedVerses,
     parseMeditationLink,
     planReview,
     recallSimilarity,

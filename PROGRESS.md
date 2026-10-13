@@ -899,3 +899,11 @@ Validation: All seven Node gates and 36 Chromium journeys passed; final strength
 Meditation swipe navigation tracks one finger, drops canceled gestures, and ignores multi-touch and unrelated finger endings. Ordinary left/right swipes still move through the verses; vertical reading gestures stay in place.
 
 Validation: All seven Node gates, JavaScript syntax checks, and 37 Chromium journeys passed. The new phone-size regression covers cancellation, a second finger joining or moving, unrelated touch endings, remaining fingers, vertical movement, and both navigation directions. Version 2026.10.13.2.
+
+## 2026-10-14 — Save individual meditation verses for later
+
+Researched official saved-passage and accessible-toggle guidance and documented the selected feature and next priorities in `docs/FEATURE_ROADMAP.md` before implementation. More now offers Save verse; a compact Saved verses disclosure reopens the passage with context, application, prayer and the selected translation, or removes it. Focus hides the collection.
+
+Only bundled catalog references enter the collection; no passage bodies are duplicated into progress. Existing device backup/import and Reset progress include saved references. Older backups restore an empty collection. Denied writes retain visit-only changes with explicit feedback and allow exporting them; failed imports leave the current collection unchanged.
+
+Validation: all seven Node gates, per-file JavaScript syntax checks, and 39 Chromium journeys passed. New checks cover catalog filtering, malformed/older backup data, mobile save/reload/remove, native keyboard toggle state, canonical reopening with translation, backup roundtrip, reset, denied saves/imports and storage recovery. Version 2026.10.14.1.

@@ -145,6 +145,7 @@
           <button type="button" class="btn ghost" id="med-more" aria-expanded="false" aria-controls="med-more-panel">More</button>
         </div>
         <div class="med-more-panel" id="med-more-panel" hidden>
+          <button type="button" class="btn ghost" id="med-save" aria-pressed="false">Save verse</button>
           <button type="button" class="btn ghost" id="med-today" title="Today’s pick">Today</button>
           <button type="button" class="btn ghost" id="med-shuffle" title="Another verse (S)">Shuffle</button>
           <button type="button" class="btn ghost" id="med-copy" title="Copy (C)">Copy</button>
@@ -153,6 +154,12 @@
           <button type="button" class="btn ghost" id="med-listen" title="Read aloud (L)">Listen</button>
         </div>
       </div>
+      <details id="med-saved" class="med-saved">
+        <summary>Saved verses <span id="med-saved-count">(0)</span></summary>
+        <p class="hint">Keep passages to revisit on this device. Back up your progress to keep a copy.</p>
+        <p id="med-saved-status" class="feedback bad" role="status" aria-atomic="true" hidden></p>
+        <div id="med-saved-list"><p class="hint">No saved verses yet. Choose More, then Save verse.</p></div>
+      </details>
     </section>
 
     <section class="panel topics-panel" id="topics">

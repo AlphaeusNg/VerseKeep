@@ -140,6 +140,8 @@
     if (saved.ok) {
       statsSaveWarned = false;
       paintStatsStorageStatus(true);
+      const savedStatus = $("#med-saved-status");
+      if (savedStatus) savedStatus.hidden = true;
       return true;
     }
     if (!statsSaveWarned) {
@@ -151,6 +153,23 @@
   }
 
   let stats = loadStats();
+
+  function savedVerseRefs() {
+    return Object.keys(stats.savedVerses);
+  }
+
+  function toggleSavedVerse(ref) {
+    const valid = window.VerseKeepPracticeCore.catalogSavedVerses({ [ref]: true }, state.data);
+    if (!Object.hasOwn(valid, ref)) return null;
+    if (stats.savedVerses[ref]) delete stats.savedVerses[ref];
+    else stats.savedVerses[ref] = true;
+    const persisted = saveStats(stats);
+    return { saved: !!stats.savedVerses[ref], persisted };
+  }
+
+  function filterSavedVerses(practice) {
+    practice.savedVerses = window.VerseKeepPracticeCore.catalogSavedVerses(practice.savedVerses, state.data);
+  }
 
   function loadPrefs() {
     return window.VerseKeepSession.loadPrefs();
@@ -1391,6 +1410,10 @@
 
   function applyDeviceSnapshot(snapshot) {
     stats = snapshot.practice;
+    filterSavedVerses(stats);
+    window.VerseKeepMeditate?.paintSavedVerses?.();
+    const savedStatus = $("#med-saved-status");
+    if (savedStatus) savedStatus.hidden = true;
     paintStatsBar();
     paintThemes();
     paintMemorizeEmpty();
@@ -1435,6 +1458,7 @@
       paintDeviceStatus(false, "That file is not a VerseKeep backup. Nothing was changed.");
       return;
     }
+    filterSavedVerses(parsed.snapshot.practice);
     const summary = window.VerseKeepSession.summarizeSnapshot(parsed.snapshot);
     const wallpaper = summary.wallpaperIncluded
       ? "Wallpaper selection: included."
@@ -1442,9 +1466,10 @@
     const confirmed = window.confirm(
       `Import this VerseKeep backup?\n\n` +
       `Practiced verses: ${summary.practicedVerses}\n` +
+      `Saved verses: ${summary.savedVerses}\n` +
       `Recorded Amen days: ${summary.amenDays}\n` +
       `${wallpaper}\n\n` +
-      "This replaces practice progress, preferences, Amen history, and wallpaper settings on this device. It does not merge them."
+      "This replaces practice progress, saved verses, preferences, Amen history, and wallpaper settings on this device. It does not merge them."
     );
     if (!confirmed) {
       paintDeviceStatus(true, "Import cancelled. Your current data was left unchanged.");
@@ -1478,6 +1503,7 @@
         throw new Error(`Invalid verse catalog: ${validation.errors.join("; ")}`);
       }
       state.data = catalog;
+      filterSavedVerses(stats);
       paintThemes();
       paintStatsBar();
       paintMemorizeEmpty();
@@ -1517,9 +1543,10 @@
       });
     }
     $("#btn-reset-stats")?.addEventListener("click", () => {
-      if (!confirm("Reset all VerseKeep progress on this device? (favorites, mastery, streaks)")) return;
+      if (!confirm("Reset all VerseKeep progress on this device? (favorites, saved verses, mastery, streaks)")) return;
       stats = defaultStats();
       const saved = saveStats(stats);
+      window.VerseKeepMeditate?.paintSavedVerses?.();
       paintStatsBar();
       paintThemes();
       paintMemorizeEmpty();
@@ -1786,6 +1813,8 @@
     selectTheme,
     practiceWeak,
     practiceVerse,
+    savedVerseRefs,
+    toggleSavedVerse,
   };
 
   bindBackgroundView();

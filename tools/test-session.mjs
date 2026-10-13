@@ -38,6 +38,15 @@ function memoryStorage(initial = {}) {
 }
 
 const session = loadSession();
+const savedBackup = session.exportSnapshot({ practice: { savedVerses: { "Psalm 56:3": true } } }).snapshot;
+assert.equal(session.parseSnapshot(JSON.stringify(savedBackup)).snapshot.practice.savedVerses["Psalm 56:3"], true, "saved references round-trip through backup JSON");
+assert.equal(session.summarizeSnapshot(savedBackup).savedVerses, 1, "backup preview counts saved references");
+const olderBackup = JSON.parse(JSON.stringify(savedBackup));
+delete olderBackup.practice.savedVerses;
+assert.equal(Object.keys(session.parseSnapshot(olderBackup).snapshot.practice.savedVerses).length, 0, "older backups clear saved references");
+const invalidSavedBackup = JSON.parse(JSON.stringify(savedBackup));
+invalidSavedBackup.practice.savedVerses = { "Psalm 56:3": "true" };
+assert.equal(session.parseSnapshot(invalidSavedBackup).ok, false, "malformed saved-reference values reject a backup");
 const goodPractice = JSON.stringify({ checks: 4, correct: 3, verseHits: { "Psalm 56:3": 3 } });
 const storage = memoryStorage({ "versekeep-stats-v1": goodPractice });
 

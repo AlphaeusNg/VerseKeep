@@ -265,9 +265,11 @@
     }
     if ("verseHits" in value && !acceptableNumberMap(value.verseHits)) return false;
     if ("themePlays" in value && !acceptableNumberMap(value.themePlays)) return false;
-    if ("favorites" in value) {
-      if (!isPlain(value.favorites)) return false;
-      if (!Object.values(value.favorites).every((item) => item === true)) return false;
+    for (const key of ["favorites", "savedVerses"]) {
+      if (key in value) {
+        if (!isPlain(value[key])) return false;
+        if (!Object.values(value[key]).every((item) => item === true)) return false;
+      }
     }
     if ("versePractice" in value) {
       if (!isPlain(value.versePractice)) return false;
@@ -389,6 +391,7 @@
     }
     return {
       practicedVerses: refs.size,
+      savedVerses: Object.keys(practice.savedVerses).length,
       amenDays: new Set(amen.history.map((entry) => entry.day)).size,
       wallpaperIncluded: !!(wallpapers.id || wallpapers.src || wallpapers.unsplash),
       wallpaperMode: wallpapers.mode,

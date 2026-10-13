@@ -47,6 +47,7 @@ tools/test-site.mjs         # Structural and local-reference validation
 - **Amen** tracks a local daily streak; **Focus** hides More and the music
   dock so the verse, Amen, and Prev/Next stay primary. Music keeps playing.
 - Share / Copy link encode that URL so a partner can reopen the same verse.
+- More → **Save verse** toggles the current reference. **Saved verses** reopens passages with the selected translation and offers Remove. Only bundled catalog references are retained in stats `savedVerses`; backup/import and Reset progress include the collection. Blocked writes are visit-only and exportable.
 - Keys (when not in practice): `←`/`→` · `S` shuffle · `C` copy · `L` listen · `F` focus · `A` Amen.
 - Swipe the card (touch): left = next, right = prev.
 - Live text: ESV / NIV / NKJV with session cache + prefetch; bundled JSON fallback.
@@ -65,6 +66,8 @@ tools/test-site.mjs         # Structural and local-reference validation
 Keyboard (when not typing): `1`–`5` modes · `N`/`B` next/back · `R` reveal · `C` copy · `S` shuffle · `Enter` check · `L` read-aloud · `H` study hide.
 
 Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
+
+Feature research and next priorities: `docs/FEATURE_ROADMAP.md`.
 
 ## Music
 

@@ -7,6 +7,107 @@ test.use({ serviceWorkers: "block" });
 
 const runtimeErrors = new WeakMap();
 
+async function exportedDeviceBackup(page) {
+  const pending = page.waitForEvent("download");
+  await page.locator("#btn-export-device").click();
+  const download = await pending;
+  const stream = await download.createReadStream();
+  const chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+}
+
+test("saves individual meditation verses and restores the collection through device backup", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?v=Psalm%2056%3A3", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".med-ref")).toHaveText("Psalm 56:3");
+  await page.locator("#med-more").click();
+  const save = page.getByRole("button", { name: "Save verse", exact: true });
+  await save.focus();
+  await page.keyboard.press("Enter");
+  await expect(save).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#med-saved-count")).toHaveText("(1)");
+  const backup = await exportedDeviceBackup(page);
+  expect(backup.practice.savedVerses).toEqual({ "Psalm 56:3": true });
+  await page.reload();
+  await expect(page.locator("#med-saved-count")).toHaveText("(1)");
+  await page.locator("#med-next").click();
+  await expect(page.locator(".med-ref")).not.toHaveText("Psalm 56:3");
+  await page.locator("#tr-select").selectOption("niv");
+  await page.locator("#med-saved summary").click();
+  await page.getByRole("button", { name: "Meditate on Psalm 56:3", exact: true }).click();
+  await expect(page.locator(".med-ref")).toHaveText("Psalm 56:3");
+  expect(new URL(page.url()).searchParams.get("v")).toBe("Psalm 56:3");
+  expect(new URL(page.url()).searchParams.get("tr")).toBe("niv");
+  await expect(page.locator("#meditate-card")).toBeFocused();
+  await expect(page.locator("#meditate-card .med-block")).toHaveCount(3);
+  await page.getByRole("button", { name: "Remove Psalm 56:3 from saved verses" }).click();
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+  await expect(page.locator("#med-saved summary")).toBeFocused();
+  const restore = async (snapshot, count) => {
+    const dialog = page.waitForEvent("dialog").then(async (dialog) => {
+      expect(dialog.message()).toContain(`Saved verses: ${count}`);
+      await dialog.accept();
+    });
+    await page.locator("#device-import-file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(snapshot)) });
+    await dialog;
+    await expect(page.locator("#device-data-status")).toContainText("Restored practice");
+  };
+  backup.practice.savedVerses["arbitrary injected reference"] = true;
+  await restore(backup, 1);
+  await expect(page.locator("#med-saved-count")).toHaveText("(1)");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-stats-v1")).savedVerses)).toEqual({ "Psalm 56:3": true });
+  const older = structuredClone(backup);
+  delete older.practice.savedVerses;
+  await restore(older, 0);
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+  await restore(backup, 1);
+  await page.locator("#med-focus").click();
+  await expect(page.locator("#med-saved")).not.toBeVisible();
+  await page.locator("#med-focus").click();
+  page.once("dialog", dialog => dialog.accept());
+  await page.locator("#btn-reset-stats").click();
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+  await page.reload();
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+});
+
+test("saved verses disclose denied storage and export the visit-only collection", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__allowSavedWrites = false;
+    const write = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "versekeep-stats-v1" && !window.__allowSavedWrites) throw new DOMException("Denied", "QuotaExceededError");
+      return write.call(this, key, value);
+    };
+  });
+  await page.goto("/?v=Psalm%2056%3A3", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".med-ref")).toHaveText("Psalm 56:3");
+  await page.locator("#med-more").click();
+  await page.locator("#med-save").click();
+  await expect(page.locator("#med-feedback")).toContainText("for this visit only");
+  expect(await page.evaluate(() => localStorage.getItem("versekeep-stats-v1"))).toBeNull();
+  const backup = await exportedDeviceBackup(page);
+  expect(backup.practice.savedVerses).toEqual({ "Psalm 56:3": true });
+  await page.locator("#med-saved summary").click();
+  await expect(page.locator("#med-saved-status")).toContainText("for this visit only");
+  page.once("dialog", dialog => dialog.accept());
+  await page.locator("#btn-reset-stats").click();
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+  await expect(page.locator("#resume-hint")).toContainText("for this visit");
+  page.once("dialog", dialog => dialog.accept());
+  await page.locator("#device-import-file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(backup)) });
+  await expect(page.locator("#device-data-status")).toContainText("could not be saved");
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+  await page.reload();
+  await expect(page.locator("#med-saved-count")).toHaveText("(0)");
+  await page.evaluate(() => { window.__allowSavedWrites = true; });
+  await page.locator("#med-more").click();
+  await page.locator("#med-save").click();
+  await expect(page.locator("#med-feedback")).toContainText("saved on this device");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-stats-v1")).savedVerses)).toEqual({ "Psalm 56:3": true });
+});
+
 test("meditation swipes ignore canceled gestures and multiple fingers", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?v=Psalm%2056%3A3", { waitUntil: "domcontentloaded" });

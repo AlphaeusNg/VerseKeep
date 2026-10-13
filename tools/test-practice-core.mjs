@@ -13,6 +13,10 @@ vm.createContext(sandbox);
 vm.runInContext(source, sandbox, { filename: "practice-core.js" });
 
 const core = sandbox.window.VerseKeepPracticeCore;
+assert.equal(Object.keys(core.defaultStats().savedVerses).length, 0, "new and older stats start with no saved verses");
+const savedRefs = core.catalogSavedVerses(JSON.parse('{"Psalm 56:3":true,"not a verse":true,"__proto__":true,"John 3:16":false}'), verseCatalog);
+assert.deepEqual(JSON.parse(JSON.stringify(savedRefs)), { "Psalm 56:3": true }, "only selected bundled references survive catalog filtering");
+assert.equal(Object.keys(core.catalogSavedVerses({ "Psalm 56:3": true }, null)).length, 0, "no references are trusted before catalog load");
 const similarity = core?.recallSimilarity;
 assert.equal(typeof similarity, "function", "recallSimilarity is exported");
 assert.equal(similarity("", ""), 1, "two empty answers match");

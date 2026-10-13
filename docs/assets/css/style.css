@@ -2427,6 +2427,12 @@ kbd {
 }
 
 /* Focus mode: dim chrome, center the meditation */
+.med-saved { margin-top: 0.8rem; }
+.med-saved summary { cursor: pointer; color: var(--muted); }
+.med-saved-row { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+.med-saved-row > :first-child { flex: 1; text-align: left; }
+#med-save[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-soft); }
+
 body.med-focus #resume-hint,
 body.med-focus .topics-panel,
 body.med-focus #themes,
@@ -2436,6 +2442,7 @@ body.med-focus main > .panel:not(.meditate-panel),
 body.med-focus .footer,
 body.med-focus #med-more,
 body.med-focus #med-more-panel,
+body.med-focus #med-saved,
 body.med-focus #med-drill,
 body.med-focus .music-dock,
 body.med-focus #music-dock-tab {
