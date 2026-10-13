@@ -786,25 +786,27 @@
     if (card) {
       let startX = 0;
       let startY = 0;
-      let tracking = false;
+      let touchId = null;
       card.addEventListener(
         "touchstart",
         (e) => {
-          const t = e.changedTouches?.[0];
-          if (!t) return;
+          // A pinch or interrupted gesture must not replace the verse.
+          touchId = null;
+          if (e.touches?.length !== 1) return;
+          const t = e.touches[0];
           startX = t.clientX;
           startY = t.clientY;
-          tracking = true;
+          touchId = t.identifier;
         },
         { passive: true }
       );
       card.addEventListener(
         "touchend",
         (e) => {
-          if (!tracking) return;
-          tracking = false;
-          const t = e.changedTouches?.[0];
-          if (!t) return;
+          if (touchId === null) return;
+          const t = Array.from(e.changedTouches || []).find((touch) => touch.identifier === touchId);
+          touchId = null;
+          if (!t || e.touches?.length) return;
           const dx = t.clientX - startX;
           const dy = t.clientY - startY;
           if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
@@ -813,6 +815,10 @@
         },
         { passive: true }
       );
+      card.addEventListener("touchmove", (e) => {
+        if (e.touches?.length !== 1) touchId = null;
+      }, { passive: true });
+      card.addEventListener("touchcancel", () => { touchId = null; }, { passive: true });
     }
 
     window.addEventListener("online", recoverLiveText);

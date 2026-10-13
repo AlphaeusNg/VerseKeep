@@ -893,3 +893,9 @@ Validation: All Node gates, 34 existing Chromium journeys and the new compositio
 Practice shortcuts ignore consumed events and composition, leave selects alone, and preserve Enter activation on buttons, links and disclosures. Reveal now activates through its native keyboard behavior.
 
 Validation: All seven Node gates and 36 Chromium journeys passed; final strengthened native-button regression passed.
+
+## 2026-10-13 — Preserve the meditation verse during interrupted touch gestures
+
+Meditation swipe navigation tracks one finger, drops canceled gestures, and ignores multi-touch and unrelated finger endings. Ordinary left/right swipes still move through the verses; vertical reading gestures stay in place.
+
+Validation: All seven Node gates, JavaScript syntax checks, and 37 Chromium journeys passed. The new phone-size regression covers cancellation, a second finger joining or moving, unrelated touch endings, remaining fingers, vertical movement, and both navigation directions. Version 2026.10.13.2.

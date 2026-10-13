@@ -7,6 +7,41 @@ test.use({ serviceWorkers: "block" });
 
 const runtimeErrors = new WeakMap();
 
+test("meditation swipes ignore canceled gestures and multiple fingers", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?v=Psalm%2056%3A3", { waitUntil: "domcontentloaded" });
+  const reference = page.locator("#meditate-card .med-ref");
+  await expect(reference).toHaveText("Psalm 56:3");
+  const gesture = async (events) => page.locator("#meditate-card").evaluate((card, events) => {
+    for (const { type, touches, changed } of events) {
+      const make = ([identifier, clientX, clientY]) => new Touch({ identifier, target: card, clientX, clientY });
+      card.dispatchEvent(new TouchEvent(type, {
+        bubbles: true, touches: touches.map(make), changedTouches: changed.map(make),
+      }));
+    }
+  }, events);
+  const start = { type: "touchstart", touches: [[1, 250, 150]], changed: [[1, 250, 150]] };
+  const end = { type: "touchend", touches: [], changed: [[1, 100, 150]] };
+  for (const events of [
+    [start, { type: "touchcancel", touches: [], changed: [[1, 250, 150]] }, end],
+    [start, { type: "touchstart", touches: [[1, 250, 150], [2, 100, 150]], changed: [[2, 100, 150]] }, end],
+    [start, { type: "touchmove", touches: [[1, 250, 150], [2, 100, 150]], changed: [[1, 250, 150]] }, end],
+    [start, { type: "touchend", touches: [], changed: [[2, 100, 150]] }],
+    [start, { type: "touchend", touches: [[2, 100, 150]], changed: [[1, 100, 150]] }],
+    [start, { type: "touchend", touches: [], changed: [[1, 200, 400]] }],
+  ]) {
+    await gesture(events);
+    await expect(reference).toHaveText("Psalm 56:3");
+  }
+  await gesture([start, end]);
+  await expect(reference).not.toHaveText("Psalm 56:3");
+  await gesture([
+    { type: "touchstart", touches: [[3, 100, 150]], changed: [[3, 100, 150]] },
+    { type: "touchend", touches: [], changed: [[3, 250, 150]] },
+  ]);
+  await expect(reference).toHaveText("Psalm 56:3");
+});
+
 test.beforeEach(async ({ page }) => {
   const errors = [];
   runtimeErrors.set(page, errors);
