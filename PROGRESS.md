@@ -907,3 +907,9 @@ Researched official saved-passage and accessible-toggle guidance and documented 
 Only bundled catalog references enter the collection; no passage bodies are duplicated into progress. Existing device backup/import and Reset progress include saved references. Older backups restore an empty collection. Denied writes retain visit-only changes with explicit feedback and allow exporting them; failed imports leave the current collection unchanged.
 
 Validation: all seven Node gates, per-file JavaScript syntax checks, and 39 Chromium journeys passed. New checks cover catalog filtering, malformed/older backup data, mobile save/reload/remove, native keyboard toggle state, canonical reopening with translation, backup roundtrip, reset, denied saves/imports and storage recovery. Version 2026.10.14.1.
+
+## 2026-10-14 — Keep wallpaper previews inside enlarged phone layouts
+
+The phone-crop preview could widen a 375px page by 4px when text was doubled. The preview image stays in its column, and the crop description wraps. Compact wallpaper actions and topic titles stay inside their cards. Findings are in `docs/UI_SIZING_AUDIT.md`.
+
+Validation: six sizing configurations and all seven Node gates passed. Version 2026.10.14.2.

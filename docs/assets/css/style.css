@@ -20,6 +20,8 @@
   --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
 }
 
+
+
 *,
 *::before,
 *::after {
@@ -1180,6 +1182,7 @@ main {
 
 .wp-aspect-preview img {
   width: 6.5rem;
+  max-width: 100%;
   height: 4.2rem;
   object-fit: cover;
   border-radius: 0.45rem;
@@ -1187,7 +1190,15 @@ main {
 }
 
 html[data-wallpaper-format="phone"] .wp-aspect-preview img {
-  height: 6.5rem;
+  height: auto;
+  max-height: 6.5rem;
+  aspect-ratio: 9 / 16;
+}
+
+.wp-aspect-copy,
+.wp-aspect-copy p {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .wp-aspect-copy p {
@@ -3120,5 +3131,73 @@ body.has-wallpaper.is-background-view::after {
 
   .wallpaper-scroll {
     padding: 0.55rem;
+  }
+}
+
+/* Keep compact actions usable when text grows and cards narrow. */
+.top-nav > a,
+.nav-more > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.theme-drill-btn,
+.wp-grid-density-option {
+  min-height: 24px;
+  min-width: 24px;
+}
+
+.wp-view-mini,
+.wp-dl-mini,
+html[data-wallpaper-grid="2"] .wp-view-mini,
+html[data-wallpaper-grid="2"] .wp-dl-mini {
+  width: max(24px, 1.4em);
+  min-width: max(24px, 1.4em);
+  height: max(24px, 1.4em);
+}
+
+.wp-heart,
+html[data-wallpaper-grid="2"] .wp-heart {
+  min-height: 24px;
+  height: auto;
+}
+
+.med-saved-row {
+  flex-wrap: wrap;
+}
+
+.med-saved-row > :first-child,
+.topics-panel .theme-filter-row .btn,
+.wp-format-option,
+.wp-summary > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.topics-panel .theme-grid { grid-auto-rows: minmax(10rem, auto); }
+.topics-panel .theme-card-wrap { height: auto; min-height: 10rem; }
+.topics-panel .theme-card-wrap .theme-card { padding-top: calc(24px + 0.8rem); }
+.topics-panel .theme-card strong { overflow-wrap: anywhere; }
+.wp-card { container-type: inline-size; }
+
+@media (max-width: 640px) {
+  .topics-panel .theme-grid { grid-auto-rows: minmax(7rem, auto); }
+  .topics-panel .theme-card-wrap { min-height: 7rem; }
+}
+
+/* At enlarged text sizes, action clusters must wrap inside their own card. */
+@container (max-width: 7em) {
+  .wp-side-actions {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding: 0.25rem;
+  }
+  html[data-wallpaper-grid="2"] .wp-meta,
+  html[data-wallpaper-grid="4"] .wp-meta {
+    position: static;
+    padding: 0.3rem 0.4rem;
   }
 }
