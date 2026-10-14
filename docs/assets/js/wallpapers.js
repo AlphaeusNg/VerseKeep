@@ -1,7 +1,7 @@
 /**
  * VerseKeep wallpapers:
  * - Daily remote suggestions (curated Unsplash CDN, no API key)
- * - Manual "New suggestions" reshuffle
+ * - Manual "Shuffle wallpapers" reshuffle
  * - Hearts (local + best-effort global counters)
  * - Responsive grid density + scrollable tag filters
  */
@@ -1250,7 +1250,7 @@
       }
       if (btn) {
         btn.disabled = false;
-        btn.textContent = "New suggestions";
+        btn.textContent = "Shuffle wallpapers";
       }
     });
 

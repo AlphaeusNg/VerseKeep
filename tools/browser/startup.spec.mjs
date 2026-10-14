@@ -467,7 +467,7 @@ test("exposes meditation topics and feedback with matching semantics", async ({ 
 
   await expect(page.locator("#med-streak")).toBeVisible();
   await expect(page.locator("#med-streak")).toContainText(
-    "Sit with this, then tap Amen to start a streak"
+    "Tap Amen to start a streak."
   );
   await expect(page.locator("#med-streak .med-week-dot")).toHaveCount(7);
   await expect(page.locator("#med-streak .med-week-dot.is-today")).toHaveCount(1);
@@ -520,7 +520,7 @@ test("announces practice feedback for grading and actions", async ({ page, conte
   await page.locator('#play-panel [data-mode="type"]').click();
   await page.locator("#type-input").fill("not the verse");
   await page.locator("#btn-check").click();
-  await expect(feedback).toContainText("Keep going");
+  await expect(feedback).toContainText("Full verse");
 });
 
 test("keeps practice stats session-safe and honest when device storage is denied", async ({ page }) => {
@@ -551,7 +551,7 @@ test("keeps practice stats session-safe and honest when device storage is denied
   await page.locator('#play-panel [data-mode="type"]').click();
   await page.locator("#type-input").fill("not the verse");
   await page.locator("#btn-check").click();
-  await expect(page.locator("#feedback")).toContainText("Keep going");
+  await expect(page.locator("#feedback")).toContainText("Full verse");
   await expect(page.locator("#stats-bar")).toContainText("Checks 1");
   expect(await page.evaluate(() => localStorage.getItem("versekeep-stats-v1"))).toBeNull();
 

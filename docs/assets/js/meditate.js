@@ -218,7 +218,7 @@
     const didToday = s.lastDay === today;
     el.hidden = false;
     const copy = !count
-      ? "Sit with this, then tap Amen to start a streak"
+      ? "Tap Amen to start a streak."
       : didToday
         ? `Streak ${count} day${count === 1 ? "" : "s"} · Amen today`
         : `Streak ${count} day${count === 1 ? "" : "s"} · mark Amen to continue`;

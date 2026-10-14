@@ -396,8 +396,8 @@
       <p class="memorize-empty-copy">
         ${
           lastTheme
-            ? "Resume your last drill, sit with a topic, or start a fresh memory set."
-            : "Pick a topic to sit with, or open a memory drill. Progress stays on this device."
+            ? "Resume your last drill."
+            : "Pick a topic. Progress stays on this device."
         }
       </p>
       ${
@@ -1185,7 +1185,7 @@
       ok = ratio >= 0.82;
       detail = ok
         ? `Strong recall (${Math.round(ratio * 100)}% match).`
-        : `Keep going — about ${Math.round(ratio * 100)}% match. Full verse: “${v.text}”`;
+        : `${Math.round(ratio * 100)}% match. Full verse: “${v.text}”`;
     } else if (state.mode === "order") {
       const target = (state.orderTarget || []).map((w) => normalize(w));
       const got = state.orderPicked.map((p) => normalize(p.word));

@@ -913,3 +913,9 @@ Validation: all seven Node gates, per-file JavaScript syntax checks, and 39 Chro
 The phone-crop preview could widen a 375px page by 4px when text was doubled. The preview image stays in its column, and the crop description wraps. Compact wallpaper actions and topic titles stay inside their cards. Findings are in `docs/UI_SIZING_AUDIT.md`.
 
 Validation: six sizing configurations and all seven Node gates passed. Version 2026.10.14.2.
+
+## 2026-10-15 — Name wallpaper shuffle and practice modes
+
+The wallpaper button says "Shuffle wallpapers". Practice names Study, Fill blanks, Type it, Order words, and Which verse. Amen still starts the streak. Music still keeps playing when the panel closes, and autoplay still uses the last station or God’s encouragement. Version `2026.10.15.1`.
+
+Validation: all seven node gates passed. Chromium confirmed the Amen streak line. The rest of the browser suite was not rerun.
