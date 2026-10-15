@@ -3506,9 +3506,9 @@ details[open] > summary > .disclosure-chevron { transform: rotate(90deg); }
 }
 
 /* Finish the shared ghost treatment across meditation, disclosures and galleries. */
-.med-dock-primary { flex-wrap: nowrap; gap: 0; max-width: 100%; }
+.med-dock-primary { flex-wrap: wrap; gap: 0; row-gap: var(--icon-btn-gap); max-width: 100%; }
 #med-amen.btn.primary {
-  width: auto; min-width: 0; max-width: 100%; flex: 0 1 auto; padding: 6px 8px;
+  width: auto; min-width: max-content; max-width: 100%; flex: 0 0 auto; padding: 6px 8px;
   display: inline-flex; align-items: center;
   height: auto; min-height: var(--icon-btn-target); white-space: normal;
   border: 1px solid var(--gold); border-radius: var(--icon-btn-radius);
