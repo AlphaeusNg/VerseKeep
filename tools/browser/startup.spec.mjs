@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { openBooks, openMedMore, openMedOptions, openTopicTools, openTopics } from "./disclose.mjs";
 
@@ -1237,7 +1238,7 @@ test("finishes focused verse practice without inflating completed topics", async
   await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
 
   await page.locator("#btn-next").click();
-  await page.locator("#stage [data-practice-topics]").click();
+  await page.getByRole("button", { name: "Choose another topic", exact: true }).click();
   await expect(page.locator("#play-panel")).toBeHidden();
   await expect(page.locator("#memorize-empty")).toBeVisible();
   await expect(page.locator("#theme-search")).toBeFocused();
@@ -1425,6 +1426,16 @@ test("practices Proverbs from Bible books without incrementing Themes done", asy
   await expect(page.locator("#stage .practice-complete")).toContainText("Book complete");
   await expect(page.locator("#stage .practice-complete")).toContainText("Book practice does not change Themes done");
   await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
+  const chooser = page.getByRole("button", { name: "Choose another book", exact: true });
+  await expect(chooser).toHaveAttribute("data-tip", "Choose another book");
+  await expect(chooser.locator(".icon-face svg")).toBeVisible();
+  await page.locator("#books-disclosure").evaluate(node => { node.open = false; });
+  await chooser.click();
+  await expect(page.locator("#books-disclosure")).toHaveJSProperty("open", true);
+  await expect(page.locator("#books-disclosure > summary")).toBeFocused();
+  await expect(page.locator("#play-panel")).toBeHidden();
+  await section.getByRole("button", { name: "Drill Proverbs", exact: true }).click();
+  for (let index = 0; index < 18; index += 1) await page.locator("#btn-next").click();
   await page.getByRole("button", { name: "Practice again", exact: true }).click();
   await expect(page.locator("#hud-progress")).toHaveText("Verse 1 / 18");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -1545,4 +1556,13 @@ test("touch tap shows Reveal label for about 1.5 seconds", async ({ browser }) =
   } finally {
     await context.close();
   }
+});
+
+test("meditation topic pill starts with its catalog emoji", async ({ page }) => {
+  const catalog = JSON.parse(readFileSync(new URL("../../docs/data/verses.json", import.meta.url), "utf8"));
+  const theme = catalog.themes.find(theme => theme.verses.some(verse => verse.ref === "Psalm 56:3"));
+  expect(theme.emoji).toBeTruthy();
+  await page.goto("/?v=Psalm%2056%3A3");
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
+  await expect.poll(async () => (await page.locator("#meditate-card .med-topic-pill").innerText()).trim().startsWith(theme.emoji)).toBe(true);
 });

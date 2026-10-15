@@ -1,6 +1,14 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-15 (Consistent icon set)
+Last updated: 2026-10-15 (Declutter polish)
+
+## Declutter polish — 2026-10-15
+
+- Restored the catalog emoji on meditation topic pills, with browser coverage.
+- Practice mode chips stay in one scrolling row with full labels and an overflow-only right fade; added 320px and 390px checks.
+- Completion actions share one row with an accessible topic/book chooser icon; book completion returns to Bible books.
+- Validation: all seven `tools/test-*.mjs` checks and changed JavaScript syntax checks pass. Targeted Playwright execution is blocked by sandbox socket permissions.
+- Release: `2026.10.15.5`.
 
 ## Consistent icon set — 2026-10-15
 

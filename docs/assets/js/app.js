@@ -1312,9 +1312,10 @@
     paintMemorizeEmpty();
     const memorize = $("#memorize-disclosure");
     if (memorize) memorize.open = true;
-    const search = $("#theme-search");
+    const search = state.isBook ? $("#books-disclosure > summary") : $("#theme-search");
+    if (state.isBook) $("#books-disclosure").open = true;
     revealDetails(search);
-    const topics = $("#topics");
+    const topics = $(state.isBook ? "#bible-books" : "#topics");
     topics?.scrollIntoView({ behavior: "smooth", block: "start" });
     requestAnimationFrame(() => {
       revealDetails(search);
@@ -1361,7 +1362,7 @@
         </div>
         <div class="actions practice-complete-actions">
           <button type="button" class="btn primary" data-practice-again>Practice again</button>
-          <button type="button" class="btn ghost" data-practice-topics>Choose another topic</button>
+          <button type="button" class="btn ghost icon-control" data-practice-topics aria-label="Choose another ${state.isBook ? "book" : "topic"}" data-tip="Choose another ${state.isBook ? "book" : "topic"}"><span class="icon-face">${window.VerseKeepIcons.reflect()}</span></button>
         </div>
       </div>`;
     const card = $("#stage .practice-complete");
@@ -1610,6 +1611,17 @@
     $$("#play-panel [data-mode]").forEach((chip) => {
       chip.addEventListener("click", () => setMode(chip.dataset.mode));
     });
+    const modeRow = $("#play-panel .mode-row");
+    if (modeRow) {
+      const updateModeOverflow = () => {
+        modeRow.classList.toggle("is-scrollable", modeRow.scrollWidth > modeRow.clientWidth + 1);
+        modeRow.classList.toggle("at-end", modeRow.scrollLeft + modeRow.clientWidth >= modeRow.scrollWidth - 2);
+      };
+      new ResizeObserver(updateModeOverflow).observe(modeRow);
+      modeRow.addEventListener("scroll", updateModeOverflow, { passive: true });
+      document.fonts.ready.then(updateModeOverflow);
+      updateModeOverflow();
+    }
     $("#btn-check")?.addEventListener("click", checkAnswer);
     $("#btn-next")?.addEventListener("click", nextVerse);
     $("#btn-prev")?.addEventListener("click", prevVerse);

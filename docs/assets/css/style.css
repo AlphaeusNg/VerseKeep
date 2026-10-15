@@ -3438,3 +3438,30 @@ details[open] > summary > .disclosure-chevron { transform: rotate(90deg); }
   #play-panel { padding-left: 6px; padding-right: 6px; }
   .med-dock-primary > .btn:not(.icon-control) { padding-left: 8px; padding-right: 8px; }
 }
+
+/* Mode labels keep their full width; the row scrolls within the panel. */
+#play-panel .mode-row {
+  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: center;
+  max-width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+#play-panel .mode-row::-webkit-scrollbar { display: none; }
+#play-panel .mode-row > [data-mode] {
+  flex: none;
+  max-width: none;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  scroll-snap-align: start;
+}
+#play-panel .mode-row.is-scrollable:not(.at-end) {
+  mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+}
+.practice-complete-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+}

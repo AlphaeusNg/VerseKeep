@@ -358,7 +358,7 @@
     const pos = state.index + 1;
     host.innerHTML = `
       <div class="med-card-top">
-        <span class="med-topic-pill mono">${escapeHtml(v.themeTitle || "")}</span>
+        <span class="med-topic-pill mono">${escapeHtml(v.themeEmoji || "")} ${escapeHtml(v.themeTitle || "")}</span>
         <span class="med-pos mono" aria-live="polite">${pos} / ${n}${tr ? ` · ${escapeHtml(tr)}` : ""}${loading ? " · …" : ""}</span>
       </div>
       ${resumeChipHtml()}
