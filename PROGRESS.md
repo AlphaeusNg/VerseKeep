@@ -1,6 +1,33 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-15 (Bible books: Proverbs)
+Last updated: 2026-10-15 (Declutter polish)
+
+## Declutter polish — 2026-10-15
+
+- Restored the catalog emoji on meditation topic pills, with browser coverage.
+- Practice mode chips stay in one scrolling row with full labels and an overflow-only right fade; added 320px and 390px checks.
+- Completion actions share one row with an accessible topic/book chooser icon; book completion returns to Bible books.
+- Validation: all seven `tools/test-*.mjs` checks and changed JavaScript syntax checks pass. Targeted Playwright execution is blocked by sandbox socket permissions.
+- Release: `2026.10.15.5`.
+
+## Consistent icon set — 2026-10-15
+
+- Centralized inline SVG icons in icons.js: 24px, currentColor, stroke 2, rounded caps and joins; shared by controls, finish states, and disclosure chevrons.
+- Icon buttons use 40px visual squares, 12px corners, 48px transparent tap areas, and 8px row gaps. Practice actions stay together through 320px; Meditate More opens below its trigger row.
+- Shared #vk-tip labels appear on hover, keyboard focus, and a stationary touch tap, which dismisses after 1500ms. Check remains a dominant gold text button.
+- Validation: all seven `tools/test-*.mjs` checks and changed JavaScript syntax checks pass. Playwright geometry, hit-area, and touch-tap coverage added; browser execution blocked by sandbox socket permissions.
+- Release: `2026.10.15.4`.
+
+## Declutter first screen — 2026-10-15
+
+- Icon rule: practice actions, Study, Type it, Meditate More, and Reflect use icons with aria-label; tooltips use one shared viewport-clamped tooltip (`docs/assets/js/tooltip.js`, `#vk-tip`) on hover, keyboard focus and touch long-press; no duplicate title tooltips. Next uses an arrow, with a checkmark and updated accessible name for every finish state. Check stays a dominant text button.
+- Fill blanks, Order words, and Which verse? keep text because their icons would be ambiguous. Topics, Bible books, Memorize, Topic & translation, Saved verses, and Progress & tools keep visible headings for clarity, with chevrons and tooltips. Other disclosure summaries also have shared tooltips. Summary content uses valid spans, including heading roles where needed.
+- The verse, reference, and Amen row stay primary. Context, application, and prayer sit in a collapsed Reflect disclosure that closes again whenever a verse renders.
+- Topic chips, live text, translation, and a one-line keys hint sit in Topic & translation. Practice this verse, Drill, and Focus move under More. Exit focus stays one tap away while More is hidden.
+- Topics, Bible books, and Memorize start collapsed. Progress, review, export/import, and reset sit under Progress & tools. Theme search and Practice weak stay visible once Topics is open.
+- In-page jumps open the disclosure that holds the target. Open/closed state is not stored.
+- Verification: all seven `tools/test-*.mjs` gates and all 48 Chromium journeys pass, including the collapsed first-screen journey and a keyboard-focus tooltip check.
+- Release: `2026.10.15.3`.
 
 ## Bible books: Proverbs — 2026-10-15
 

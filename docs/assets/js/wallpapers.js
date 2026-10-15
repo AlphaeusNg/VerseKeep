@@ -773,7 +773,7 @@
           ${viewMini}
           ${dlMini}
           <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" aria-label="${hearted ? "Unheart" : "Heart"} ${escapeHtml(w.title)}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
-            <span class="wp-heart-icon" aria-hidden="true">${hearted ? "♥" : "♡"}</span>
+            <span class="wp-heart-icon" aria-hidden="true">${window.VerseKeepIcons.heart()}</span>
             <span class="wp-heart-count mono">${count}</span>
           </button>
         </div>
@@ -794,7 +794,7 @@
     const n = heartCounts[top.id] || 1;
     el.innerHTML = `
       <button type="button" class="wp-hero-loved-btn" data-apply="${escapeHtml(top.id)}" title="Use most-loved wallpaper">
-        <span class="wp-hero-loved-icon" aria-hidden="true">♥</span>
+        <span class="wp-hero-loved-icon" aria-hidden="true">${window.VerseKeepIcons.heart()}</span>
         <span>Most loved: <strong>${escapeHtml(top.title)}</strong> · ${n}</span>
       </button>`;
     el.querySelector("[data-apply]")?.addEventListener("click", () => {

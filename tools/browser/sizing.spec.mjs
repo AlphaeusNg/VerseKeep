@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
+import { openMedMore, openTopicTools, openTopics } from './disclose.mjs';
 test.use({ serviceWorkers: 'block' });
 for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:375,text:2},{width:768,zoom:2}]) {
  test(`sizing ${JSON.stringify(setting)}`, async ({page})=>{
@@ -32,10 +33,12 @@ for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:3
   await page.locator('#med-more').click(); await page.locator('#med-save').click();
   await page.locator('#med-saved summary').click(); await measure('more-saved');
   await page.locator('#meditate').screenshot({path:`/tmp/versekeep-sizing-${setting.width}-${setting.text?'text':setting.zoom?'zoom':'normal'}-med.png`});
-  await page.locator('#med-focus').click(); await measure('focus'); await page.locator('#med-focus').click();
+  await openMedMore(page); await page.locator('#med-focus').click(); await measure('focus'); await page.locator('#med-focus').click();
+  await openTopics(page);
   await page.locator('#theme-grid [data-drill]').first().click();
   for (const mode of ['study','blank','type','order','quiz']) {await page.locator(`#play-panel [data-mode="${mode}"]`).click(); await measure(mode);}
   await page.locator('#play-panel').screenshot({path:`/tmp/versekeep-sizing-${setting.width}-${setting.text?'text':setting.zoom?'zoom':'normal'}-practice.png`});
+  await openTopicTools(page);
   await page.locator('#btn-review-due').click();await measure('review');
   const backup=await page.evaluate(()=>window.VerseKeepSession.exportSnapshot({}).snapshot);
   page.once('dialog',d=>d.dismiss());
@@ -63,5 +66,33 @@ for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:3
   expect(containment,'wallpaper actions stay inside their cards').toEqual([]);
   const titles=await page.locator('.theme-card strong').evaluateAll(titles=>titles.filter(el=>el.checkVisibility()).filter(el=>el.getBoundingClientRect().bottom>el.closest('.theme-card').getBoundingClientRect().bottom+1).map(el=>el.textContent));
   expect(titles,'topic titles remain inside their cards').toEqual([]);
+ });
+}
+
+for (const width of [390, 320]) {
+ test(`practice mode row scrolls at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 844 });
+  await page.goto('/?v=Psalm%2056%3A3');
+  await openMedMore(page);
+  await page.locator('#med-practice-verse').click();
+  const row = page.locator('#play-panel .mode-row');
+  const chips = row.locator('[data-mode]');
+  const centers = await chips.evaluateAll(nodes => nodes.map(node => {
+    const rect = node.getBoundingClientRect();
+    return rect.top + rect.height / 2;
+  }));
+  expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(1);
+  const geometry = await row.evaluate(node => ({ scroll: node.scrollWidth, client: node.clientWidth }));
+  if (width === 320) expect(geometry.scroll).toBeGreaterThan(geometry.client);
+  else expect(geometry.scroll).toBeGreaterThanOrEqual(geometry.client);
+  await expect(row).toHaveClass(/is-scrollable/);
+  expect(await chips.evaluateAll(nodes => nodes.every(node => node.scrollWidth <= node.clientWidth + 2))).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+  const last = row.getByRole('button', { name: 'Which verse?', exact: true });
+  await last.scrollIntoViewIfNeeded();
+  await last.click();
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
+  await expect(row).toHaveClass(/at-end/);
+  await expect(page.locator('#quiz-choices')).toBeVisible();
  });
 }

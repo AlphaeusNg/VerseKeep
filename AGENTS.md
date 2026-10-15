@@ -38,14 +38,22 @@ tools/test-site.mjs         # Structural and local-reference validation
 
 ## Meditation
 
-- On load: today’s verse (date-seeded) with context, application, prayer,
-  unless `?v=` names a catalog reference. `?t=` selects a topic and `?tr=`
+- On load: today’s verse (date-seeded), unless `?v=` names a catalog reference.
+  Context, application, and prayer stay in a collapsed Reflect disclosure on
+  the card (closed again each time the verse renders). Topic chips, live text,
+  translation, and the one-line keys hint sit in **Topic & translation**,
+  closed until opened. `?t=` selects a topic and opens that disclosure; `?tr=`
   selects ESV/NIV/NKJV. Unknown values fall back to today/prefs. Navigation
   `replaceState`s the canonical query so the address bar matches the card.
-- Topic chips + topic cards filter meditation; **Practice this verse** opens
-  Fill blanks for the card only; **Drill** opens the topic playlist.
-- **Amen** tracks a local daily streak; **Focus** hides More and the music
-  dock so the verse, Amen, and Prev/Next stay primary. Music keeps playing.
+  Open/closed state is not stored.
+- Topic chips + topic cards filter meditation. **Practice this verse**, **Drill**,
+  and **Focus** live under More. Practice opens Fill blanks for the card only;
+  Drill opens the topic playlist. Topics, Bible books, and Memorize bodies start
+  collapsed; Progress & tools is nested inside Topics. Nav links and in-page
+  jumps open a collapsed section before scrolling to or focusing inside it.
+- **Amen** tracks a local daily streak. **Focus** hides More and the music
+  dock so the verse, Amen, and Prev/Next stay primary, and leaves Exit focus
+  one tap away. Music keeps playing.
 - Share / Copy link encode that URL so a partner can reopen the same verse.
 - More → **Save verse** toggles the current reference. **Saved verses** reopens passages with the selected translation and offers Remove. Only bundled catalog references are retained in stats `savedVerses`; backup/import and Reset progress include the collection. Blocked writes are visit-only and exportable.
 - Keys (when not in practice): `←`/`→` · `S` shuffle · `C` copy · `L` listen · `F` focus · `A` Amen.
@@ -146,3 +154,5 @@ git push origin main
 2. After content JSON edits, spot-check theme load + one practice mode.
 3. After music/CSS changes, verify left player + dock on narrow viewport.
 4. Bump footer version; push this remote only.
+
+- Icon control rule: use the shared inline SVG set in icons.js (24px, currentColor, stroke 2), never glyph icons or CSS chevrons. Visual buttons are 40px squares with 12px radius, 48px effective tap targets and 8px gaps. Keep practice actions in one row at 320px; fold panels open below triggers. Use aria-label and shared #vk-tip on hover, keyboard focus, and touch tap (1500ms); omit duplicate titles. Keep disclosure headings and ambiguous mode labels visible, and Check primary with text.

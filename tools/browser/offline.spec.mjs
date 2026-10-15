@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openMedMore } from "./disclose.mjs";
 
 test("opens an unseen shared meditation from the bundled catalog offline", async ({ context, page }) => {
   await page.route(/^https:\/\//, async (route) => {
@@ -25,6 +26,7 @@ test("opens an unseen shared meditation from the bundled catalog offline", async
   await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
   await expect(page.locator("#meditate-card .med-verse")).not.toHaveText("");
 
+  await openMedMore(page);
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator("#stage .ref")).toHaveText("Psalm 56:3");

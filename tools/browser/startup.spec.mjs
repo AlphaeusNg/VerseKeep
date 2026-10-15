@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { openBooks, openMedMore, openMedOptions, openTopicTools, openTopics } from "./disclose.mjs";
 
 // Runtime fixtures deliberately replace catalog/network responses. Keep the
 // service worker boundary isolated in offline.spec.mjs so those routes remain
@@ -9,6 +11,7 @@ const runtimeErrors = new WeakMap();
 
 async function exportedDeviceBackup(page) {
   const pending = page.waitForEvent("download");
+  await openTopicTools(page);
   await page.locator("#btn-export-device").click();
   const download = await pending;
   const stream = await download.createReadStream();
@@ -33,6 +36,7 @@ test("saves individual meditation verses and restores the collection through dev
   await expect(page.locator("#med-saved-count")).toHaveText("(1)");
   await page.locator("#med-next").click();
   await expect(page.locator(".med-ref")).not.toHaveText("Psalm 56:3");
+  await openMedOptions(page);
   await page.locator("#tr-select").selectOption("niv");
   await page.locator("#med-saved summary").click();
   await page.getByRole("button", { name: "Meditate on Psalm 56:3", exact: true }).click();
@@ -62,10 +66,13 @@ test("saves individual meditation verses and restores the collection through dev
   await restore(older, 0);
   await expect(page.locator("#med-saved-count")).toHaveText("(0)");
   await restore(backup, 1);
+  await openMedMore(page);
   await page.locator("#med-focus").click();
   await expect(page.locator("#med-saved")).not.toBeVisible();
+  await openMedMore(page);
   await page.locator("#med-focus").click();
   page.once("dialog", dialog => dialog.accept());
+  await openTopicTools(page);
   await page.locator("#btn-reset-stats").click();
   await expect(page.locator("#med-saved-count")).toHaveText("(0)");
   await page.reload();
@@ -92,6 +99,7 @@ test("saved verses disclose denied storage and export the visit-only collection"
   await page.locator("#med-saved summary").click();
   await expect(page.locator("#med-saved-status")).toContainText("for this visit only");
   page.once("dialog", dialog => dialog.accept());
+  await openTopicTools(page);
   await page.locator("#btn-reset-stats").click();
   await expect(page.locator("#med-saved-count")).toHaveText("(0)");
   await expect(page.locator("#resume-hint")).toContainText("for this visit");
@@ -257,6 +265,7 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   await page.locator('.top-nav a[href="#topics"]').click();
   await expect(page).toHaveURL(/#topics$/);
 
+  await openTopics(page);
   const themeButton = page.locator("#theme-grid [data-theme]").first();
   const themeId = await themeButton.getAttribute("data-theme");
   const themeTitle = (await themeButton.locator("strong").textContent())?.trim();
@@ -271,6 +280,7 @@ test("boots meditation and navigates from a topic into practice", async ({ page 
   await expect(page.locator("#meditate-card .med-topic-pill")).toContainText(themeTitle);
   await expect(page.locator("#play-panel")).toBeHidden();
 
+  await openTopics(page);
   await page.locator(`#theme-grid [data-drill="${themeId}"]`).click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator("#theme-label")).toContainText(themeTitle);
@@ -361,6 +371,7 @@ test("paints bundled practice before live hydration and preserves started input"
       });
   });
 
+  await openMedMore(page);
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   const firstBlank = page.locator("#stage .blank-input").first();
@@ -393,6 +404,7 @@ test("keeps shortcut speech playing when live practice text arrives", async ({ p
       });
   });
 
+  await openMedMore(page);
   await page.locator("#med-drill").click();
   await expect(page.locator("#stage #study-text")).not.toHaveText("");
   await expect.poll(() => page.evaluate(() => typeof globalThis.__versekeepReleasePracticeHydration))
@@ -413,6 +425,7 @@ test("keeps shortcut speech playing when live practice text arrives", async ({ p
 test("stops practice speech before showing another drill verse", async ({ page }) => {
   await installSpeechProbe(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openMedMore(page);
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
 
@@ -443,6 +456,7 @@ test("renders theme emoji text without interpreting catalog markup", async ({ pa
     const response = await route.fetch();
     const catalog = await response.json();
     catalog.themes[0].emoji = probe;
+    catalog.books[0].emoji = probe;
     await route.fulfill({
       response,
       contentType: "application/json",
@@ -455,11 +469,13 @@ test("renders theme emoji text without interpreting catalog markup", async ({ pa
   await expect(page.locator("#load-error")).toBeHidden();
   await expect(page.locator("#catalog-markup-probe")).toHaveCount(0);
   await expect(page.locator("#theme-grid .emoji").first()).toHaveText(probe);
+  await expect(page.locator("#book-grid .emoji").first()).toHaveText(probe);
   await expect(page.locator("#med-topics [data-topic] span").nth(1)).toHaveText(probe);
 });
 
 test("exposes meditation topics and feedback with matching semantics", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openMedOptions(page);
 
   const topics = page.getByRole("group", { name: "Meditation topics" });
   await expect(topics).toBeVisible();
@@ -476,8 +492,8 @@ test("exposes meditation topics and feedback with matching semantics", async ({ 
   await expect(page.locator("#med-prev")).toBeVisible();
   await expect(page.locator("#med-next")).toBeVisible();
   await expect(page.locator("#med-amen")).toBeVisible();
-  await expect(page.locator("#med-focus")).toBeVisible();
   await expect(page.locator("#med-more")).toBeVisible();
+  await expect(page.locator("#med-focus")).toBeHidden();
   await expect(page.locator("#med-today")).toBeHidden();
   await expect(page.locator("#med-shuffle")).toBeHidden();
   await expect(page.locator("#med-copy")).toBeHidden();
@@ -487,6 +503,7 @@ test("exposes meditation topics and feedback with matching semantics", async ({ 
 
   await page.locator("#med-more").click();
   await expect(page.locator("#med-more")).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#med-focus")).toBeVisible();
   await expect(page.locator("#med-today")).toBeVisible();
   await expect(page.locator("#med-shuffle")).toBeVisible();
 
@@ -503,6 +520,7 @@ test("announces practice feedback for grading and actions", async ({ page, conte
     origin: "http://127.0.0.1:4174",
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openTopics(page);
   await page.locator("#theme-grid [data-drill]").first().click();
   await expect(page.locator("#play-panel")).toBeVisible();
 
@@ -536,6 +554,7 @@ test("keeps practice stats session-safe and honest when device storage is denied
   });
 
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openTopics(page);
   await page.locator("#theme-grid [data-drill]").first().click();
   const storageStatus = page.locator("#practice-storage-status");
   await expect(storageStatus).toBeVisible();
@@ -543,6 +562,7 @@ test("keeps practice stats session-safe and honest when device storage is denied
     "Practice progress is kept for this visit only; device storage is blocked.",
   );
   page.once("dialog", (dialog) => dialog.accept());
+  await openTopicTools(page);
   await page.locator("#btn-reset-stats").click();
   await expect(page.locator("#resume-hint")).toHaveText(
     "Progress reset for this visit; device storage is blocked.",
@@ -568,6 +588,7 @@ test("keeps practice stats session-safe and honest when device storage is denied
 
 test("exposes practice modes as a pressed-button group", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openTopics(page);
   await page.locator("#theme-grid [data-drill]").first().click();
   await expect(page.locator("#play-panel")).toBeVisible();
 
@@ -633,11 +654,14 @@ test("restores normalized meditation and practice preferences", async ({ page })
     medFocus: true,
   });
 
+  await openMedMore(page);
   await page.locator("#med-focus").click();
   await expect(page.locator("body")).not.toHaveClass(/med-focus/);
   await expect(page.locator("#med-more")).toBeVisible();
   await expect(page.locator("#music-dock-tab")).toBeVisible();
+  await openMedMore(page);
   await expect(page.locator("#med-drill")).toBeVisible();
+  await openMedMore(page);
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator('#play-panel [data-mode="quiz"]')).toHaveAttribute(
@@ -830,6 +854,46 @@ test("rejects invalid bundled wallpaper metadata without exposing diagnostics", 
   await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
 });
 
+test("first screen shows primary action with sections collapsed", async ({ page }) => {
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 1366, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    await expect(page.locator("#med-amen")).toBeVisible();
+    await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+    await expect(page.locator("#bible-books")).toBeVisible();
+    for (const selector of [
+      "#topics-disclosure",
+      "#books-disclosure",
+      "#memorize-disclosure",
+      "#med-options",
+      ".med-reflect",
+    ]) {
+      await expect(page.locator(selector)).toHaveJSProperty("open", false);
+    }
+    await expect(page.locator("#theme-grid")).toBeHidden();
+    await expect(page.locator("#book-grid")).toBeHidden();
+
+    await page.locator("#books-disclosure > summary").click();
+    await expect(page.locator("#books-disclosure")).toHaveJSProperty("open", true);
+    const proverbs = page.locator('#book-grid [data-book="proverbs"]');
+    await expect(proverbs).toBeVisible();
+    await expect(proverbs).toContainText("Proverbs");
+
+    const summary = page.locator("#topics-disclosure > summary");
+    await summary.focus();
+    await expect(summary).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#topics-disclosure")).toHaveJSProperty("open", true);
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#topics-disclosure")).toHaveJSProperty("open", false);
+    await expect(page.locator("#theme-grid")).toBeHidden();
+  }
+});
+
 test("keeps the compact header and persistent music dock usable on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -842,9 +906,19 @@ test("keeps the compact header and persistent music dock usable on a phone", asy
   await expect(page.locator(".top-nav a[href='#topics']")).toBeHidden();
   await expect(page.locator(".top-nav .nav-extra").first()).toBeHidden();
 
-  await page.evaluate(() => window.scrollTo(0, 1000));
+  // Collapsed sections leave a short phone page, so scroll within the real range.
+  // Down past the header hides it; a smaller position still below the top brings it back.
+  const travel = await page.evaluate(() => {
+    const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const header = document.querySelector(".topbar")?.offsetHeight || 0;
+    return { max, header };
+  });
+  expect(travel.max).toBeGreaterThan(travel.header);
+  const upward = Math.min(Math.max(24, Math.floor(travel.max / 2)), travel.max - 1);
+  expect(upward).toBeLessThan(travel.max);
+  await page.evaluate((y) => window.scrollTo(0, y), travel.max);
   await expect(topbar).toHaveClass(/is-scroll-hidden/);
-  await page.evaluate(() => window.scrollTo(0, 600));
+  await page.evaluate((y) => window.scrollTo(0, y), upward);
   await expect(topbar).not.toHaveClass(/is-scroll-hidden/);
 
   const dock = page.locator("#worship");
@@ -919,6 +993,7 @@ test("focus mode hides More and the music dock without stopping playback", async
   await expect(page.locator("#music-dock-tab")).toBeVisible();
   await expect(page.locator("#med-amen")).toBeVisible();
 
+  await openMedMore(page);
   await page.locator("#med-focus").click();
   await expect(page.locator("body")).toHaveClass(/med-focus/);
   await expect(page.locator("#med-focus")).toHaveAttribute("aria-pressed", "true");
@@ -930,6 +1005,7 @@ test("focus mode hides More and the music dock without stopping playback", async
   await expect(page.locator("#med-next")).toBeVisible();
   await expect(frame).toHaveAttribute("src", playingSrc);
 
+  await openMedMore(page);
   await page.locator("#med-focus").click();
   await expect(page.locator("body")).not.toHaveClass(/med-focus/);
   await expect(page.locator("#med-more")).toBeVisible();
@@ -1075,6 +1151,7 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
   await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
   const ref = (await page.locator("#meditate-card .med-ref").textContent())?.trim();
   expect(ref).toBeTruthy();
+  await openMedMore(page);
   await expect(page.locator("#med-practice-verse")).toBeVisible();
   await expect(page.locator("#med-practice-verse")).toHaveText("Practice this verse");
   await expect(page.locator("#play-panel")).toBeHidden();
@@ -1083,6 +1160,7 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
   await expect(page.locator("#med-practice-verse")).toHaveClass(/is-offered/);
   await expect(page.locator("#med-practice-verse")).toHaveClass(/primary/);
 
+  await openMedMore(page);
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator('#play-panel [data-mode="blank"]')).toHaveAttribute(
@@ -1116,10 +1194,12 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
   expect(hudWrites).toBe(0);
   await expect(page.locator("#stage .blank-input").first()).toBeVisible();
 
+  await openMedMore(page);
   await expect(page.locator("#med-drill")).toBeVisible();
   const drillTitle = (await page.locator("#med-drill").textContent())
     ?.replace(/^Drill ·\s*/, "")
     .trim();
+  await openMedMore(page);
   await page.locator("#med-drill").click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator("#hud-progress")).toHaveText(/Verse\s+1 \/ [2-9]/);
@@ -1131,11 +1211,13 @@ test("practices the meditation verse only from Practice this verse", async ({ pa
 test("finishes focused verse practice without inflating completed topics", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openMedMore(page);
   await expect(page.locator("#med-practice-verse")).toBeVisible();
 
+  await openMedMore(page);
   await page.locator("#med-practice-verse").click();
   await expect(page.locator("#hud-progress")).toContainText("1 / 1");
-  await expect(page.locator("#btn-next")).toHaveText("Finish practice");
+  await expect(page.locator("#btn-next")).toHaveAccessibleName("Finish practice");
   await page.locator("#btn-next").click();
 
   const completion = page.locator("#stage .practice-complete");
@@ -1156,7 +1238,7 @@ test("finishes focused verse practice without inflating completed topics", async
   await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
 
   await page.locator("#btn-next").click();
-  await page.locator("#stage [data-practice-topics]").click();
+  await page.getByRole("button", { name: "Choose another topic", exact: true }).click();
   await expect(page.locator("#play-panel")).toBeHidden();
   await expect(page.locator("#memorize-empty")).toBeVisible();
   await expect(page.locator("#theme-search")).toBeFocused();
@@ -1164,6 +1246,7 @@ test("finishes focused verse practice without inflating completed topics", async
 
 test("shows a stable topic completion summary before an intentional restart", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openTopics(page);
   await page.locator("#theme-grid [data-drill]").first().click();
   await expect(page.locator("#play-panel")).toBeVisible();
 
@@ -1173,7 +1256,7 @@ test("shows a stable topic completion summary before an intentional restart", as
   for (let index = 1; index < total; index += 1) {
     await page.locator("#btn-next").click();
   }
-  await expect(page.locator("#btn-next")).toHaveText("Finish theme");
+  await expect(page.locator("#btn-next")).toHaveAccessibleName("Finish theme");
   await page.locator("#btn-next").click();
 
   const completion = page.locator("#stage .practice-complete");
@@ -1279,6 +1362,7 @@ test("Amen calendar labels refresh after midnight without changing the selected 
 
 test("composition Enter finishes typing without submitting or advancing a drill", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await openTopics(page);
   await page.locator("#theme-grid [data-drill]").first().click();
   await page.locator('#play-panel [data-mode="type"]').click();
   await page.locator("#type-input").fill("still composing");
@@ -1299,6 +1383,7 @@ test("composition Enter finishes typing without submitting or advancing a drill"
 
 test('practice shortcuts preserve native buttons, selects and composition', async ({ page }) => {
   await page.goto('/');
+  await openTopics(page);
   await page.locator('#theme-grid [data-drill]').first().click();
   await page.locator('#play-panel [data-mode="blank"]').click();
   const reveal = page.locator('#btn-reveal');
@@ -1307,6 +1392,7 @@ test('practice shortcuts preserve native buttons, selects and composition', asyn
   await expect(page.locator('#feedback')).toHaveClass(/\bok\b/);
   await expect(page.locator('#feedback')).toContainText(':');
   await page.locator('#play-panel [data-mode="study"]').click();
+  await openMedOptions(page);
   const select = page.locator('#tr-select');
   await select.focus();
   await select.evaluate(field => field.dispatchEvent(new KeyboardEvent('keydown', {key:'1',bubbles:true,cancelable:true})));
@@ -1324,6 +1410,7 @@ test("practices Proverbs from Bible books without incrementing Themes done", asy
   const section = page.getByRole("region", { name: "Bible books", exact: true });
   await expect(section).toBeVisible();
   await expect(section).toContainText("18 verses");
+  await openBooks(page);
   await section.getByRole("button", { name: "Drill Proverbs", exact: true }).click();
   await expect(page.locator("#play-panel")).toBeVisible();
   await expect(page.locator("#stage .ref")).toContainText("Proverbs 1:7");
@@ -1334,12 +1421,148 @@ test("practices Proverbs from Bible books without incrementing Themes done", asy
   await page.locator("#btn-next").click();
   await expect(page.locator("#hud-progress")).toHaveText("Verse 2 / 18");
   for (let index = 2; index < 18; index += 1) await page.locator("#btn-next").click();
-  await expect(page.locator("#btn-next")).toHaveText("Finish book");
+  await expect(page.locator("#btn-next")).toHaveAccessibleName("Finish book");
   await page.locator("#btn-next").click();
   await expect(page.locator("#stage .practice-complete")).toContainText("Book complete");
   await expect(page.locator("#stage .practice-complete")).toContainText("Book practice does not change Themes done");
   await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
+  const chooser = page.getByRole("button", { name: "Choose another book", exact: true });
+  await expect(chooser).toHaveAttribute("data-tip", "Choose another book");
+  await expect(chooser.locator(".icon-face svg")).toBeVisible();
+  await page.locator("#books-disclosure").evaluate(node => { node.open = false; });
+  await chooser.click();
+  await expect(page.locator("#books-disclosure")).toHaveJSProperty("open", true);
+  await expect(page.locator("#books-disclosure > summary")).toBeFocused();
+  await expect(page.locator("#play-panel")).toBeHidden();
+  await section.getByRole("button", { name: "Drill Proverbs", exact: true }).click();
+  for (let index = 0; index < 18; index += 1) await page.locator("#btn-next").click();
   await page.getByRole("button", { name: "Practice again", exact: true }).click();
   await expect(page.locator("#hud-progress")).toHaveText("Verse 1 / 18");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+
+test("practice icons expose keyboard tooltips and fit a 390px screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?v=Psalm%2056%3A3");
+  await expect(page.locator(".med-ref")).toHaveText("Psalm 56:3");
+  await page.evaluate(() => {
+    window.VerseKeepBible.resolveVerse = async (ref, localText) =>
+      ({ text: localText, translation: "ESV", source: "test" });
+  });
+  await openMedMore(page);
+  await page.locator("#med-practice-verse").click();
+  await expect(page.locator("#stage .ref")).toHaveText("Psalm 56:3");
+  await expect(page.locator("#live-bible-label")).toHaveText("(ESV · test)");
+  const reveal = page.getByRole("button", { name: "Reveal", exact: true });
+  await page.mouse.move(0, 0);
+  await page.getByRole("button", { name: "Check", exact: true }).focus();
+  await page.keyboard.press("Tab");
+  await expect(reveal).toBeFocused();
+  await expect(page.locator("#vk-tip")).toBeVisible();
+  await expect(page.locator("#vk-tip")).toHaveText("Reveal");
+  await expect(reveal).toHaveAttribute("aria-describedby", "vk-tip");
+  // A stale pointer exit and viewport changes must preserve a keyboard tip.
+  await reveal.dispatchEvent("mouseleave");
+  await page.evaluate(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    window.dispatchEvent(new Event("scroll"));
+    window.dispatchEvent(new Event("resize"));
+  });
+  await expect(reveal).toBeFocused();
+  await expect(page.locator("#vk-tip")).toBeVisible();
+  await expect(reveal).toHaveAttribute("aria-describedby", "vk-tip");
+  await page.keyboard.press("Tab");
+  await expect(reveal).not.toHaveAttribute("aria-describedby");
+  await expect(reveal).toHaveAttribute("data-tip", "Reveal");
+  await expect(reveal).not.toHaveAttribute("title");
+  for (const id of ["btn-reveal", "btn-shuffle", "btn-copy", "btn-prev", "btn-next"]) {
+    const button = page.locator(`#${id}`);
+    const box = await button.boundingBox();
+    expect(box.width).toBeGreaterThanOrEqual(48);
+    expect(box.height).toBeGreaterThanOrEqual(48);
+    const face = await button.locator(".icon-face").boundingBox();
+    expect(face.width).toBe(40);
+    expect(face.height).toBe(40);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const summaries = await page.locator("summary").evaluateAll(nodes => nodes.every(el => !el.querySelector("p, span h2")));
+  expect(summaries).toBe(true);
+});
+
+for (const width of [390, 320]) {
+  test(`practice icon geometry and single action row at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/?v=Psalm%2056%3A3");
+    await openMedMore(page);
+    const row = await page.locator(".med-dock-primary").boundingBox();
+    const panel = await page.locator("#med-more-panel").boundingBox();
+    expect(panel.y).toBeGreaterThanOrEqual(row.y + row.height);
+    await page.locator("#med-practice-verse").click();
+    await expect(page.locator("#btn-check")).toBeVisible();
+    await page.locator("#practice-actions").scrollIntoViewIfNeeded();
+    const buttons = page.locator("#practice-actions > button");
+    const boxes = await buttons.evaluateAll(nodes => nodes.map(node => {
+      const rect = node.getBoundingClientRect();
+      return { centerY: rect.top + rect.height / 2, left: rect.left, right: rect.right };
+    }));
+    expect(Math.max(...boxes.map(b => b.centerY)) - Math.min(...boxes.map(b => b.centerY))).toBeLessThanOrEqual(2);
+    expect(boxes[0].left).toBeGreaterThanOrEqual(0);
+    expect(boxes.at(-1).right).toBeLessThanOrEqual(width);
+    for (const control of await page.locator("#practice-actions .icon-control").all()) {
+      const box = await control.boundingBox();
+      expect(box.width).toBeGreaterThanOrEqual(48);
+      expect(box.height).toBeGreaterThanOrEqual(48);
+      const face = await control.locator(".icon-face").boundingBox();
+      expect(face.width).toBe(40);
+      expect(face.height).toBe(40);
+      await expect(control.locator("svg")).toHaveAttribute("stroke-width", "2");
+      expect((await control.textContent()).trim()).toBe("");
+      // The transparent button owns the 4px band around the visible face.
+      // Probe at 3px: at fractional x=.297, Chromium hit-tests the boundary at about 3.2px.
+      expect(await control.evaluate(node => {
+        const r = node.querySelector(".icon-face").getBoundingClientRect();
+        return [
+          [r.left - 3, r.top + r.height / 2],
+          [r.right + 3, r.top + r.height / 2],
+          [r.left + r.width / 2, r.top - 3],
+          [r.left + r.width / 2, r.bottom + 3],
+        ].every(([x, y]) => document.elementFromPoint(x, y)?.closest("button") === node);
+      })).toBe(true);
+    }
+    const faces = await page.locator("#practice-actions .icon-face").evaluateAll(nodes =>
+      nodes.map(node => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right }; }));
+    for (let i = 1; i < faces.length; i++) {
+      expect(faces[i].left - faces[i - 1].right).toBe(8);
+    }
+    await expect(page.locator('#btn-next svg')).toHaveAttribute('stroke-width', '2');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
+
+test("touch tap shows Reveal label for about 1.5 seconds", async ({ browser }) => {
+  const context = await browser.newContext({ baseURL: "http://127.0.0.1:4174", hasTouch: true, viewport: { width: 320, height: 844 } });
+  const page = await context.newPage();
+  try {
+    await page.goto("/?v=Psalm%2056%3A3");
+    await openMedMore(page);
+    await page.locator("#med-practice-verse").click();
+    await page.tap("#btn-reveal");
+    await expect(page.locator("#vk-tip")).toBeVisible();
+    await expect(page.locator("#vk-tip")).toHaveText("Reveal");
+    await page.waitForTimeout(1000);
+    await expect(page.locator("#vk-tip")).toBeVisible();
+    await expect(page.locator("#vk-tip")).toBeHidden({ timeout: 1000 });
+  } finally {
+    await context.close();
+  }
+});
+
+test("meditation topic pill starts with its catalog emoji", async ({ page }) => {
+  const catalog = JSON.parse(readFileSync(new URL("../../docs/data/verses.json", import.meta.url), "utf8"));
+  const theme = catalog.themes.find(theme => theme.verses.some(verse => verse.ref === "Psalm 56:3"));
+  expect(theme.emoji).toBeTruthy();
+  await page.goto("/?v=Psalm%2056%3A3");
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
+  await expect.poll(async () => (await page.locator("#meditate-card .med-topic-pill").innerText()).trim().startsWith(theme.emoji)).toBe(true);
 });

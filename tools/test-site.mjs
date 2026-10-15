@@ -30,6 +30,8 @@ function readJson(relativePath) {
   "manifest.webmanifest",
   "sw.js",
   "assets/css/style.css",
+  "assets/js/tooltip.js",
+  "assets/js/icons.js",
   "assets/js/app.js",
   "assets/js/ambient.js",
   "assets/js/bible-config.js",
@@ -81,6 +83,30 @@ if (existsSync(indexPath)) {
   if (!html.includes('id="med-practice-verse"')) {
     failures.push("Meditation dock must include Practice this verse");
   }
+  const morePanel = html.slice(html.indexOf('id="med-more-panel"'), html.indexOf('id="med-saved"'));
+  if (
+    !morePanel.includes('id="med-practice-verse"') ||
+    !morePanel.includes('id="med-drill"') ||
+    !morePanel.includes('id="med-focus"')
+  ) {
+    failures.push("Practice this verse, Drill, and Focus must live in the More panel");
+  }
+  const primaryDock = html.slice(html.indexOf('class="med-dock-primary"'), html.indexOf('id="med-more-panel"'));
+  if (primaryDock.includes('id="med-practice-verse"') || primaryDock.includes('id="med-drill"') || primaryDock.includes('id="med-focus"')) {
+    failures.push("The visible meditation row is Prev, Next, Amen, and More");
+  }
+  const hasLabel = (label) => html.includes(label) || html.includes(label.replaceAll("&", "&amp;"));
+  if (
+    !html.includes('id="med-options"') ||
+    !hasLabel("Topic & translation") ||
+    !html.includes('id="topics-disclosure"') ||
+    !html.includes('id="books-disclosure"') ||
+    !html.includes('id="memorize-disclosure"') ||
+    !html.includes('id="topic-tools"') ||
+    !hasLabel("Progress & tools")
+  ) {
+    failures.push("First-screen sections must keep collapsed, labelled disclosures");
+  }
   if (!html.includes('id="nav-music"')) {
     failures.push("Primary nav must keep #nav-music to toggle the dock");
   }
@@ -100,6 +126,10 @@ if (existsSync(indexPath)) {
   const sessionIndex = html.indexOf('src="assets/js/session.js"');
   const dataCoreIndex = html.indexOf('src="assets/js/data-core.js"');
   const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
+  const iconsIndex = html.indexOf('src="assets/js/icons.js"');
+  if (iconsIndex < 0 || iconsIndex > meditateIndex || iconsIndex > html.indexOf('src="assets/js/wallpapers.js"')) {
+    failures.push("icons.js must load before icon consumers");
+  }
   const appIndex = html.indexOf('src="assets/js/app.js"');
   const ambientIndex = html.indexOf('src="assets/js/ambient.js"');
   const wallpapersIndex = html.indexOf('src="assets/js/wallpapers.js"');
@@ -161,6 +191,8 @@ if (existsSync(workerPath)) {
     }
     for (const required of [
       "./assets/css/style.css",
+      "./assets/js/tooltip.js",
+      "./assets/js/icons.js",
       "./assets/js/app.js",
       "./assets/js/session.js",
       "./assets/js/meditate.js",
@@ -309,6 +341,9 @@ if (existsSync(meditatePath)) {
   }
   if (!meditateSource.includes("practiceVerse") || !meditateSource.includes("offerPracticeThisVerse")) {
     failures.push("meditate.js must offer Practice this verse after Amen");
+  }
+  if (!meditateSource.includes('class="med-reflect"') || !meditateSource.includes('aria-label="Reflect" data-tip="Reflect"')) {
+    failures.push("Meditation must collapse context, application, and prayer until Reflect is opened");
   }
   if (!meditateSource.includes("cancelNeighborPrefetch") || !meditateSource.includes("signal: controller.signal")) {
     failures.push("meditation neighbor prefetch must be cancellable when navigation changes");
