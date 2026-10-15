@@ -3504,3 +3504,65 @@ details[open] > summary > .disclosure-chevron { transform: rotate(90deg); }
 @media (max-width: 480px) {
   #music-dock-tab .music-dock-tab-icon { color: inherit; }
 }
+
+/* Finish the shared ghost treatment across meditation, disclosures and galleries. */
+.med-dock-primary { flex-wrap: nowrap; gap: 0; max-width: 100%; }
+#med-amen.btn.primary {
+  width: auto; min-width: 0; max-width: 100%; flex: 0 1 auto; padding: 6px 8px;
+  height: var(--icon-btn-target); white-space: normal; overflow-wrap: anywhere;
+  border: 1px solid var(--gold); border-radius: var(--icon-btn-radius);
+  background: transparent; color: var(--gold); box-shadow: none;
+}
+#med-amen .icon-face { width: var(--icon-btn-size); }
+#practice-auto-advance[aria-checked="false"] > [data-icon="check"] { visibility: hidden; }
+.disclosure-chevron {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--icon-btn-size); height: var(--icon-btn-size);
+  border: 0; border-radius: var(--icon-btn-radius); background: transparent; color: var(--muted);
+}
+details[open] > summary > .disclosure-chevron { transform: none; }
+details[open] > summary > .disclosure-chevron svg { transform: rotate(90deg); }
+summary:hover > .disclosure-chevron, summary:focus-visible > .disclosure-chevron {
+  background: rgba(255,255,255,.07); color: var(--cream);
+}
+summary.disclosure-summary, summary.wp-summary { min-height: var(--icon-btn-target); }
+.wp-view-mini.icon-control, .wp-dl-mini.icon-control, .wp-heart.icon-control,
+html[data-wallpaper-grid="2"] .wp-view-mini.icon-control,
+html[data-wallpaper-grid="2"] .wp-dl-mini.icon-control,
+html[data-wallpaper-grid="2"] .wp-heart.icon-control,
+#music-dock-close.icon-control {
+  width: var(--icon-btn-target); min-width: var(--icon-btn-target);
+  height: var(--icon-btn-target); min-height: var(--icon-btn-target);
+  padding: 6px; border: 0; background: transparent; box-shadow: none; color: var(--muted);
+}
+.wp-heart.icon-control { width: auto; gap: 0; }
+.wp-heart.icon-control.is-on { color: var(--gold); }
+
+/* Reserve a separate column for the full wallpaper action tap targets. */
+.wp-card { display: grid; grid-template-columns: minmax(0, 1fr) var(--icon-btn-target); }
+.wp-main { min-width: 0; }
+.wp-side-actions,
+html[data-wallpaper-grid="2"] .wp-side-actions,
+html[data-wallpaper-grid="4"] .wp-side-actions {
+  position: static; width: var(--icon-btn-target); min-width: 0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; gap: 0; padding: 0;
+}
+.wp-side-actions .icon-control { margin: 0; flex: none; }
+.wp-side-actions .wp-heart.icon-control {
+  width: var(--icon-btn-target); height: auto; flex-direction: column;
+}
+.wp-heart-count { max-width: 100%; overflow-wrap: anywhere; }
+.wp-heart-status { grid-column: 1 / -1; }
+.icon-face, .icon-face * { pointer-events: none; }
+#med-amen > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.med-dock-primary > #med-focus {
+  min-width: 0; max-width: 100%; flex: 0 1 auto;
+  white-space: normal; overflow-wrap: anywhere;
+}
+/* Keep compact metadata anchored to the main column. */
+.wp-main { position: relative; }
+.wp-main > * { min-width: 0; max-width: 100%; }
+.wp-card .wp-main .wp-meta {
+  min-width: 0; padding-right: 0.4rem; overflow-wrap: anywhere;
+}

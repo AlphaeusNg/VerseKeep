@@ -1,10 +1,22 @@
+# VerseKeep continuous improvement log
+
+Last updated: 2026-10-15 (Ghost icons everywhere)
+
+## Ghost icons everywhere — 2026-10-15
+
+- Converted meditation Prev, Next, Amen and More to shared SVG ghost controls with 32px faces, 44px targets and accessible tooltip names. Amen keeps its visible label and thin accent outline.
+- Auto-advance is a native button with menuitemcheckbox semantics and synchronized aria-checked; a single tick becomes invisible when unchecked. Removed the input and migrated preference/import wiring and browser assertions.
+- Disclosure chevrons now have muted 18px SVGs in 32px ghost faces, hover/focus feedback, and summaries with at least 44px height.
+- Sweep converted wallpaper download/preview glyph buttons, wallpaper heart chrome (retaining its count), and music close to shared ghost controls. Existing practice, navigation More, completion chooser and mobile music ghost controls retained.
+- Deliberately skipped catalog/topic emoji and resume catalog labels (content); keyboard arrow hints and dimension/grid multiplication symbols (text); text actions, labelled mode chips, wallpaper image cards, most-loved wallpaper card, and desktop labelled Music tab (not icon-only controls). Decorative SVGs are not controls. Old 40px/48px shadow blur values are not button sizing.
+- Verification: all seven `tools/test-*.mjs` gates and all 59 Chromium journeys pass.
+- Release: 2026.10.15.7.
+
 ## Ghost icon standard — 2026-10-15
 
 Applied 32px ghost faces, 44px targets, grouped practice More menu, and a compact mobile music control.
 
-# VerseKeep continuous improvement log
-
-Last updated: 2026-10-15 (Declutter polish)
+- Verification: all seven gates and 56 Chromium journeys passed; release `2026.10.15.6`.
 
 ## Declutter polish — 2026-10-15
 

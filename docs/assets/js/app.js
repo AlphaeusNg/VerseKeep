@@ -1508,8 +1508,8 @@
     if (prefs.translation) applyTranslation(prefs.translation);
     if (typeof prefs.autoAdvance === "boolean") {
       state.autoAdvance = prefs.autoAdvance;
-      const toggle = $("#auto-advance");
-      if (toggle) toggle.checked = prefs.autoAdvance;
+      const toggle = $("#practice-auto-advance");
+      if (toggle) toggle.setAttribute("aria-checked", String(prefs.autoAdvance));
     }
     if (prefs.mode && MODE_LABELS[prefs.mode]) setMode(prefs.mode, !!state.themeId && !$("#play-panel")?.hidden);
     if (typeof prefs.medFocus === "boolean") window.VerseKeepMeditate?.setFocusMode?.(prefs.medFocus);
@@ -1699,13 +1699,14 @@
       });
     }
 
-    const autoToggle = $("#auto-advance");
+    const autoToggle = $("#practice-auto-advance");
     const prefs = loadPrefs();
     if (autoToggle) {
       state.autoAdvance = !!prefs.autoAdvance;
-      autoToggle.checked = state.autoAdvance;
-      autoToggle.addEventListener("change", () => {
-        state.autoAdvance = autoToggle.checked;
+      autoToggle.setAttribute("aria-checked", String(state.autoAdvance));
+      autoToggle.addEventListener("click", () => {
+        state.autoAdvance = !state.autoAdvance;
+        autoToggle.setAttribute("aria-checked", String(state.autoAdvance));
         savePrefs({ autoAdvance: state.autoAdvance });
       });
     }

@@ -753,9 +753,9 @@
       : "";
     // Mini download beside heart — uses blob fetch so daily/remote actually downloads
     const dlMini = open
-      ? `<button type="button" class="wp-dl-mini" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(fileName)}" title="Download ${formatName}" aria-label="Download ${formatName} wallpaper ${escapeHtml(fileName)}">⬇</button>`
+      ? `<button type="button" class="wp-dl-mini icon-control" data-dl-url="${escapeHtml(open)}" data-dl-name="${escapeHtml(fileName)}" data-tip="Download ${formatName}" aria-label="Download ${formatName} wallpaper ${escapeHtml(fileName)}"><span class="icon-face">${window.VerseKeepIcons.download()}</span></button>`
       : "";
-    const viewMini = `<button type="button" class="wp-view-mini" data-view-background="${escapeHtml(w.id)}" title="View this wallpaper with the page minimized" aria-label="View ${escapeHtml(w.title)} as a clean background">▣</button>`;
+    const viewMini = `<button type="button" class="wp-view-mini icon-control" data-view-background="${escapeHtml(w.id)}" data-tip="View background" aria-label="View ${escapeHtml(w.title)} as a clean background"><span class="icon-face">${window.VerseKeepIcons.eye()}</span></button>`;
     const badge = badgeHtml(w, { showDailyBadge });
 
     return `
@@ -772,8 +772,8 @@
         <div class="wp-side-actions">
           ${viewMini}
           ${dlMini}
-          <button type="button" class="wp-heart${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" aria-label="${hearted ? "Unheart" : "Heart"} ${escapeHtml(w.title)}" title="${hearted ? "Unheart" : "Heart this wallpaper"}">
-            <span class="wp-heart-icon" aria-hidden="true">${window.VerseKeepIcons.heart()}</span>
+          <button type="button" class="wp-heart icon-control${hearted ? " is-on" : ""}" data-heart="${escapeHtml(w.id)}" aria-pressed="${hearted ? "true" : "false"}" aria-label="${hearted ? "Unheart" : "Heart"} ${escapeHtml(w.title)}" data-tip="${hearted ? "Unheart" : "Heart this wallpaper"}">
+            <span class="wp-heart-icon icon-face" aria-hidden="true">${window.VerseKeepIcons.heart()}</span>
             <span class="wp-heart-count mono">${count}</span>
           </button>
         </div>

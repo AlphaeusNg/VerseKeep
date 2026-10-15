@@ -633,7 +633,7 @@ test("restores normalized meditation and practice preferences", async ({ page })
 
   await expect(page.locator("#load-error")).toBeHidden();
   await expect(page.locator("#tr-select")).toHaveValue("niv");
-  await expect(page.locator("#auto-advance")).toBeChecked();
+  await expect(page.getByRole("menuitemcheckbox", { name: "Auto-advance after a correct answer", includeHidden: true })).toHaveAttribute("aria-checked", "true");
   await expect(page.locator('#med-topics [data-topic="strength-trials"]')).toHaveAttribute(
     "aria-pressed",
     "true"
@@ -1633,3 +1633,51 @@ test('mobile music ghost control stays clear of content and opens mounted player
     await expect(frame).toHaveAttribute('src', src);
   } finally { await context.close(); }
 });
+
+test('auto-advance has one tick and supports click, Space and Enter', async ({ page }) => {
+  await page.goto('/?v=Psalm%2056%3A3');
+  await openMedMore(page);
+  await page.locator('#med-practice-verse').click();
+  await page.getByRole('button', { name: 'More options', exact: true }).click();
+  const toggle = page.getByRole('menuitemcheckbox', { name: 'Auto-advance after a correct answer' });
+  await expect(page.locator('#practice-menu input')).toHaveCount(0);
+  const initial = await toggle.getAttribute('aria-checked');
+  let checked = initial === 'true';
+  for (const action of ['click', 'Space', 'Enter']) {
+    if (action === 'click') await toggle.click();
+    else { await toggle.focus(); await page.keyboard.press(action); }
+    checked = !checked;
+    await expect(toggle).toHaveAttribute('aria-checked', String(checked));
+    await expect(toggle.locator('svg')).toHaveCount(1);
+    await expect(toggle.locator('[data-icon="check"]')).toHaveCSS('visibility', checked ? 'visible' : 'hidden');
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('versekeep-prefs-v1')).autoAdvance)).toBe(checked);
+  }
+});
+
+for (const width of [320, 390]) {
+  test('meditation ghost row geometry at ' + width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    const row = page.locator('.med-dock-primary');
+    const boxes = [];
+    for (const name of ['Previous verse', 'Next verse', 'Amen', 'More']) {
+      const control = row.getByRole('button', { name, exact: true });
+      await expect(control).toHaveAttribute('data-tip', name);
+      const box = await control.boundingBox();
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      boxes.push(box);
+      {
+        const face = await control.locator('.icon-face').boundingBox();
+        expect(face.width).toBe(32); expect(face.height).toBe(32);
+      }
+      await expect(control.locator('svg')).toHaveCSS('width', '18px');
+    }
+    const centers = boxes.map(box => box.y + box.height / 2);
+    expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(2);
+    const amen = row.getByRole('button', { name: 'Amen', exact: true });
+    await expect(amen).toHaveText('Amen');
+    await expect(amen).toHaveCSS('border-top-width', '1px');
+    await expect(amen).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  });
+}
