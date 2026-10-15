@@ -971,3 +971,10 @@ Validation: six sizing configurations and all seven Node gates passed. Version 2
 The wallpaper button says "Shuffle wallpapers". Practice names Study, Fill blanks, Type it, Order words, and Which verse. Amen still starts the streak. Music still keeps playing when the panel closes, and autoplay still uses the last station or God’s encouragement. Version `2026.10.15.1`.
 
 Validation: all seven node gates passed. Chromium confirmed the Amen streak line. The rest of the browser suite was not rerun.
+
+
+## 2026-10-16 — Leave practice overflow actions with Tab
+
+Tab and Shift+Tab close the new practice menu and restore the trigger before the browser chooses the next visible control. Hidden menu actions cannot retain focus. A real Proverbs book-drill regression covers both directions; the new book catalog, meditation behavior and data contracts stay intact. Deployment stamp: 2026.10.16.1.
+
+Validation: all seven Node gates and all 60 Chromium journeys passed, including the new keyboard regression.

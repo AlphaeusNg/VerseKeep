@@ -1681,3 +1681,22 @@ for (const width of [320, 390]) {
     await expect(amen).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   });
 }
+
+
+test("practice More closes on Tab without leaving focus in hidden content", async ({ page }) => {
+  await page.goto("/");
+  await openBooks(page);
+  await page.getByRole("button", { name: "Drill Proverbs", exact: true }).click();
+  const trigger = page.locator("#btn-more");
+  const menu = page.locator("#practice-menu");
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Shift+Tab");
+  await expect(menu).toBeHidden();
+  await expect(page.locator("#btn-next")).toBeFocused();
+  await trigger.click();
+  await page.keyboard.press("Tab");
+  await expect(menu).toBeHidden();
+  expect(await page.evaluate(() => document.activeElement !== document.body
+    && !document.activeElement.closest("[hidden]"))).toBe(true);
+});

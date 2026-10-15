@@ -26,6 +26,9 @@
   });
   document.addEventListener('keydown', event => {
     if (menu.hidden && event.target !== button) return;
+    if (event.key === 'Tab' && !menu.hidden && menu.contains(event.target)) {
+      close(true); return;
+    }
     if (event.key === 'Escape' && !menu.hidden) {
       event.preventDefault(); event.stopImmediatePropagation(); close(true); return;
     }
