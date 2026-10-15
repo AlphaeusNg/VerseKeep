@@ -158,6 +158,9 @@ a:hover {
 }
 
 .top-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--icon-btn-size);
   color: var(--muted);
 }
 
