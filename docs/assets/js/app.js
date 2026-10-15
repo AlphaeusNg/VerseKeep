@@ -26,6 +26,7 @@
     neighborPrefetchController: null,
     completed: false,
     countsAsTheme: false,
+    isBook: false,
     queueLabel: "Practice",
   };
 
@@ -261,7 +262,8 @@
   }
 
   function currentTheme() {
-    return state.data?.themes?.find((t) => t.id === state.themeId) || null;
+    return state.data?.themes?.find((t) => t.id === state.themeId)
+      || state.data?.books?.find((t) => t.id === state.themeId) || null;
   }
 
   function currentVerse() {
@@ -321,6 +323,39 @@
       </div>`;
       })
       .join("");
+  }
+
+  function paintBooks() {
+    const host = $("#book-grid");
+    const books = state.data.books || [];
+    $("#bible-books").hidden = !books.length;
+    host.innerHTML = books.map((book) => `
+      <div class="theme-card-wrap">
+        <button type="button" class="theme-card" data-book="${escapeHtml(book.id)}" aria-label="Drill ${escapeHtml(book.title)}">
+          <span class="emoji" aria-hidden="true">${escapeHtml(book.emoji)}</span>
+          <strong>${escapeHtml(book.title)}</strong>
+          <small>${escapeHtml(book.blurb)}</small>
+          <span class="theme-meta mono">${book.verses.length} verses · Drill</span>
+        </button>
+      </div>`).join("");
+    if (host.dataset.bound) return;
+    host.dataset.bound = "1";
+    host.addEventListener("click", async (event) => {
+      const button = event.target.closest?.("[data-book]");
+      const book = (state.data.books || []).find((entry) => entry.id === button?.dataset.book);
+      if (!book) return;
+      const selectionId = ++state.selectionId;
+      const operation = queueHydrator.begin();
+      state.selecting = true;
+      try {
+        state.themeId = book.id;
+        paintThemes();
+        await beginQueue(book.verses.map((verse) => ({ ...verse, themeId: book.id, localText: verse.text })),
+          `${book.emoji} ${book.title}`, operation, undefined, { countsAsTheme: false, isBook: true });
+      } finally {
+        if (selectionId === state.selectionId) state.selecting = false;
+      }
+    });
   }
 
   function bindThemeGrid() {
@@ -496,7 +531,7 @@
     label,
     initialOperation,
     initialMode,
-    { countsAsTheme = false } = {}
+    { countsAsTheme = false, isBook = false } = {}
   ) {
     cancelPracticeNeighborPrefetch();
     // Practice replaces the active listening context before live text arrives.
@@ -516,6 +551,7 @@
     state.liveMeta = "local JSON";
     state.completed = false;
     state.countsAsTheme = countsAsTheme;
+    state.isBook = isBook;
     state.queueLabel = label;
     setPracticeControlsVisible(true);
 
@@ -795,7 +831,7 @@
     updateHud();
     $("#btn-check").hidden = state.mode === "study" || state.mode === "quiz";
     $("#btn-next").textContent =
-      state.index >= state.queue.length - 1 ? (state.countsAsTheme ? "Finish theme" : "Finish practice") : "Next verse";
+      state.index >= state.queue.length - 1 ? (state.countsAsTheme ? "Finish theme" : state.isBook ? "Finish book" : "Finish practice") : "Next verse";
     if (!v) {
       $("#stage").innerHTML = `<p class="hint">Pick a theme to begin.</p>`;
       return;
@@ -824,7 +860,7 @@
     const limit = window.VerseKeepPracticeCore.reviewLimit($("#review-bound")?.value);
     const refs = [];
     const byRef = new Map();
-    for (const theme of state.data.themes) {
+    for (const theme of [...state.data.themes, ...(state.data.books || [])]) {
       for (const verse of theme.verses || []) {
         if (!verse?.ref || byRef.has(verse.ref)) continue;
         refs.push(verse.ref);
@@ -1262,10 +1298,10 @@
     clearFeedback();
     setPracticeControlsVisible(false);
     setHudText($("#hud-progress"), `Complete · ${state.queue.length} / ${state.queue.length}`);
-    const heading = state.countsAsTheme ? "Topic complete" : "Practice complete";
+    const heading = state.countsAsTheme ? "Topic complete" : state.isBook ? "Book complete" : "Practice complete";
     const completion = state.countsAsTheme
       ? "This topic has been added to Themes done."
-      : "This focused practice does not change Themes done.";
+      : state.isBook ? "Book practice does not change Themes done." : "This focused practice does not change Themes done.";
     $("#stage").innerHTML = `
       <div class="practice-complete" role="status" aria-live="polite" tabindex="-1">
         <p class="eyebrow">${escapeHtml(heading)}</p>
@@ -1503,6 +1539,7 @@
         throw new Error(`Invalid verse catalog: ${validation.errors.join("; ")}`);
       }
       state.data = catalog;
+      paintBooks();
       filterSavedVerses(stats);
       paintThemes();
       paintStatsBar();
@@ -1781,7 +1818,7 @@
     let theme = themeId ? state.data.themes.find((candidate) => candidate.id === themeId) : null;
     let found = theme?.verses?.find((verse) => verse.ref === ref) || null;
     if (!found) {
-      for (const candidate of state.data.themes) {
+      for (const candidate of [...state.data.themes, ...(state.data.books || [])]) {
         const verse = candidate.verses.find((item) => item.ref === ref);
         if (verse) {
           found = verse;

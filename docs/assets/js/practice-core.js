@@ -379,6 +379,37 @@
       });
     });
 
+    if (value.books !== undefined) {
+      if (!Array.isArray(value.books)) {
+        addError("books must be an array");
+      } else {
+        value.books.forEach((book, index) => {
+          const path = `books[${index}]`;
+          if (!isRecord(book)) { addError(`${path} must be an object`); return; }
+          const id = requireText(book, "id", path);
+          for (const field of ["title", "emoji", "blurb"]) requireText(book, field, path);
+          if (id) {
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) addError(`${path}.id must be a lowercase slug`);
+            if (themeIds.has(id)) addError(`${path}.id has duplicate catalog id "${id}"`);
+            themeIds.add(id);
+          }
+          if (!Array.isArray(book.verses) || !book.verses.length) {
+            addError(`${path}.verses must be a non-empty array`); return;
+          }
+          const refs = new Set();
+          book.verses.forEach((verse, verseIndex) => {
+            const versePath = `${path}.verses[${verseIndex}]`;
+            if (!isRecord(verse)) { addError(`${versePath} must be an object`); return; }
+            for (const field of VERSE_FIELDS) requireText(verse, field, versePath);
+            if (typeof verse.ref !== "string") return;
+            const ref = verse.ref.trim().toLowerCase().replace(/[\u2012-\u2015]/g, "-").replace(/\s+/g, " ");
+            if (refs.has(ref)) addError(`${versePath}.ref has duplicate verse reference "${verse.ref}"`);
+            refs.add(ref);
+          });
+        });
+      }
+    }
+
     return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
   }
 

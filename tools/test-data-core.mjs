@@ -236,4 +236,32 @@ hasError(
   "disabled flags cannot rely on truthy strings"
 );
 
+
+vm.runInContext(readFileSync(resolve(root, "docs/assets/js/practice-core.js"), "utf8"), sandbox);
+const validateVerses = sandbox.window.VerseKeepPracticeCore.validateVerseCatalog;
+const verses = JSON.parse(readFileSync(resolve(root, "docs/data/verses.json"), "utf8"));
+equal(validateVerses(verses).valid, true, "deployed books validate");
+const proverbs = verses.books.find(book => book.id === "proverbs");
+equal(proverbs.verses.length, 18, "Proverbs contains eighteen passages");
+for (const ref of ["Proverbs 3:5–6", "Proverbs 16:3", "Proverbs 16:9", "Proverbs 17:22"]) {
+  equal(proverbs.verses.some(verse => verse.ref === ref), true, `${ref} is included`);
+}
+for (const [label, mutate] of [
+  ["bad id", data => { data.books[0].id = "Bad ID"; }],
+  ["duplicate id", data => { data.books.push(structuredClone(data.books[0])); }],
+  ["theme id collision", data => { data.books[0].id = data.themes[0].id; }],
+  ["missing text", data => { delete data.books[0].verses[0].text; }],
+  ["empty verses", data => { data.books[0].verses = []; }],
+  ["duplicate ref", data => { data.books[0].verses.push(structuredClone(data.books[0].verses[0])); }],
+  ["missing title", data => { delete data.books[0].title; }],
+  ["non-array books", data => { data.books = {}; }],
+]) {
+  const invalid = structuredClone(verses);
+  mutate(invalid);
+  equal(validateVerses(invalid).valid, false, `rejects book ${label}`);
+}
+const legacy = structuredClone(verses);
+delete legacy.books;
+equal(validateVerses(legacy).valid, true, "books remain optional");
+
 console.log(`test-data-core.mjs: ${assertions} data contract assertions passed`);

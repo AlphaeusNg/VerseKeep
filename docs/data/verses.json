@@ -789,5 +789,141 @@
         }
       ]
     }
+  ],
+  "books": [
+    {
+      "id": "proverbs",
+      "title": "Proverbs",
+      "emoji": "📖",
+      "blurb": "Wisdom for daily life, rooted in reverence for the Lord.",
+      "verses": [
+        {
+          "ref": "Proverbs 1:7",
+          "text": "The fear of the Lord is the beginning of knowledge; fools despise wisdom and instruction.",
+          "context": "Proverbs begins by placing reverence for the Lord at the foundation of learning. Wisdom receives His instruction with humility.",
+          "application": "Receive one correction today without defending yourself. Ask what God is teaching you.",
+          "prayer": "Lord, give me a teachable heart that honors You and welcomes instruction."
+        },
+        {
+          "ref": "Proverbs 3:5–6",
+          "text": "Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.",
+          "context": "Solomon urges the covenant people not to trust clever self-reliance. True wisdom begins with wholehearted dependence on the Lord who orders every path.",
+          "application": "Where are you leaning on your own understanding today? Name it, then deliberately entrust that decision, worry, or plan to the Lord.",
+          "prayer": "Father, I refuse self-reliance. Teach me to trust You with all my heart and to acknowledge You in every step."
+        },
+        {
+          "ref": "Proverbs 3:9–10",
+          "text": "Honor the Lord with your wealth and with the firstfruits of all your produce; then your barns will be filled with plenty, and your vats will be bursting with wine.",
+          "context": "Solomon calls God’s people to honor Him with their first and best. This picture of provision teaches generous trust, rather than a formula for riches.",
+          "application": "Set aside your first and best for God’s purposes. Give with gratitude rather than bargaining for a return.",
+          "prayer": "Father, all I have comes from You. Teach me to give freely and trust Your provision."
+        },
+        {
+          "ref": "Proverbs 4:23",
+          "text": "Keep your heart with all vigilance, for from it flow the springs of life.",
+          "context": "A father urges his son to guard the inner life from which choices and actions flow. Wisdom reaches deeper than outward behavior.",
+          "application": "Notice what is shaping your desires today. Make room for something that turns your heart toward God.",
+          "prayer": "Lord, guard my heart and shape my desires so that my life flows toward You."
+        },
+        {
+          "ref": "Proverbs 9:10",
+          "text": "The fear of the Lord is the beginning of wisdom, and the knowledge of the Holy One is insight.",
+          "context": "Wisdom’s invitation leads back to reverence for God. Knowing the Holy One gives understanding its true foundation.",
+          "application": "Before seeking an answer, pause to acknowledge God’s holiness. Let knowing Him guide your decision.",
+          "prayer": "Holy God, teach me to know You and to walk in wisdom that begins with reverence."
+        },
+        {
+          "ref": "Proverbs 10:12",
+          "text": "Hatred stirs up strife, but love covers all offenses.",
+          "context": "Proverbs contrasts hatred that keeps conflict alive with love that seeks reconciliation. Love refuses to feed resentment.",
+          "application": "Resist repeating an offense to others. Seek a truthful, loving step toward peace.",
+          "prayer": "Lord, free me from resentment and teach me to respond to offenses with love."
+        },
+        {
+          "ref": "Proverbs 12:25",
+          "text": "Anxiety in a man’s heart weighs him down, but a good word makes him glad.",
+          "context": "This proverb recognizes the burden of anxiety and the lifting power of encouragement. Our words can help carry another person’s load.",
+          "application": "Offer a specific word of encouragement to someone who feels weighed down today.",
+          "prayer": "Father, meet me in my worries and make my words a source of encouragement."
+        },
+        {
+          "ref": "Proverbs 14:12",
+          "text": "There is a way that seems right to a man, but its end is the way to death.",
+          "context": "Proverbs warns that personal certainty can conceal a destructive path. Our judgment needs the correction of God’s wisdom.",
+          "application": "Bring a choice that feels obvious before Scripture and a trusted believer. Be willing to change course.",
+          "prayer": "Lord, expose my blind spots and lead me away from paths that bring harm."
+        },
+        {
+          "ref": "Proverbs 15:1",
+          "text": "A soft answer turns away wrath, but a harsh word stirs up anger.",
+          "context": "Wisdom observes how the manner of our speech shapes conflict. Gentleness can interrupt anger instead of multiplying it.",
+          "application": "Pause before answering a sharp remark. Choose words and a tone that invite peace.",
+          "prayer": "Lord, steady my tongue and help me answer with gentleness when I feel provoked."
+        },
+        {
+          "ref": "Proverbs 16:3",
+          "text": "Commit your work to the Lord, and your plans will be established.",
+          "context": "Solomon calls the wise to entrust their work to God. Plans find their proper footing under His direction.",
+          "application": "Pray over today’s work before beginning. Offer both your effort and the outcome to God.",
+          "prayer": "Father, I commit my work to You. Direct my plans and make my efforts faithful."
+        },
+        {
+          "ref": "Proverbs 16:9",
+          "text": "The heart of man plans his way, but the Lord establishes his steps.",
+          "context": "Wisdom holds both human planning and divine establishing together — neither fatalism nor autonomy.",
+          "application": "Plan diligently, then hold plans loosely. Ask God to establish the steps that matter.",
+          "prayer": "Lord, I plan my way; establish my steps. Direct me where You will."
+        },
+        {
+          "ref": "Proverbs 17:17",
+          "text": "A friend loves at all times, and a brother is born for adversity.",
+          "context": "This proverb celebrates faithful companionship through difficulty. True friendship remains present when circumstances become costly.",
+          "application": "Check in on a friend facing hardship. Offer one practical way to stand beside them.",
+          "prayer": "Lord, make me a faithful friend whose love remains steady in adversity."
+        },
+        {
+          "ref": "Proverbs 17:22",
+          "text": "A joyful heart is good medicine, but a crushed spirit dries up the bones.",
+          "context": "Proverbs recognizes the connection between our inner life and bodily strength. Joy refreshes us, while deep sorrow can leave us depleted.",
+          "application": "Make space for a small gift of joy today, and gently support someone whose spirit feels crushed.",
+          "prayer": "Father, restore my joy and draw near to those who feel worn down in spirit."
+        },
+        {
+          "ref": "Proverbs 18:10",
+          "text": "The name of the Lord is a strong tower; the righteous man runs into it and is safe.",
+          "context": "God’s name represents His faithful character. The wise seek refuge in Him as people once sought shelter in a fortified tower.",
+          "application": "When you feel threatened, turn first to God in prayer. Recall one truth about His character.",
+          "prayer": "Lord, You are my refuge. Help me run to You and rest in Your faithful care."
+        },
+        {
+          "ref": "Proverbs 19:21",
+          "text": "Many are the plans in the mind of a man, but it is the purpose of the Lord that will stand.",
+          "context": "Human plans are many and changeable, but God’s purpose endures. Wisdom holds ambitions with humility before Him.",
+          "application": "Hold one cherished plan with open hands today. Ask God to align it with His purposes.",
+          "prayer": "Father, let Your purpose stand in my life. Give me humility when my plans change."
+        },
+        {
+          "ref": "Proverbs 22:6",
+          "text": "Train up a child in the way he should go; even when he is old he will not depart from it.",
+          "context": "Proverbs highlights the lasting influence of early formation. This wisdom calls for faithful nurture rather than control over another person’s future.",
+          "application": "Model one faithful habit for a child or younger believer. Teach patiently and entrust their growth to God.",
+          "prayer": "Lord, help me nurture the young with patience, wisdom, and a faithful example."
+        },
+        {
+          "ref": "Proverbs 27:17",
+          "text": "Iron sharpens iron, and one man sharpens another.",
+          "context": "Wisdom grows through relationships that challenge and strengthen us. Faithful companions help refine our character.",
+          "application": "Invite a trusted friend to speak honestly about one area where you need to grow.",
+          "prayer": "Father, give me friendships that sharpen my faith and humility to receive honest counsel."
+        },
+        {
+          "ref": "Proverbs 30:5",
+          "text": "Every word of God proves true; he is a shield to those who take refuge in him.",
+          "context": "Agur points beyond limited human understanding to God’s trustworthy words. Those who seek refuge in Him find a faithful protector.",
+          "application": "Carry one promise from Scripture into a worry today. Let God’s trustworthy word shape your response.",
+          "prayer": "Lord, Your words are true. Be my shield and teach me to take refuge in You."
+        }
+      ]
+    }
   ]
 }
