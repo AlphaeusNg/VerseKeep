@@ -37,6 +37,8 @@ for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:3
   await openTopics(page);
   await page.locator('#theme-grid [data-drill]').first().click();
   for (const mode of ['study','blank','type','order','quiz']) {await page.locator(`#play-panel [data-mode="${mode}"]`).click(); await measure(mode);}
+  await page.getByRole('button', {name:'More options', exact:true}).click(); await measure('practice-menu');
+  await page.keyboard.press('Escape');
   await page.locator('#play-panel').screenshot({path:`/tmp/versekeep-sizing-${setting.width}-${setting.text?'text':setting.zoom?'zoom':'normal'}-practice.png`});
   await openTopicTools(page);
   await page.locator('#btn-review-due').click();await measure('review');

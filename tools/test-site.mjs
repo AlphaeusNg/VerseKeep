@@ -31,6 +31,7 @@ function readJson(relativePath) {
   "sw.js",
   "assets/css/style.css",
   "assets/js/tooltip.js",
+  "assets/js/more-menu.js",
   "assets/js/icons.js",
   "assets/js/app.js",
   "assets/js/ambient.js",
@@ -192,6 +193,7 @@ if (existsSync(workerPath)) {
     for (const required of [
       "./assets/css/style.css",
       "./assets/js/tooltip.js",
+      "./assets/js/more-menu.js",
       "./assets/js/icons.js",
       "./assets/js/app.js",
       "./assets/js/session.js",

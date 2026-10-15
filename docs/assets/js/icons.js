@@ -17,7 +17,7 @@
   "music": "<path d=\"M9 18V5l12-2v13M9 7l12-2\"/><ellipse cx=\"6\" cy=\"18\" rx=\"3\" ry=\"3\"/><ellipse cx=\"18\" cy=\"16\" rx=\"3\" ry=\"3\"/>"
 };
   window.VerseKeepIcons = Object.freeze(Object.fromEntries(Object.entries(paths).map(([name, body]) =>
-    [name, () => `<svg class="vk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`])));
+    [name, () => `<svg class="vk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`])));
   document.querySelectorAll("[data-icon]").forEach(node => {
     node.innerHTML = window.VerseKeepIcons[node.dataset.icon]();
   });

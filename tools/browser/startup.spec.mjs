@@ -530,9 +530,11 @@ test("announces practice feedback for grading and actions", async ({ page, conte
   await expect(feedback).not.toHaveText("");
   await expect(feedback).toHaveAttribute("aria-atomic", "true");
 
-  await page.locator("#btn-copy").click();
+  await page.getByRole("button", { name: "More options", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Copy", exact: true }).click();
   await expect(feedback).toHaveText("Verse copied to clipboard.");
-  await page.locator("#btn-shuffle").click();
+  await page.getByRole("button", { name: "More options", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Shuffle", exact: true }).click();
   await expect(feedback).toHaveText("Queue shuffled.");
 
   await page.locator('#play-panel [data-mode="type"]').click();
@@ -1476,14 +1478,14 @@ test("practice icons expose keyboard tooltips and fit a 390px screen", async ({ 
   await expect(reveal).not.toHaveAttribute("aria-describedby");
   await expect(reveal).toHaveAttribute("data-tip", "Reveal");
   await expect(reveal).not.toHaveAttribute("title");
-  for (const id of ["btn-reveal", "btn-shuffle", "btn-copy", "btn-prev", "btn-next"]) {
+  for (const id of ["btn-reveal", "btn-prev", "btn-next", "btn-more"]) {
     const button = page.locator(`#${id}`);
     const box = await button.boundingBox();
-    expect(box.width).toBeGreaterThanOrEqual(48);
-    expect(box.height).toBeGreaterThanOrEqual(48);
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
     const face = await button.locator(".icon-face").boundingBox();
-    expect(face.width).toBe(40);
-    expect(face.height).toBe(40);
+    expect(face.width).toBe(32);
+    expect(face.height).toBe(32);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const summaries = await page.locator("summary").evaluateAll(nodes => nodes.every(el => !el.querySelector("p, span h2")));
@@ -1502,6 +1504,7 @@ for (const width of [390, 320]) {
     await expect(page.locator("#btn-check")).toBeVisible();
     await page.locator("#practice-actions").scrollIntoViewIfNeeded();
     const buttons = page.locator("#practice-actions > button");
+    await expect(buttons).toHaveCount(5);
     const boxes = await buttons.evaluateAll(nodes => nodes.map(node => {
       const rect = node.getBoundingClientRect();
       return { centerY: rect.top + rect.height / 2, left: rect.left, right: rect.right };
@@ -1511,31 +1514,29 @@ for (const width of [390, 320]) {
     expect(boxes.at(-1).right).toBeLessThanOrEqual(width);
     for (const control of await page.locator("#practice-actions .icon-control").all()) {
       const box = await control.boundingBox();
-      expect(box.width).toBeGreaterThanOrEqual(48);
-      expect(box.height).toBeGreaterThanOrEqual(48);
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
       const face = await control.locator(".icon-face").boundingBox();
-      expect(face.width).toBe(40);
-      expect(face.height).toBe(40);
-      await expect(control.locator("svg")).toHaveAttribute("stroke-width", "2");
+      expect(face.width).toBe(32);
+      expect(face.height).toBe(32);
+      await expect(control.locator("svg")).toHaveAttribute("stroke-width", "1.75");
       expect((await control.textContent()).trim()).toBe("");
-      // The transparent button owns the 4px band around the visible face.
-      // Probe at 3px: at fractional x=.297, Chromium hit-tests the boundary at about 3.2px.
+      // Targets overlap horizontally to keep a 4px face gap; verify the full vertical hit area.
       expect(await control.evaluate(node => {
         const r = node.querySelector(".icon-face").getBoundingClientRect();
         return [
-          [r.left - 3, r.top + r.height / 2],
-          [r.right + 3, r.top + r.height / 2],
-          [r.left + r.width / 2, r.top - 3],
-          [r.left + r.width / 2, r.bottom + 3],
+          [r.left + r.width / 2, r.top + r.height / 2],
+          [r.left + r.width / 2, r.top - 5],
+          [r.left + r.width / 2, r.bottom + 5],
         ].every(([x, y]) => document.elementFromPoint(x, y)?.closest("button") === node);
       })).toBe(true);
     }
     const faces = await page.locator("#practice-actions .icon-face").evaluateAll(nodes =>
       nodes.map(node => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right }; }));
     for (let i = 1; i < faces.length; i++) {
-      expect(faces[i].left - faces[i - 1].right).toBe(8);
+      expect(faces[i].left - faces[i - 1].right).toBe(4);
     }
-    await expect(page.locator('#btn-next svg')).toHaveAttribute('stroke-width', '2');
+    await expect(page.locator('#btn-next svg')).toHaveAttribute('stroke-width', '1.75');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
@@ -1565,4 +1566,70 @@ test("meditation topic pill starts with its catalog emoji", async ({ page }) => 
   await page.goto("/?v=Psalm%2056%3A3");
   await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
   await expect.poll(async () => (await page.locator("#meditate-card .med-topic-pill").innerText()).trim().startsWith(theme.emoji)).toBe(true);
+});
+
+test('practice More menu groups, keyboard navigation, and outlined Check', async ({ page }) => {
+  await page.goto('/?v=Psalm%2056%3A3');
+  await openMedMore(page);
+  await page.locator('#med-practice-verse').click();
+  const more = page.getByRole('button', { name: 'More options', exact: true });
+  await more.click();
+  const menu = page.getByRole('menu', { name: 'Practice options' });
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole('group', { name: 'Verse', exact: true })).toBeVisible();
+  await expect(menu.getByRole('group', { name: 'Settings', exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Shuffle', exact: true })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('menuitem', { name: 'Copy', exact: true })).toBeFocused();
+  const rowBox = await page.locator('#practice-actions').boundingBox();
+  const menuBox = await menu.boundingBox();
+  expect(menuBox.y).toBeGreaterThanOrEqual(rowBox.y + rowBox.height);
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(more).toBeFocused();
+  await expect(more).toHaveAttribute('aria-expanded', 'false');
+  const outline = await page.locator('#btn-check').evaluate(node => {
+    const s = getComputedStyle(node);
+    return { width: parseFloat(s.borderTopWidth), style: s.borderTopStyle, color: s.borderTopColor, text: s.color, background: s.backgroundColor };
+  });
+  expect(outline.width).toBeGreaterThan(0);
+  expect(outline.style).toBe('solid');
+  expect(outline.color).toBe(outline.text);
+  expect(outline.background).toBe('rgba(0, 0, 0, 0)');
+  await more.click();
+  await page.locator('#stage').click();
+  await expect(menu).toBeHidden();
+  await page.keyboard.press('s');
+  await expect(page.locator('#feedback')).toHaveText('Queue shuffled.');
+  await expect(menu).toBeHidden();
+});
+
+test('mobile music ghost control stays clear of content and opens mounted player', async ({ browser }) => {
+  const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4174', hasTouch: true, viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  try {
+    await page.goto('/');
+    const tab = page.getByRole('button', { name: 'Music', exact: true });
+    await expect(tab).toHaveAttribute('data-tip', /Music · .+/);
+    const box = await tab.boundingBox();
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    const face = await tab.locator('.icon-face').boundingBox();
+    expect(face.width).toBe(32);
+    expect(face.height).toBe(32);
+    const overlaps = await page.locator('#meditate-card, .med-dock-primary button, main .panel').evaluateAll((nodes, b) => nodes.filter(n => n.checkVisibility()).filter(n => {
+      const r = n.getBoundingClientRect();
+      return r.top < 844 && r.bottom > 0 && r.left < b.x + b.width && r.right > b.x && r.top < b.y + b.height && r.bottom > b.y;
+    }).map(n => n.id), box);
+    expect(overlaps).toEqual([]);
+    const frame = page.locator('#music-frame');
+    const src = await frame.getAttribute('src');
+    await frame.evaluate(node => { window.musicFrameBefore = node; });
+    await tab.tap();
+    await expect(tab).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#music-dock-panel')).toBeVisible();
+    await expect(page.locator('#vk-tip')).toContainText('Music ·');
+    expect(await frame.evaluate(node => node === window.musicFrameBefore)).toBe(true);
+    await expect(frame).toHaveAttribute('src', src);
+  } finally { await context.close(); }
 });

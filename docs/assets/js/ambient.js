@@ -175,11 +175,9 @@
     const t = tab();
     if (t) {
       t.setAttribute("aria-expanded", dockOpen ? "true" : "false");
-      t.title = dockOpen
-        ? "Close stations"
-        : playing
-          ? `Open stations · ${currentLabel} (playing)`
-          : "Open stations";
+      t.removeAttribute("title");
+      t.setAttribute("aria-label", "Music");
+      t.dataset.tip = `Music · ${currentLabel || "God's encouragement"}`;
       t.classList.toggle("is-active-tab", dockOpen);
       t.classList.toggle("is-playing-tab", playing);
       t.classList.remove("is-player-mini");

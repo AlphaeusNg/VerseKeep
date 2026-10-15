@@ -1,3 +1,7 @@
+## Ghost icon standard — 2026-10-15
+
+Applied 32px ghost faces, 44px targets, grouped practice More menu, and a compact mobile music control.
+
 # VerseKeep continuous improvement log
 
 Last updated: 2026-10-15 (Declutter polish)

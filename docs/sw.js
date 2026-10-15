@@ -24,6 +24,7 @@ const PRECACHE = [
   "./assets/js/meditate.js",
   "./assets/js/tooltip.js",
       "./assets/js/icons.js",
+  "./assets/js/more-menu.js",
   "./assets/js/app.js",
   "./data/playlists.json",
   "./data/remote-wallpapers.json",

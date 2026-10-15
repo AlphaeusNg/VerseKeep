@@ -29,8 +29,8 @@
 
   <!-- Left music dock — uses empty side space; tab opens/closes the panel -->
   <aside class="music-dock" id="worship" aria-label="Worship music">
-    <button type="button" class="music-dock-tab" id="music-dock-tab" aria-expanded="false" aria-controls="music-dock-panel" aria-label="Open or close music" data-tip="Open or close music">
-      <span class="music-dock-tab-icon" aria-hidden="true" data-icon="music"></span>
+    <button type="button" class="music-dock-tab" id="music-dock-tab" aria-expanded="false" aria-controls="music-dock-panel" aria-label="Music" data-tip="Open or close music">
+      <span class="icon-face music-dock-face"><span class="music-dock-tab-icon" aria-hidden="true" data-icon="music"></span></span>
       <span class="music-dock-tab-text" id="music-dock-tab-text">Music</span>
     </button>
     <div class="music-dock-panel" id="music-dock-panel" role="dialog" aria-label="Music stations" aria-modal="false">
@@ -281,13 +281,23 @@
         <button type="button" class="btn icon-control ghost" id="btn-reveal" aria-label="Reveal" data-tip="Reveal"><span data-icon="eye"></span></button>
         <button type="button" class="btn icon-control ghost" id="btn-prev" aria-label="Previous verse" data-tip="Previous verse"><span data-icon="prev"></span></button>
         <button type="button" class="btn icon-control" id="btn-next" aria-label="Next verse" data-tip="Next verse"><span data-icon="next"></span></button>
-        <button type="button" class="btn icon-control ghost" id="btn-shuffle" aria-label="Shuffle" data-tip="Shuffle"><span data-icon="shuffle"></span></button>
-        <button type="button" class="btn icon-control ghost" id="btn-copy" aria-label="Copy" data-tip="Copy"><span data-icon="copy"></span></button>
+        <button type="button" class="btn icon-control ghost" id="btn-more" aria-label="More options" data-tip="More options" aria-haspopup="menu" aria-expanded="false" aria-controls="practice-menu"><span data-icon="more"></span></button>
       </div>
-      <label class="auto-advance" id="practice-auto-advance">
-        <input type="checkbox" id="auto-advance" />
-        <span>Auto-advance after a correct answer</span>
-      </label>
+      <div id="practice-menu" role="menu" aria-label="Practice options" hidden>
+        <div role="group" aria-labelledby="practice-verse-label">
+          <p class="menu-label" id="practice-verse-label">Verse</p>
+          <button type="button" class="menu-item" id="btn-shuffle" role="menuitem"><span data-icon="shuffle"></span>Shuffle</button>
+          <button type="button" class="menu-item" id="btn-copy" role="menuitem"><span data-icon="copy"></span>Copy</button>
+        </div>
+        <div role="group" aria-labelledby="practice-settings-label">
+          <p class="menu-label" id="practice-settings-label">Settings</p>
+          <label class="auto-advance menu-item" id="practice-auto-advance">
+            <input type="checkbox" id="auto-advance" role="menuitemcheckbox" aria-label="Auto-advance after a correct answer" />
+            <span data-icon="check" aria-hidden="true"></span>
+            <span>Auto-advance after a correct answer</span>
+          </label>
+        </div>
+      </div>
     </section>
 
     <section class="panel ambient-panel" id="wallpapers">
@@ -399,6 +409,7 @@
   <script src="assets/js/session.js" defer></script>
   <script src="assets/js/meditate.js" defer></script>
   <script src="assets/js/tooltip.js" defer></script>
+  <script src="assets/js/more-menu.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </body>
 </html>
