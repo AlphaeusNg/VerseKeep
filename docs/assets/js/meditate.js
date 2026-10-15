@@ -358,7 +358,7 @@
     const pos = state.index + 1;
     host.innerHTML = `
       <div class="med-card-top">
-        <span class="med-topic-pill mono">${escapeHtml(v.themeEmoji || "")} ${escapeHtml(v.themeTitle || "")}</span>
+        <span class="med-topic-pill mono">${escapeHtml(v.themeTitle || "")}</span>
         <span class="med-pos mono" aria-live="polite">${pos} / ${n}${tr ? ` · ${escapeHtml(tr)}` : ""}${loading ? " · …" : ""}</span>
       </div>
       ${resumeChipHtml()}
@@ -366,8 +366,9 @@
       <blockquote class="med-verse${loading ? " is-loading" : ""}">${escapeHtml(v.text)}</blockquote>
       <details class="med-reflect">
         <summary class="disclosure-summary" aria-label="Reflect" data-tip="Reflect">
+          <span class="disclosure-chevron">${window.VerseKeepIcons.chevron()}</span>
           <span class="disclosure-copy">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 5h13M8 12h13M8 19h13"/><circle cx="3" cy="5" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="19" r="1"/></svg>
+            ${window.VerseKeepIcons.reflect()}
             <span>Reflect</span>
           </span>
         </summary>

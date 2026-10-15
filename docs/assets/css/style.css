@@ -2575,16 +2575,9 @@ body.med-focus .med-topics {
   margin-top: 0.15rem;
 }
 
-.wp-summary::before {
-  content: "▸";
-  color: var(--gold);
-  font-size: 0.9rem;
-  transition: transform 0.15s ease;
-}
 
-.wp-details[open] .wp-summary::before {
-  transform: rotate(90deg);
-}
+
+.wp-details[open] 
 
 .wp-details-body {
   margin-top: 0.85rem;
@@ -3304,20 +3297,9 @@ html[data-wallpaper-grid="2"] .wp-heart {
   line-height: 1.35;
 }
 
-.disclosure-summary::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-right: 0.2rem;
-  border-right: 2px solid var(--gold);
-  border-bottom: 2px solid var(--gold);
-  transform: translateY(-1px) rotate(-45deg);
-}
 
-details[open] > .disclosure-summary::before {
-  transform: translateY(2px) rotate(45deg);
-}
+
+details[open] > 
 
 .med-keys {
   margin: 0.2rem 0 0.75rem;
@@ -3356,14 +3338,6 @@ details[open] > .disclosure-summary::before {
 }
 .icon-control { font-size: 1.25rem; }
 summary[data-tip] { min-height: 44px; box-sizing: border-box; }
-.disclosure-summary::before, .wp-summary::before { order: 1; }
-
-.nav-more > summary[data-tip] {
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* Practice controls and word-sized blanks must also fit enlarged text. */
 #play-panel, #stage, #practice-actions, #play-panel .mode-row {
@@ -3390,4 +3364,67 @@ summary[data-tip] { min-height: 44px; box-sizing: border-box; }
 }
 #stage .verse-prompt {
   overflow-wrap: anywhere;
+}
+
+/* Shared icon geometry: visual box 40px; transparent hit area 48px. */
+:root {
+  --icon-btn-size: 40px;
+  --icon-btn-radius: 12px;
+  --icon-size: 24px;
+  --icon-stroke: 2;
+  --icon-tap: 48px;
+  --icon-gap: 8px;
+}
+.vk-icon, #practice-actions svg, #play-panel .mode-row svg {
+  width: var(--icon-size); height: var(--icon-size);
+  flex: none; display: block; stroke-width: var(--icon-stroke);
+}
+.icon-control, .nav-more > summary[data-tip],
+#play-panel [data-mode="study"], #play-panel [data-mode="type"],
+#practice-actions > .icon-control, #med-more {
+  position: relative; box-sizing: border-box;
+  width: var(--icon-tap); min-width: var(--icon-tap);
+  height: var(--icon-tap); min-height: var(--icon-tap);
+  padding: 4px; border: 0; border-radius: 0; flex: 0 0 var(--icon-tap);
+  background: transparent; box-shadow: none;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-face {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  width: var(--icon-btn-size); height: var(--icon-btn-size); flex: none;
+  border: 1px solid var(--line); border-radius: var(--icon-btn-radius);
+  background: rgba(255, 255, 255, 0.04);
+}
+.icon-control:hover, .nav-more > summary[data-tip]:hover,
+.nav-more[open] > summary[data-tip], #med-more[aria-expanded="true"],
+#play-panel [data-mode="study"], #play-panel [data-mode="type"] { background: transparent; }
+.icon-control:hover .icon-face, .nav-more[open] .icon-face,
+#med-more[aria-expanded="true"] .icon-face,
+#play-panel .is-active .icon-face { border-color: var(--gold); }
+#practice-actions { flex-wrap: nowrap; gap: 0; align-items: center; }
+#practice-actions > .icon-control {
+  margin: 0;
+  overflow: hidden;
+}
+#practice-actions > .icon-control .icon-face,
+#practice-actions > .icon-control .icon-face * { pointer-events: none; }
+#practice-actions > #btn-check {
+  box-sizing: border-box;
+  margin-right: calc(var(--icon-gap) - (var(--icon-tap) - var(--icon-btn-size)) / 2);
+  min-width: 0; padding: 0 4px; min-height: var(--icon-btn-size); flex: 1 1 0;
+  font-weight: 700; white-space: normal; overflow-wrap: anywhere;
+}
+.med-dock-primary { flex-wrap: wrap; align-items: center; gap: var(--icon-gap); min-width: 0; }
+.med-actions .btn:not(.icon-control) {
+  width: auto; min-width: max-content; max-width: none;
+  flex: 0 0 auto; white-space: nowrap; overflow: visible; overflow-wrap: normal;
+}
+.med-more-panel { width: 100%; box-sizing: border-box; }
+.disclosure-chevron { order: 1; flex: none; color: var(--gold); }
+details[open] > summary > .disclosure-chevron { transform: rotate(90deg); }
+#med-prev { display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 360px) {
+  main { padding-left: 6px; padding-right: 6px; }
+  #play-panel { padding-left: 6px; padding-right: 6px; }
+  .med-dock-primary > .btn:not(.icon-control) { padding-left: 8px; padding-right: 8px; }
 }

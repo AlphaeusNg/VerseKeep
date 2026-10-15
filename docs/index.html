@@ -29,8 +29,8 @@
 
   <!-- Left music dock — uses empty side space; tab opens/closes the panel -->
   <aside class="music-dock" id="worship" aria-label="Worship music">
-    <button type="button" class="music-dock-tab" id="music-dock-tab" aria-expanded="false" aria-controls="music-dock-panel" title="Open or close music">
-      <span class="music-dock-tab-icon" aria-hidden="true">♪</span>
+    <button type="button" class="music-dock-tab" id="music-dock-tab" aria-expanded="false" aria-controls="music-dock-panel" aria-label="Open or close music" data-tip="Open or close music">
+      <span class="music-dock-tab-icon" aria-hidden="true" data-icon="music"></span>
       <span class="music-dock-tab-text" id="music-dock-tab-text">Music</span>
     </button>
     <div class="music-dock-panel" id="music-dock-panel" role="dialog" aria-label="Music stations" aria-modal="false">
@@ -40,7 +40,7 @@
           <h2 class="music-dock-title">Music</h2>
         </div>
         <div class="music-dock-actions">
-          <button type="button" class="music-dock-close" id="music-dock-close" title="Close station list" aria-label="Close station list">×</button>
+          <button type="button" class="music-dock-close" id="music-dock-close" data-tip="Close station list" aria-label="Close station list"><span data-icon="close"></span></button>
         </div>
       </div>
       <p class="music-note music-dock-note">
@@ -86,7 +86,7 @@
       <a href="#themes">Memorize</a>
       <a href="#worship" id="nav-music" title="Open or close music dock">Music</a>
       <details class="nav-more">
-        <summary aria-label="More" data-tip="More"><span aria-hidden="true">⋯</span></summary>
+        <summary aria-label="More" data-tip="More"><span data-icon="more"></span></summary>
         <div class="nav-more-menu">
           <a href="#topics">Topics</a>
           <a href="#wallpapers">Wallpapers</a>
@@ -145,10 +145,10 @@
 
       <div class="actions med-actions" id="med-actions">
         <div class="med-dock-primary">
-          <button type="button" class="btn ghost" id="med-prev" title="Previous (←)">← Prev</button>
-          <button type="button" class="btn ghost" id="med-next" title="Next verse (→)">Next</button>
-          <button type="button" class="btn primary" id="med-amen" title="Mark Amen for today (A)">Amen</button>
-          <button type="button" class="btn icon-control ghost" id="med-more" aria-expanded="false" aria-controls="med-more-panel" aria-label="More" data-tip="More"><span aria-hidden="true">⋯</span></button>
+          <button type="button" class="btn ghost" id="med-prev" aria-label="Previous verse" data-tip="Previous verse"><span data-icon="prev"></span> Prev</button>
+          <button type="button" class="btn ghost" id="med-next" aria-label="Next verse" data-tip="Next verse">Next</button>
+          <button type="button" class="btn primary" id="med-amen" aria-label="Amen" data-tip="Mark Amen for today">Amen</button>
+          <button type="button" class="btn icon-control ghost" id="med-more" aria-expanded="false" aria-controls="med-more-panel" aria-label="More" data-tip="More"><span data-icon="more"></span></button>
         </div>
         <div class="med-more-panel" id="med-more-panel" hidden>
           <button type="button" class="btn ghost" id="med-practice-verse" title="Fill blanks for this verse" hidden>Practice this verse</button>
@@ -264,9 +264,9 @@
       </p>
 
       <div class="mode-row" role="group" aria-label="Practice mode">
-        <button type="button" class="chip is-active" data-mode="study" aria-pressed="true" aria-label="Study" data-tip="Study"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/></svg></button>
+        <button type="button" class="chip is-active" data-mode="study" aria-pressed="true" aria-label="Study" data-tip="Study"><span data-icon="book"></span></button>
         <button type="button" class="chip" data-mode="blank" aria-pressed="false" aria-label="Fill blanks" data-tip="Fill blanks">Fill blanks</button>
-        <button type="button" class="chip" data-mode="type" aria-pressed="false" aria-label="Type it" data-tip="Type it"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M5 9h2m2 0h2m2 0h2m2 0h2M5 12h2m2 0h2m2 0h2m2 0h2M7 16h10"/></svg></button>
+        <button type="button" class="chip" data-mode="type" aria-pressed="false" aria-label="Type it" data-tip="Type it"><span data-icon="keyboard"></span></button>
         <button type="button" class="chip" data-mode="order" aria-pressed="false" aria-label="Order words" data-tip="Order words">Order words</button>
         <button type="button" class="chip" data-mode="quiz" aria-pressed="false" aria-label="Which verse?" data-tip="Which verse?">Which verse?</button>
       </div>
@@ -277,12 +277,12 @@
       <div id="feedback" class="feedback" role="status" aria-atomic="true" hidden></div>
 
       <div class="actions" id="practice-actions">
-        <button type="button" class="btn primary" id="btn-check">Check</button>
-        <button type="button" class="btn icon-control ghost" id="btn-reveal" aria-label="Reveal" data-tip="Reveal"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        <button type="button" class="btn icon-control ghost" id="btn-prev" aria-label="Previous verse" data-tip="Previous verse"><span aria-hidden="true">←</span></button>
-        <button type="button" class="btn icon-control" id="btn-next" aria-label="Next verse" data-tip="Next verse"><span aria-hidden="true">→</span></button>
-        <button type="button" class="btn icon-control ghost" id="btn-shuffle" aria-label="Shuffle" data-tip="Shuffle"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h3c5 0 7 12 12 12h3m-4-4 4 4-4 4M3 18h3c5 0 7-12 12-12h3m-4-4 4 4-4 4"/></svg></button>
-        <button type="button" class="btn icon-control ghost" id="btn-copy" aria-label="Copy" data-tip="Copy"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button>
+        <button type="button" class="btn primary" id="btn-check" aria-label="Check" data-tip="Check">Check</button>
+        <button type="button" class="btn icon-control ghost" id="btn-reveal" aria-label="Reveal" data-tip="Reveal"><span data-icon="eye"></span></button>
+        <button type="button" class="btn icon-control ghost" id="btn-prev" aria-label="Previous verse" data-tip="Previous verse"><span data-icon="prev"></span></button>
+        <button type="button" class="btn icon-control" id="btn-next" aria-label="Next verse" data-tip="Next verse"><span data-icon="next"></span></button>
+        <button type="button" class="btn icon-control ghost" id="btn-shuffle" aria-label="Shuffle" data-tip="Shuffle"><span data-icon="shuffle"></span></button>
+        <button type="button" class="btn icon-control ghost" id="btn-copy" aria-label="Copy" data-tip="Copy"><span data-icon="copy"></span></button>
       </div>
       <label class="auto-advance" id="practice-auto-advance">
         <input type="checkbox" id="auto-advance" />
@@ -383,7 +383,7 @@
   </footer>
 
   <button type="button" class="background-view-exit" id="background-view-exit" hidden>
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/></svg>
+    <span data-icon="book"></span>
     Show page
   </button>
 
@@ -392,6 +392,7 @@
   <script src="assets/js/bible-config.js" defer></script>
   <script src="assets/js/bible-live.js" defer></script>
   <script src="assets/js/data-core.js" defer></script>
+  <script src="assets/js/icons.js" defer></script>
   <script src="assets/js/ambient.js" defer></script>
   <script src="assets/js/wallpapers.js" defer></script>
   <script src="assets/js/practice-core.js" defer></script>

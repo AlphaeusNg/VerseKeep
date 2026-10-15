@@ -155,4 +155,4 @@ git push origin main
 3. After music/CSS changes, verify left player + dock on narrow viewport.
 4. Bump footer version; push this remote only.
 
-- Icon control rule: use aria-label plus shared `[data-tip]::after` tooltips on hover and focus-visible; omit duplicate title attributes, keep targets at least 44×44, preserve clear disclosure headings and ambiguous mode labels, and keep Check primary.
+- Icon control rule: use the shared inline SVG set in icons.js (24px, currentColor, stroke 2), never glyph icons or CSS chevrons. Visual buttons are 40px squares with 12px radius, 48px effective tap targets and 8px gaps. Keep practice actions in one row at 320px; fold panels open below triggers. Use aria-label and shared #vk-tip on hover, keyboard focus, and touch tap (1500ms); omit duplicate titles. Keep disclosure headings and ambiguous mode labels visible, and Check primary with text.

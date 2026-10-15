@@ -870,7 +870,7 @@
     const nextButton = $("#btn-next");
     nextButton.setAttribute("aria-label", nextWord);
     nextButton.dataset.tip = nextWord;
-    nextButton.innerHTML = `<span aria-hidden="true">${nextWord === "Next verse" ? "→" : "✓"}</span>`;
+    nextButton.querySelector(".icon-face").innerHTML = window.VerseKeepIcons[nextWord === "Next verse" ? "next" : "check"]();
     if (!v) {
       $("#stage").innerHTML = `<p class="hint">Pick a theme to begin.</p>`;
       return;

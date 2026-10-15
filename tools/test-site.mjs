@@ -31,6 +31,7 @@ function readJson(relativePath) {
   "sw.js",
   "assets/css/style.css",
   "assets/js/tooltip.js",
+  "assets/js/icons.js",
   "assets/js/app.js",
   "assets/js/ambient.js",
   "assets/js/bible-config.js",
@@ -125,6 +126,10 @@ if (existsSync(indexPath)) {
   const sessionIndex = html.indexOf('src="assets/js/session.js"');
   const dataCoreIndex = html.indexOf('src="assets/js/data-core.js"');
   const meditateIndex = html.indexOf('src="assets/js/meditate.js"');
+  const iconsIndex = html.indexOf('src="assets/js/icons.js"');
+  if (iconsIndex < 0 || iconsIndex > meditateIndex || iconsIndex > html.indexOf('src="assets/js/wallpapers.js"')) {
+    failures.push("icons.js must load before icon consumers");
+  }
   const appIndex = html.indexOf('src="assets/js/app.js"');
   const ambientIndex = html.indexOf('src="assets/js/ambient.js"');
   const wallpapersIndex = html.indexOf('src="assets/js/wallpapers.js"');
@@ -187,6 +192,7 @@ if (existsSync(workerPath)) {
     for (const required of [
       "./assets/css/style.css",
       "./assets/js/tooltip.js",
+      "./assets/js/icons.js",
       "./assets/js/app.js",
       "./assets/js/session.js",
       "./assets/js/meditate.js",

@@ -455,6 +455,7 @@ test("renders theme emoji text without interpreting catalog markup", async ({ pa
     const response = await route.fetch();
     const catalog = await response.json();
     catalog.themes[0].emoji = probe;
+    catalog.books[0].emoji = probe;
     await route.fulfill({
       response,
       contentType: "application/json",
@@ -467,6 +468,7 @@ test("renders theme emoji text without interpreting catalog markup", async ({ pa
   await expect(page.locator("#load-error")).toBeHidden();
   await expect(page.locator("#catalog-markup-probe")).toHaveCount(0);
   await expect(page.locator("#theme-grid .emoji").first()).toHaveText(probe);
+  await expect(page.locator("#book-grid .emoji").first()).toHaveText(probe);
   await expect(page.locator("#med-topics [data-topic] span").nth(1)).toHaveText(probe);
 });
 
@@ -1464,11 +1466,83 @@ test("practice icons expose keyboard tooltips and fit a 390px screen", async ({ 
   await expect(reveal).toHaveAttribute("data-tip", "Reveal");
   await expect(reveal).not.toHaveAttribute("title");
   for (const id of ["btn-reveal", "btn-shuffle", "btn-copy", "btn-prev", "btn-next"]) {
-    const box = await page.locator(`#${id}`).boundingBox();
-    expect(box.width).toBeGreaterThanOrEqual(44);
-    expect(box.height).toBeGreaterThanOrEqual(44);
+    const button = page.locator(`#${id}`);
+    const box = await button.boundingBox();
+    expect(box.width).toBeGreaterThanOrEqual(48);
+    expect(box.height).toBeGreaterThanOrEqual(48);
+    const face = await button.locator(".icon-face").boundingBox();
+    expect(face.width).toBe(40);
+    expect(face.height).toBe(40);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const summaries = await page.locator("summary").evaluateAll(nodes => nodes.every(el => !el.querySelector("p, span h2")));
   expect(summaries).toBe(true);
+});
+
+for (const width of [390, 320]) {
+  test(`practice icon geometry and single action row at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/?v=Psalm%2056%3A3");
+    await openMedMore(page);
+    const row = await page.locator(".med-dock-primary").boundingBox();
+    const panel = await page.locator("#med-more-panel").boundingBox();
+    expect(panel.y).toBeGreaterThanOrEqual(row.y + row.height);
+    await page.locator("#med-practice-verse").click();
+    await expect(page.locator("#btn-check")).toBeVisible();
+    await page.locator("#practice-actions").scrollIntoViewIfNeeded();
+    const buttons = page.locator("#practice-actions > button");
+    const boxes = await buttons.evaluateAll(nodes => nodes.map(node => {
+      const rect = node.getBoundingClientRect();
+      return { centerY: rect.top + rect.height / 2, left: rect.left, right: rect.right };
+    }));
+    expect(Math.max(...boxes.map(b => b.centerY)) - Math.min(...boxes.map(b => b.centerY))).toBeLessThanOrEqual(2);
+    expect(boxes[0].left).toBeGreaterThanOrEqual(0);
+    expect(boxes.at(-1).right).toBeLessThanOrEqual(width);
+    for (const control of await page.locator("#practice-actions .icon-control").all()) {
+      const box = await control.boundingBox();
+      expect(box.width).toBeGreaterThanOrEqual(48);
+      expect(box.height).toBeGreaterThanOrEqual(48);
+      const face = await control.locator(".icon-face").boundingBox();
+      expect(face.width).toBe(40);
+      expect(face.height).toBe(40);
+      await expect(control.locator("svg")).toHaveAttribute("stroke-width", "2");
+      expect((await control.textContent()).trim()).toBe("");
+      // The transparent button owns the 4px band around the visible face.
+      // Probe at 3px: at fractional x=.297, Chromium hit-tests the boundary at about 3.2px.
+      expect(await control.evaluate(node => {
+        const r = node.querySelector(".icon-face").getBoundingClientRect();
+        return [
+          [r.left - 3, r.top + r.height / 2],
+          [r.right + 3, r.top + r.height / 2],
+          [r.left + r.width / 2, r.top - 3],
+          [r.left + r.width / 2, r.bottom + 3],
+        ].every(([x, y]) => document.elementFromPoint(x, y)?.closest("button") === node);
+      })).toBe(true);
+    }
+    const faces = await page.locator("#practice-actions .icon-face").evaluateAll(nodes =>
+      nodes.map(node => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right }; }));
+    for (let i = 1; i < faces.length; i++) {
+      expect(faces[i].left - faces[i - 1].right).toBe(8);
+    }
+    await expect(page.locator('#btn-next svg')).toHaveAttribute('stroke-width', '2');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
+
+test("touch tap shows Reveal label for about 1.5 seconds", async ({ browser }) => {
+  const context = await browser.newContext({ baseURL: "http://127.0.0.1:4174", hasTouch: true, viewport: { width: 320, height: 844 } });
+  const page = await context.newPage();
+  try {
+    await page.goto("/?v=Psalm%2056%3A3");
+    await openMedMore(page);
+    await page.locator("#med-practice-verse").click();
+    await page.tap("#btn-reveal");
+    await expect(page.locator("#vk-tip")).toBeVisible();
+    await expect(page.locator("#vk-tip")).toHaveText("Reveal");
+    await page.waitForTimeout(1000);
+    await expect(page.locator("#vk-tip")).toBeVisible();
+    await expect(page.locator("#vk-tip")).toBeHidden({ timeout: 1000 });
+  } finally {
+    await context.close();
+  }
 });

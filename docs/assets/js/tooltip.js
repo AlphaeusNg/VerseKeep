@@ -8,6 +8,7 @@
   let target = null;
   let timer;
   let source = null;
+  let touch = null;
   let lastPointerMove = -Infinity;
 
   const resetPointerMove = () => { lastPointerMove = -Infinity; };
@@ -86,12 +87,23 @@
     if (event.pointerType !== "touch") return;
     hide();
     const control = controlFor(event);
-    if (control) timer = setTimeout(() => show(control), 500);
+    touch = control ? { control, x: event.clientX, y: event.clientY, id: event.pointerId } : null;
   });
-  document.addEventListener("pointerup", () => clearTimeout(timer));
-  document.addEventListener("pointercancel", hide);
+  document.addEventListener("pointerup", event => {
+    if (touch && event.pointerId === touch.id) {
+      const control = touch.control;
+      touch = null;
+      show(control, "touch");
+      timer = setTimeout(hide, 1500);
+    }
+  });
+  document.addEventListener("pointercancel", () => { touch = null; hide(); });
   document.addEventListener("pointermove", event => {
-    if (event.pointerType === "touch") hide();
+    if (event.pointerType === "touch" && touch &&
+        Math.hypot(event.clientX - touch.x, event.clientY - touch.y) > 8) {
+      touch = null;
+      hide();
+    }
     if (event.pointerType === "mouse" || event.pointerType === "pen") {
       lastPointerMove = performance.now();
       // Entry events can precede pointermove, so also handle the move itself.

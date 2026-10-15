@@ -1,6 +1,14 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-15 (Declutter first screen)
+Last updated: 2026-10-15 (Consistent icon set)
+
+## Consistent icon set — 2026-10-15
+
+- Centralized inline SVG icons in icons.js: 24px, currentColor, stroke 2, rounded caps and joins; shared by controls, finish states, and disclosure chevrons.
+- Icon buttons use 40px visual squares, 12px corners, 48px transparent tap areas, and 8px row gaps. Practice actions stay together through 320px; Meditate More opens below its trigger row.
+- Shared #vk-tip labels appear on hover, keyboard focus, and a stationary touch tap, which dismisses after 1500ms. Check remains a dominant gold text button.
+- Validation: all seven `tools/test-*.mjs` checks and changed JavaScript syntax checks pass. Playwright geometry, hit-area, and touch-tap coverage added; browser execution blocked by sandbox socket permissions.
+- Release: `2026.10.15.4`.
 
 ## Declutter first screen — 2026-10-15
 
