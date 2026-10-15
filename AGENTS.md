@@ -69,6 +69,10 @@ Stats prefs: `localStorage` keys `versekeep-stats-v1`, `versekeep-prefs-v1`.
 
 Feature research and next priorities: `docs/FEATURE_ROADMAP.md`.
 
+## Bible books
+
+Add a book with a new entry in `docs/data/verses.json` → `books`, using the same fields as a theme. Cards render from data only; book drills do not change Themes done.
+
 ## Music
 
 - Autoplay on load: last station (`versekeep-music`) or default Spotify **God’s encouragement** (`alph-gods-encouragement`).

@@ -6,7 +6,7 @@
   "use strict";
 
   global.SITE_VERSION = {
-    id: "2026.10.15.1",
+    id: "2026.10.15.2",
     repo: "VerseKeep",
   };
 

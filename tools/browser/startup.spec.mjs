@@ -1317,3 +1317,29 @@ test('practice shortcuts preserve native buttons, selects and composition', asyn
   });
   await expect(page.locator('#play-panel [data-mode="study"]')).toHaveAttribute('aria-pressed', 'true');
 });
+
+test("practices Proverbs from Bible books without incrementing Themes done", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const section = page.getByRole("region", { name: "Bible books", exact: true });
+  await expect(section).toBeVisible();
+  await expect(section).toContainText("18 verses");
+  await section.getByRole("button", { name: "Drill Proverbs", exact: true }).click();
+  await expect(page.locator("#play-panel")).toBeVisible();
+  await expect(page.locator("#stage .ref")).toContainText("Proverbs 1:7");
+  await page.locator('#play-panel [data-mode="blank"]').click();
+  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+  await page.locator("#btn-reveal").click();
+  await expect(page.locator("#feedback")).toContainText("The fear of the Lord");
+  await page.locator("#btn-next").click();
+  await expect(page.locator("#hud-progress")).toHaveText("Verse 2 / 18");
+  for (let index = 2; index < 18; index += 1) await page.locator("#btn-next").click();
+  await expect(page.locator("#btn-next")).toHaveText("Finish book");
+  await page.locator("#btn-next").click();
+  await expect(page.locator("#stage .practice-complete")).toContainText("Book complete");
+  await expect(page.locator("#stage .practice-complete")).toContainText("Book practice does not change Themes done");
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
+  await page.getByRole("button", { name: "Practice again", exact: true }).click();
+  await expect(page.locator("#hud-progress")).toHaveText("Verse 1 / 18");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

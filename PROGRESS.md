@@ -1,6 +1,15 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-08 (honest meditation and preference saves)
+Last updated: 2026-10-15 (Bible books: Proverbs)
+
+## Bible books: Proverbs — 2026-10-15
+
+- Added a data-driven Bible books section and 18 Proverbs passages with meditation notes.
+- Book drills keep verse order from data, use the shared practice flow with translations and offline fallback, show Finish book / Book complete, and never change Themes done.
+- Extended catalog contracts and browser coverage for book practice.
+- Verification: all seven `tools/test-*.mjs` gates and the Chromium journeys pass.
+- Release: `2026.10.15.2`.
+
 
 ## Honest meditation-session and shared-preference saves — 2026-10-07
 
