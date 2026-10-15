@@ -4,6 +4,40 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
+  function revealDetails(element) {
+    let node = element;
+    while (node && node !== document) {
+      if (node.tagName === "DETAILS") node.open = true;
+      node = node.parentElement;
+    }
+  }
+
+  function openPanelDisclosure(target) {
+    if (!target) return;
+    revealDetails(target);
+    const panel = target.querySelector(":scope > details.panel-disclosure");
+    if (panel) panel.open = true;
+  }
+
+  function openHashDisclosure() {
+    const id = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+    if (!id) return;
+    openPanelDisclosure(document.getElementById(id));
+  }
+
+  function bindSectionNav() {
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      if (link.dataset.disclosureBound) return;
+      link.dataset.disclosureBound = "1";
+      link.addEventListener("click", () => {
+        const id = decodeURIComponent((link.getAttribute("href") || "").slice(1));
+        openPanelDisclosure(document.getElementById(id));
+      });
+    });
+    openHashDisclosure();
+    window.addEventListener("hashchange", openHashDisclosure);
+  }
+
   const state = {
     data: null,
     themeId: null,
@@ -539,6 +573,7 @@
     stopSpeech();
     if (initialMode) setMode(initialMode, false);
     $("#play-panel").hidden = false;
+    revealDetails($("#play-panel"));
     paintMemorizeEmpty();
     $("#theme-label").textContent = label;
     const localQueue = bundledQueue(queue);
@@ -830,8 +865,12 @@
     state.blanks = [];
     updateHud();
     $("#btn-check").hidden = state.mode === "study" || state.mode === "quiz";
-    $("#btn-next").textContent =
+    const nextWord =
       state.index >= state.queue.length - 1 ? (state.countsAsTheme ? "Finish theme" : state.isBook ? "Finish book" : "Finish practice") : "Next verse";
+    const nextButton = $("#btn-next");
+    nextButton.setAttribute("aria-label", nextWord);
+    nextButton.dataset.tip = nextWord;
+    nextButton.innerHTML = `<span aria-hidden="true">${nextWord === "Next verse" ? "→" : "✓"}</span>`;
     if (!v) {
       $("#stage").innerHTML = `<p class="hint">Pick a theme to begin.</p>`;
       return;
@@ -878,12 +917,14 @@
         status.hidden = false;
         status.textContent =
           "Nothing is due. Misses return sooner. Clean recalls wait 3–30 days, with longer gaps after consecutive clean practice days. Meditation stays as it is.";
+        revealDetails(status);
       }
       return;
     }
     if (status) {
       status.hidden = false;
       status.textContent = plan.map((item) => `${item.ref}: ${item.reason}`).join(" · ");
+      revealDetails(status);
     }
     const queue = plan
       .map((item) => {
@@ -1269,9 +1310,16 @@
     state.completed = false;
     $("#play-panel").hidden = true;
     paintMemorizeEmpty();
+    const memorize = $("#memorize-disclosure");
+    if (memorize) memorize.open = true;
+    const search = $("#theme-search");
+    revealDetails(search);
     const topics = $("#topics");
     topics?.scrollIntoView({ behavior: "smooth", block: "start" });
-    requestAnimationFrame(() => $("#theme-search")?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => {
+      revealDetails(search);
+      search?.focus({ preventScroll: true });
+    });
   }
 
   function restartCompletedDrill() {
@@ -1417,6 +1465,7 @@
     status.hidden = false;
     status.className = `feedback ${ok ? "ok" : "bad"}`;
     status.textContent = message;
+    revealDetails(status);
   }
 
   function currentDeviceSnapshot() {
@@ -1529,6 +1578,7 @@
   }
 
   async function boot() {
+    bindSectionNav();
     bindThemeGrid();
     try {
       const res = await fetch("data/verses.json", { cache: "no-store" });

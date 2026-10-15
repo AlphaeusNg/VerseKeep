@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
+import { openMedMore, openTopicTools, openTopics } from './disclose.mjs';
 test.use({ serviceWorkers: 'block' });
 for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:375,text:2},{width:768,zoom:2}]) {
  test(`sizing ${JSON.stringify(setting)}`, async ({page})=>{
@@ -32,10 +33,12 @@ for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:3
   await page.locator('#med-more').click(); await page.locator('#med-save').click();
   await page.locator('#med-saved summary').click(); await measure('more-saved');
   await page.locator('#meditate').screenshot({path:`/tmp/versekeep-sizing-${setting.width}-${setting.text?'text':setting.zoom?'zoom':'normal'}-med.png`});
-  await page.locator('#med-focus').click(); await measure('focus'); await page.locator('#med-focus').click();
+  await openMedMore(page); await page.locator('#med-focus').click(); await measure('focus'); await page.locator('#med-focus').click();
+  await openTopics(page);
   await page.locator('#theme-grid [data-drill]').first().click();
   for (const mode of ['study','blank','type','order','quiz']) {await page.locator(`#play-panel [data-mode="${mode}"]`).click(); await measure(mode);}
   await page.locator('#play-panel').screenshot({path:`/tmp/versekeep-sizing-${setting.width}-${setting.text?'text':setting.zoom?'zoom':'normal'}-practice.png`});
+  await openTopicTools(page);
   await page.locator('#btn-review-due').click();await measure('review');
   const backup=await page.evaluate(()=>window.VerseKeepSession.exportSnapshot({}).snapshot);
   page.once('dialog',d=>d.dismiss());

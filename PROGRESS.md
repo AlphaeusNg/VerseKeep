@@ -1,6 +1,17 @@
 # VerseKeep continuous improvement log
 
-Last updated: 2026-10-15 (Bible books: Proverbs)
+Last updated: 2026-10-15 (Declutter first screen)
+
+## Declutter first screen — 2026-10-15
+
+- Icon rule: practice actions, Study, Type it, Meditate More, and Reflect use icons with aria-label; tooltips use one shared viewport-clamped tooltip (`docs/assets/js/tooltip.js`, `#vk-tip`) on hover, keyboard focus and touch long-press; no duplicate title tooltips. Next uses an arrow, with a checkmark and updated accessible name for every finish state. Check stays a dominant text button.
+- Fill blanks, Order words, and Which verse? keep text because their icons would be ambiguous. Topics, Bible books, Memorize, Topic & translation, Saved verses, and Progress & tools keep visible headings for clarity, with chevrons and tooltips. Other disclosure summaries also have shared tooltips. Summary content uses valid spans, including heading roles where needed.
+- The verse, reference, and Amen row stay primary. Context, application, and prayer sit in a collapsed Reflect disclosure that closes again whenever a verse renders.
+- Topic chips, live text, translation, and a one-line keys hint sit in Topic & translation. Practice this verse, Drill, and Focus move under More. Exit focus stays one tap away while More is hidden.
+- Topics, Bible books, and Memorize start collapsed. Progress, review, export/import, and reset sit under Progress & tools. Theme search and Practice weak stay visible once Topics is open.
+- In-page jumps open the disclosure that holds the target. Open/closed state is not stored.
+- Verification: all seven `tools/test-*.mjs` gates and all 48 Chromium journeys pass, including the collapsed first-screen journey and a keyboard-focus tooltip check.
+- Release: `2026.10.15.3`.
 
 ## Bible books: Proverbs — 2026-10-15
 

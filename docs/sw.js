@@ -22,6 +22,7 @@ const PRECACHE = [
   "./assets/js/practice-core.js",
   "./assets/js/session.js",
   "./assets/js/meditate.js",
+  "./assets/js/tooltip.js",
   "./assets/js/app.js",
   "./data/playlists.json",
   "./data/remote-wallpapers.json",

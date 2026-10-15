@@ -169,7 +169,27 @@
     return state.pool[i] || null;
   }
 
+  function revealDetails(element) {
+    let node = element;
+    while (node && node !== document) {
+      if (node.tagName === "DETAILS") node.open = true;
+      node = node.parentElement;
+    }
+  }
+
+  function topicLabel() {
+    if (!state.topicId || state.topicId === "all") return "All topics";
+    return state.data?.themes?.find((theme) => theme.id === state.topicId)?.title || "All topics";
+  }
+
+  function paintOptionsSummary() {
+    const label = $("#med-options-summary");
+    if (!label) return;
+    label.textContent = `Topic & translation · ${topicLabel()}`;
+  }
+
   function paintTopics() {
+    paintOptionsSummary();
     const host = $("#med-topics");
     if (!host || !state.data) return;
     const items = [
@@ -191,9 +211,13 @@
     host.querySelectorAll("[data-topic]").forEach((btn) => {
       btn.addEventListener("click", () => setTopic(btn.dataset.topic));
     });
-    // Keep active chip in view on horizontal scroll rows
-    const active = host.querySelector(".med-topic-chip.is-active");
-    active?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    // Keep the active chip in view only while Topic & translation is open.
+    // Opening it here would undo the collapsed first screen on every paint.
+    const options = $("#med-options");
+    if (!options || options.open) {
+      const active = host.querySelector(".med-topic-chip.is-active");
+      active?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    }
   }
 
   function recentDayKeys(n) {
@@ -340,18 +364,26 @@
       ${resumeChipHtml()}
       <p class="med-ref">${escapeHtml(v.ref)}</p>
       <blockquote class="med-verse${loading ? " is-loading" : ""}">${escapeHtml(v.text)}</blockquote>
-      <div class="med-block">
-        <h3 class="med-label">Context</h3>
-        <p>${escapeHtml(v.context || "Sit with this passage in its place in the whole counsel of God.")}</p>
-      </div>
-      <div class="med-block">
-        <h3 class="med-label">Application</h3>
-        <p>${escapeHtml(v.application || "Ask how this truth should shape one thought, word, or action today.")}</p>
-      </div>
-      <div class="med-block med-block-prayer">
-        <h3 class="med-label">Prayer</h3>
-        <p>${escapeHtml(v.prayer || "Lord, write this word on my heart. Help me believe and obey.")}</p>
-      </div>
+      <details class="med-reflect">
+        <summary class="disclosure-summary" aria-label="Reflect" data-tip="Reflect">
+          <span class="disclosure-copy">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 5h13M8 12h13M8 19h13"/><circle cx="3" cy="5" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="19" r="1"/></svg>
+            <span>Reflect</span>
+          </span>
+        </summary>
+        <div class="med-block">
+          <h3 class="med-label">Context</h3>
+          <p>${escapeHtml(v.context || "Sit with this passage in its place in the whole counsel of God.")}</p>
+        </div>
+        <div class="med-block">
+          <h3 class="med-label">Application</h3>
+          <p>${escapeHtml(v.application || "Ask how this truth should shape one thought, word, or action today.")}</p>
+        </div>
+        <div class="med-block med-block-prayer">
+          <h3 class="med-label">Prayer</h3>
+          <p>${escapeHtml(v.prayer || "Lord, write this word on my heart. Help me believe and obey.")}</p>
+        </div>
+      </details>
     `;
   }
 
@@ -776,6 +808,27 @@
     card.scrollIntoView({ block: "nearest" });
   }
 
+  function placeFocusControl() {
+    const btn = $("#med-focus");
+    const panel = $("#med-more-panel");
+    const primary = $(".med-dock-primary");
+    if (!btn || !panel || !primary) return;
+    if (state.focusMode) {
+      // More stays hidden in focus. Exit focus remains one tap away.
+      if (btn.parentElement !== primary) {
+        const more = $("#med-more");
+        if (more && more.parentElement === primary) more.before(btn);
+        else primary.append(btn);
+      }
+      return;
+    }
+    if (btn.parentElement !== panel) {
+      const save = $("#med-save");
+      if (save && save.parentElement === panel) save.before(btn);
+      else panel.prepend(btn);
+    }
+  }
+
   function setFocusMode(on) {
     state.focusMode = !!on;
     document.body.classList.toggle("med-focus", state.focusMode);
@@ -784,6 +837,7 @@
       btn.setAttribute("aria-pressed", state.focusMode ? "true" : "false");
       btn.textContent = state.focusMode ? "Exit focus" : "Focus";
     }
+    placeFocusControl();
     savePrefs({ medFocus: state.focusMode });
     if (state.focusMode) {
       setMoreOpen(false);
@@ -799,7 +853,9 @@
       const remove = event.target.closest("[data-remove-saved-ref]");
       if (!remove) return;
       saveVerse(remove.dataset.removeSavedRef);
-      ($("#med-saved-list [data-saved-ref]") || $("#med-saved summary"))?.focus();
+      const nextFocus = $("#med-saved-list [data-saved-ref]") || $("#med-saved summary");
+      revealDetails(nextFocus);
+      nextFocus?.focus();
     });
     paintSavedVerses();
     $("#med-next")?.addEventListener("click", () => next(1));
@@ -1032,6 +1088,14 @@
       state.resumeOffer = lastOffer;
       saveMed({ topicId: lastOffer.topicId, ref: lastOffer.ref, day: med.day });
       paintResumeChip();
+    }
+
+    // A shared ?t= link should show the topic chips, not only the summary.
+    if (link.topicId) {
+      const options = $("#med-options");
+      if (options) options.open = true;
+      const active = $("#med-topics .med-topic-chip.is-active");
+      active?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
     }
   }
 
