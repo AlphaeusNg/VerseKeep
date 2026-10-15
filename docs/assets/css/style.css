@@ -3509,11 +3509,12 @@ details[open] > summary > .disclosure-chevron { transform: rotate(90deg); }
 .med-dock-primary { flex-wrap: nowrap; gap: 0; max-width: 100%; }
 #med-amen.btn.primary {
   width: auto; min-width: 0; max-width: 100%; flex: 0 1 auto; padding: 6px 8px;
-  height: var(--icon-btn-target); white-space: normal; overflow-wrap: anywhere;
+  display: inline-flex; align-items: center;
+  height: auto; min-height: var(--icon-btn-target); white-space: normal;
   border: 1px solid var(--gold); border-radius: var(--icon-btn-radius);
   background: transparent; color: var(--gold); box-shadow: none;
 }
-#med-amen .icon-face { width: var(--icon-btn-size); }
+#med-amen .icon-face { width: var(--icon-btn-size); height: var(--icon-btn-size); flex: none; }
 #practice-auto-advance[aria-checked="false"] > [data-icon="check"] { visibility: hidden; }
 .disclosure-chevron {
   display: inline-flex; align-items: center; justify-content: center;
@@ -3555,7 +3556,9 @@ html[data-wallpaper-grid="4"] .wp-side-actions {
 .wp-heart-count { max-width: 100%; overflow-wrap: anywhere; }
 .wp-heart-status { grid-column: 1 / -1; }
 .icon-face, .icon-face * { pointer-events: none; }
-#med-amen > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+#med-amen > span:last-child {
+  min-width: 0; white-space: normal; overflow-wrap: anywhere;
+}
 .med-dock-primary > #med-focus {
   min-width: 0; max-width: 100%; flex: 0 1 auto;
   white-space: normal; overflow-wrap: anywhere;
