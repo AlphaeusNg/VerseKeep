@@ -3415,11 +3415,18 @@ summary[data-tip] { min-height: 44px; box-sizing: border-box; }
   font-weight: 700; white-space: normal; overflow-wrap: anywhere;
 }
 .med-dock-primary { flex-wrap: wrap; align-items: center; gap: var(--icon-gap); min-width: 0; }
-.med-actions .btn:not(.icon-control) {
+.med-dock-primary .btn:not(.icon-control) {
   width: auto; min-width: max-content; max-width: none;
   flex: 0 0 auto; white-space: nowrap; overflow: visible; overflow-wrap: normal;
 }
 .med-more-panel { width: 100%; box-sizing: border-box; }
+#med-more-panel button,
+.med-saved-row > * {
+  white-space: normal;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
 .disclosure-chevron { order: 1; flex: none; color: var(--gold); }
 details[open] > summary > .disclosure-chevron { transform: rotate(90deg); }
 #med-prev { display: inline-flex; align-items: center; gap: 4px; }
