@@ -1,6 +1,8 @@
 /* Shared currentColor line icons. Use data-icon in markup or the factory in renderers. */
 (() => {
   const paths = {
+  "amen": '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+  "download": '<path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/>',
   "close": '<path d="m6 6 12 12M6 18 18 6"/>',
   "heart": '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
   "eye": "<path d=\"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>",
@@ -17,15 +19,20 @@
   "music": "<path d=\"M9 18V5l12-2v13M9 7l12-2\"/><ellipse cx=\"6\" cy=\"18\" rx=\"3\" ry=\"3\"/><ellipse cx=\"18\" cy=\"16\" rx=\"3\" ry=\"3\"/>"
 };
   window.VerseKeepIcons = Object.freeze(Object.fromEntries(Object.entries(paths).map(([name, body]) =>
-    [name, () => `<svg class="vk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`])));
+    [name, () => `<svg class="vk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`])));
   document.querySelectorAll("[data-icon]").forEach(node => {
     node.innerHTML = window.VerseKeepIcons[node.dataset.icon]();
   });
   document.querySelectorAll('.icon-control, .nav-more > summary[data-tip], #play-panel [data-mode="study"], #play-panel [data-mode="type"]').forEach(node => {
     const face = document.createElement("span");
     face.className = "icon-face";
-    face.append(...node.childNodes);
-    node.append(face);
+    if (node.id === "med-amen") {
+      face.append(node.firstChild);
+      node.prepend(face);
+    } else {
+      face.append(...node.childNodes);
+      node.append(face);
+    }
   });
   document.querySelectorAll("summary.disclosure-summary, summary.wp-summary").forEach(node => {
     node.insertAdjacentHTML("beforeend", `<span class="disclosure-chevron">${window.VerseKeepIcons.chevron()}</span>`);
