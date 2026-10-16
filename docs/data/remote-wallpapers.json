@@ -2,28 +2,6 @@
   "note": "Curated Christian / faith-rooted wallpapers (Unsplash CDN, no API key). Prefer church, cross, stained glass, open Word, prayer, creation with worship framing.",
   "pool": [
     {
-      "id": "rw-open-word",
-      "unsplash": "1504052430486-c2d9c9ff00e5",
-      "title": "Open Word",
-      "blurb": "Scripture in quiet light",
-      "tags": [
-        "Word",
-        "Study"
-      ],
-      "tone": "study"
-    },
-    {
-      "id": "rw-study-pages",
-      "unsplash": "1456513087080-7b3def8777b7",
-      "title": "Pages of life",
-      "blurb": "Study in warm room light",
-      "tags": [
-        "Word",
-        "Study"
-      ],
-      "tone": "study"
-    },
-    {
       "id": "rw-lamp-bible",
       "unsplash": "1481627834876-b7833e8f5570",
       "title": "Lamp for my feet",
@@ -46,28 +24,6 @@
       "tone": "study"
     },
     {
-      "id": "rw-cross-dusk",
-      "unsplash": "1507692049790-fbc3e6c5e59c",
-      "title": "Cross at dusk",
-      "blurb": "Silhouette against the sky",
-      "tags": [
-        "Cross",
-        "Gospel"
-      ],
-      "tone": "gospel"
-    },
-    {
-      "id": "rw-cross-glass",
-      "unsplash": "1519892300163-cbac0fb54b55",
-      "title": "Lifted cross",
-      "blurb": "Cross in sacred space",
-      "tags": [
-        "Cross",
-        "Gospel"
-      ],
-      "tone": "gospel"
-    },
-    {
       "id": "rw-stained-sanctuary",
       "unsplash": "1438032005730-c779502df39b",
       "title": "Stained light",
@@ -83,17 +39,6 @@
       "unsplash": "1478146896981-b80fe463b330",
       "title": "Chapel windows",
       "blurb": "Quiet place of prayer",
-      "tags": [
-        "Sanctuary",
-        "Worship"
-      ],
-      "tone": "worship"
-    },
-    {
-      "id": "rw-church-aisle",
-      "unsplash": "1438031188742-9bb4e0a0c0b1",
-      "title": "Toward the altar",
-      "blurb": "Aisle into holy light",
       "tags": [
         "Sanctuary",
         "Worship"
@@ -138,17 +83,6 @@
       "unsplash": "1472214103451-9374bd1c798e",
       "title": "Green pastures",
       "blurb": "Meadow rest under open sky",
-      "tags": [
-        "Psalm 23",
-        "Peace"
-      ],
-      "tone": "peace"
-    },
-    {
-      "id": "rw-living-water",
-      "unsplash": "1432405972618-c0462ff46c8d",
-      "title": "Living water",
-      "blurb": "Falls in the wilderness",
       "tags": [
         "Psalm 23",
         "Peace"
