@@ -985,3 +985,10 @@ Validation: all seven Node gates and all 60 Chromium journeys passed, including 
 Bible-book drills now remember the last selected book through the existing local stats and backup schema. Both last-drill shortcuts reopen themes or books. Reopening Proverbs starts at verse one and never changes Themes done. README clarifies that exact verse positions are not stored. Superseded selections cannot overwrite the newer last-drill selection. Version 2026.10.17.1.
 
 Validation: all seven Node gates passed and the final rerun passed all 61 Chromium journeys, including book resume, backups, offline shell and the complete sizing matrix. The geometry guard now allows 0.01px of browser rounding: a transformed nominal 24px Music target had measured 23.99988px. Actual control CSS is unchanged and smaller controls still fail.
+
+
+## 2026-10-17 — Recover failed wallpaper previews (PR #14)
+
+Integrated current main, retaining last-book-drill reopening and keyboard-focus fixes. Removed six unavailable remote images. Failed thumbnails, aspect previews and page backgrounds use the bundled Dawn Hills image with its phone crop when appropriate. A failed bundled file cannot cause a retry loop, and an obsolete remote image load cannot replace a newer selection. Deployment stamp: 2026.10.17.2.
+
+Validation: all seven Node gates, per-file JavaScript syntax and whitespace checks, and all 65 Chromium journeys passed. The four new journeys cover aborted and 404 remote images at 1366px and 390px, including lazy thumbnails, aspect previews and backgrounds.

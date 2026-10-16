@@ -95,6 +95,32 @@
     return wallpaperAsset(w, format, { download: format === "phone" });
   }
 
+  function bundledFallback(format = wallpaperFormat) {
+    return format === "phone"
+      ? "assets/wallpapers/phone/dawn-hills-phone.jpg"
+      : "assets/wallpapers/dawn-hills.jpg";
+  }
+
+  // Attach before setting src where possible; also cover cached failures after rendering.
+  function bindImageFallback(img, format = wallpaperFormat) {
+    img._wallpaperFallback = bundledFallback(format);
+    if (!img._wallpaperFallbackBound) {
+      const recover = () => {
+        if (img.naturalWidth > 0) return;
+        const fallback = resolveAssetUrl(img._wallpaperFallback);
+        // A missing bundled file must not start a retry loop.
+        if (img.src !== fallback) img.src = fallback;
+      };
+      img.addEventListener("error", recover);
+      img.addEventListener("load", recover);
+      img._wallpaperFallbackBound = true;
+    }
+    if (img.complete && img.getAttribute("src") && !img.naturalWidth) {
+      const fallback = resolveAssetUrl(img._wallpaperFallback);
+      if (img.src !== fallback) img.src = fallback;
+    }
+  }
+
   /** Selected full-resolution URL for Open HD / download. */
   function hdUrl(w) {
     return wallpaperAsset(w, wallpaperFormat, { download: true });
@@ -499,7 +525,24 @@
     }
   }
 
+  let visualRequest = 0;
+
   function applyVisual(src) {
+    const request = ++visualRequest;
+    if (/^https?:/i.test(src || "")) {
+      const probe = new Image();
+      bindImageFallback(probe, document.body.classList.contains("is-background-view")
+        ? (BACKGROUND_PHONE_MEDIA.matches ? "phone" : "desktop") : wallpaperFormat);
+      probe.addEventListener("load", () => {
+        if (request === visualRequest && probe.naturalWidth > 0) paintVisual(probe.src);
+      });
+      probe.src = src;
+      return;
+    }
+    paintVisual(src);
+  }
+
+  function paintVisual(src) {
     const root = document.documentElement;
     const abs = resolveAssetUrl(src);
     if (abs) {
@@ -987,6 +1030,8 @@
       </div>
     `;
 
+    document.querySelectorAll(".wp-thumb img").forEach((img) => bindImageFallback(img));
+
     host.querySelectorAll("[data-apply]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         // don't apply when using Open HD / download controls
@@ -1060,6 +1105,7 @@
     if (thumb) {
       const preview = current ? wallpaperDisplayAsset(current, format) : "";
       thumb.hidden = !preview;
+      bindImageFallback(thumb, format);
       if (preview) thumb.src = preview;
       thumb.alt = current ? `${kind} of ${current.title || "wallpaper"}` : "";
     }
