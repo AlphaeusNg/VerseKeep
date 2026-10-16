@@ -24,8 +24,10 @@ for (const setting of [{width:320},{width:375},{width:768},{width:1280},{width:3
     const visible=el=>el.checkVisibility({checkVisibilityCSS:true}) && !el.closest('[hidden]') && ![...document.querySelectorAll('details:not([open])')].some(d=>d.contains(el)&&!d.querySelector('summary').contains(el));
     const name=el=>el.id || el.className || el.tagName;
     const nodes=[...document.querySelectorAll('button,a,input,select,summary,textarea')].filter(visible);
+    // Translated sticky bars can report 23.99988px for a computed 24px target.
+    // Allow 0.01px of geometry rounding while still rejecting undersized controls.
     return {flow,scroll:document.documentElement.scrollWidth,width:document.documentElement.clientWidth,
-      small:nodes.filter(el=>{const r=el.getBoundingClientRect();return r.width<24||r.height<24}).map(el=>({name:name(el),w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})).filter((el,i,a)=>a.findIndex(other=>other.name===el.name)===i),
+      small:nodes.filter(el=>{const r=el.getBoundingClientRect();return r.width<23.99||r.height<23.99}).map(el=>({name:name(el),w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})).filter((el,i,a)=>a.findIndex(other=>other.name===el.name)===i),
       clipped:nodes.filter(el=>el.scrollWidth>el.clientWidth+2&&el.clientWidth>0).map(el=>({name:name(el),w:el.clientWidth,sw:el.scrollWidth})),
       overflow:[...document.querySelectorAll('main *')].filter(visible).filter(el=>{const r=el.getBoundingClientRect();return r.right>innerWidth+2||r.left< -2}).slice(0,12).map(name)};
   },flow));

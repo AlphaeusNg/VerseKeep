@@ -376,20 +376,37 @@
     host.dataset.bound = "1";
     host.addEventListener("click", async (event) => {
       const button = event.target.closest?.("[data-book]");
-      const book = (state.data.books || []).find((entry) => entry.id === button?.dataset.book);
-      if (!book) return;
-      const selectionId = ++state.selectionId;
-      const operation = queueHydrator.begin();
-      state.selecting = true;
-      try {
-        state.themeId = book.id;
-        paintThemes();
-        await beginQueue(book.verses.map((verse) => ({ ...verse, themeId: book.id, localText: verse.text })),
-          `${book.emoji} ${book.title}`, operation, undefined, { countsAsTheme: false, isBook: true });
-      } finally {
-        if (selectionId === state.selectionId) state.selecting = false;
-      }
+      if (button?.dataset.book) await selectBook(button.dataset.book);
     });
+  }
+
+  async function selectBook(id) {
+    const book = state.data?.books?.find(entry => entry.id === id);
+    if (!book) return;
+    const selectionId = ++state.selectionId;
+    const operation = queueHydrator.begin();
+    state.selecting = true;
+    try {
+      state.themeId = book.id;
+      paintThemes();
+      const applied = await beginQueue(book.verses.map(verse => ({ ...verse, themeId: book.id, localText: verse.text })),
+        `${book.emoji} ${book.title}`, operation, undefined, { countsAsTheme: false, isBook: true });
+      if (!applied || selectionId !== state.selectionId) return;
+      stats.lastTheme = book.id;
+      saveStats(stats);
+    } finally {
+      if (selectionId === state.selectionId) state.selecting = false;
+    }
+  }
+
+  function lastDrill() {
+    return [...(state.data?.themes || []), ...(state.data?.books || [])]
+      .find(entry => entry.id === stats.lastTheme) || null;
+  }
+
+  function resumeLastDrill() {
+    if (state.data?.books?.some(book => book.id === stats.lastTheme)) return selectBook(stats.lastTheme);
+    return selectTheme(stats.lastTheme);
   }
 
   function bindThemeGrid() {
@@ -455,7 +472,7 @@
     if (playOpen) return;
 
     const lastId = stats.lastTheme;
-    const lastTheme = lastId && state.data.themes.find((theme) => theme.id === lastId);
+    const lastTheme = lastDrill();
     const sitThemes = state.data.themes.slice(0, 4);
     const drillThemes = state.data.themes
       .filter((theme) => theme.id !== lastId)
@@ -522,7 +539,7 @@
         return;
       }
       if (event.target.closest("#btn-resume-drill") && stats.lastTheme) {
-        selectTheme(stats.lastTheme);
+        resumeLastDrill();
       }
     });
   }
@@ -1865,13 +1882,13 @@
     })();
 
     // Soft resume hint for last memory theme
-    if (stats.lastTheme && state.data?.themes?.some((t) => t.id === stats.lastTheme)) {
+    if (lastDrill()) {
       const hint = $("#resume-hint");
       if (hint) {
-        const t = state.data.themes.find((x) => x.id === stats.lastTheme);
+        const t = lastDrill();
         hint.hidden = false;
         hint.innerHTML = `Last drill: <button type="button" class="linkish" id="btn-resume">${escapeHtml(t.emoji + " " + t.title)}</button>`;
-        $("#btn-resume")?.addEventListener("click", () => selectTheme(stats.lastTheme));
+        $("#btn-resume")?.addEventListener("click", resumeLastDrill);
       }
     }
   }
