@@ -978,3 +978,10 @@ Validation: all seven node gates passed. Chromium confirmed the Amen streak line
 Tab and Shift+Tab close the new practice menu and restore the trigger before the browser chooses the next visible control. Hidden menu actions cannot retain focus. A real Proverbs book-drill regression covers both directions; the new book catalog, meditation behavior and data contracts stay intact. Deployment stamp: 2026.10.16.1.
 
 Validation: all seven Node gates and all 60 Chromium journeys passed, including the new keyboard regression.
+
+
+## 2026-10-17 — Reopen the last Bible-book drill
+
+Bible-book drills now remember the last selected book through the existing local stats and backup schema. Both last-drill shortcuts reopen themes or books. Reopening Proverbs starts at verse one and never changes Themes done. README clarifies that exact verse positions are not stored. Superseded selections cannot overwrite the newer last-drill selection. Version 2026.10.17.1.
+
+Validation: all seven Node gates passed and the final rerun passed all 61 Chromium journeys, including book resume, backups, offline shell and the complete sizing matrix. The geometry guard now allows 0.01px of browser rounding: a transformed nominal 24px Music target had measured 23.99988px. Actual control CSS is unchanged and smaller controls still fail.

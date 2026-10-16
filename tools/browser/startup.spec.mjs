@@ -1700,3 +1700,17 @@ test("practice More closes on Tab without leaving focus in hidden content", asyn
   expect(await page.evaluate(() => document.activeElement !== document.body
     && !document.activeElement.closest("[hidden]"))).toBe(true);
 });
+
+
+test("last drill resumes the new Bible book after reload", async ({ page }) => {
+  await page.goto("/");
+  await openBooks(page);
+  await page.getByRole("button", { name: "Drill Proverbs", exact: true }).click();
+  await expect(page.locator("#hud-progress")).toHaveText("Verse 1 / 18");
+  await page.reload();
+  await expect(page.locator("#btn-resume")).toContainText("Proverbs");
+  await page.locator("#btn-resume").click();
+  await expect(page.locator("#stage .ref")).toContainText("Proverbs 1:7");
+  await expect(page.locator("#stats-bar")).toContainText("Themes done 0");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("versekeep-stats-v1")).lastTheme)).toBe("proverbs");
+});

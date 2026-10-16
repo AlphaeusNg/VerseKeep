@@ -1,15 +1,15 @@
 # VerseKeep
 
-Christian **Scripture memory** games in the browser, grouped by theme.
+Christian **Scripture meditation** in the browser, with optional memory drills by topic or Bible book.
 
 **[Play VerseKeep](https://alphaeusng.github.io/VerseKeep/)** · [Portfolio](https://alphaeusng.github.io/) · also [ChristoDay](https://alphaeusng.github.io/ChristoDay/)
 
-The live site *is* the demo. Pick a theme, pick a mode, practice a verse.
+The live site *is* the demo. Read the meditation card, or open a topic or book for memory practice.
 
 ## Try it
 
 1. Open **[VerseKeep](https://alphaeusng.github.io/VerseKeep/)**.
-2. Choose a theme (for example Trusting in God, The Gospel, or Identity in Christ).
+2. Read today’s meditation, or choose a topic (for example Trusting in God, The Gospel, or Identity in Christ) or Bible book for a drill.
 3. Start with **Study**, then try **Fill blanks** or **Type it**.
 4. Keyboard: `1`–`5` switch modes · `N`/`B` next/back · `R` reveal · `Enter` check.
 
@@ -34,6 +34,13 @@ The live site *is* the demo. Pick a theme, pick a mode, practice a verse.
 - Humility & Service
 
 Progress (mastery, streaks, accuracy) stays in `localStorage` on this device. Edit verses in `docs/data/verses.json`.
+
+## Bible books
+
+Open **Bible books** and choose **Drill Proverbs** for 18 passages in book order.
+Book drills use the same practice modes and do not add to Themes done. The last
+drill shortcuts reopen either a topic or a book after reload. Reopening a book
+starts at its first verse; an exact verse position is not saved.
 
 ## Modes
 
