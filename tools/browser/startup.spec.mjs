@@ -1568,6 +1568,22 @@ test("meditation topic pill starts with its catalog emoji", async ({ page }) => 
   await expect.poll(async () => (await page.locator("#meditate-card .med-topic-pill").innerText()).trim().startsWith(theme.emoji)).toBe(true);
 });
 
+test('practice More opens in the requested keyboard direction', async ({ page }) => {
+  await page.goto('/?v=Psalm%2056%3A3');
+  await openMedMore(page);
+  await page.locator('#med-practice-verse').click();
+  const more = page.locator('#btn-more');
+  const items = page.locator('#practice-menu [role="menuitem"], #practice-menu [role="menuitemcheckbox"]');
+  for (const key of ['ArrowUp', 'End', 'ArrowDown', 'Home']) {
+    await more.focus();
+    await page.keyboard.press(key);
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+    await expect(key === 'ArrowUp' || key === 'End' ? items.last() : items.first()).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(more).toBeFocused();
+  }
+});
+
 test('practice More menu groups, keyboard navigation, and outlined Check', async ({ page }) => {
   await page.goto('/?v=Psalm%2056%3A3');
   await openMedMore(page);

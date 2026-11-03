@@ -992,3 +992,10 @@ Validation: all seven Node gates passed and the final rerun passed all 61 Chromi
 Integrated current main, retaining last-book-drill reopening and keyboard-focus fixes. Removed six unavailable remote images. Failed thumbnails, aspect previews and page backgrounds use the bundled Dawn Hills image with its phone crop when appropriate. A failed bundled file cannot cause a retry loop, and an obsolete remote image load cannot replace a newer selection. Deployment stamp: 2026.10.17.2.
 
 Validation: all seven Node gates, per-file JavaScript syntax and whitespace checks, and all 65 Chromium journeys passed. The four new journeys cover aborted and 404 remote images at 1366px and 390px, including lazy thumbnails, aspect previews and backgrounds.
+
+
+## 2026-11-04 — Open practice tools in the requested keyboard direction
+
+ArrowUp and End on the closed practice More control now focus the last available option. ArrowDown and Home start at the first. Escape still closes the menu and restores its trigger, and pointer opening keeps its first-option default. Version 2026.11.04.1.
+
+Validation: the new Chromium regression failed on the original first-item behavior and passes with the fix. All seven Node gates, complete per-file JavaScript syntax checks, whitespace checks and all 66 Chromium journeys passed, including offline, phone sizing, meditation, practice and wallpaper recovery.

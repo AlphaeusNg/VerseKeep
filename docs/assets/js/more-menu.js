@@ -9,10 +9,11 @@
     button.setAttribute('aria-expanded', 'false');
     if (restore) button.focus();
   }
-  function open() {
+  function open(last = false) {
     menu.hidden = false;
     button.setAttribute('aria-expanded', 'true');
-    items()[0]?.focus();
+    const list = items();
+    (last ? list[list.length - 1] : list[0])?.focus();
   }
   new MutationObserver(() => {
     if (document.getElementById('practice-actions')?.hidden) close();
@@ -35,7 +36,7 @@
     if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
     if (!menu.contains(event.target) && event.target !== button) return;
     event.preventDefault(); event.stopImmediatePropagation();
-    if (menu.hidden) { open(); return; }
+    if (menu.hidden) { open(event.key === 'ArrowUp' || event.key === 'End'); return; }
     const list = items();
     const index = list.indexOf(document.activeElement);
     const next = event.key === 'Home' ? 0 : event.key === 'End' ? list.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length;
