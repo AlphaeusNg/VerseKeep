@@ -999,3 +999,22 @@ Validation: all seven Node gates, per-file JavaScript syntax and whitespace chec
 ArrowUp and End on the closed practice More control now focus the last available option. ArrowDown and Home start at the first. Escape still closes the menu and restores its trigger, and pointer opening keeps its first-option default. Version 2026.11.04.1.
 
 Validation: the new Chromium regression failed on the original first-item behavior and passes with the fix. All seven Node gates, complete per-file JavaScript syntax checks, whitespace checks and all 66 Chromium journeys passed, including offline, phone sizing, meditation, practice and wallpaper recovery.
+
+## 2026-11-05 — Preserve More shortcuts and contain enlarged study text
+
+The practice More menu leaves Ctrl/Cmd/Alt chords, IME composition, legacy
+composition keys and already-handled events alone in its closed and open states.
+Ordinary arrow navigation, Escape and Shift+Tab keep their existing behavior.
+
+The first complete browser run exposed intermittent 4px page overflow during
+Study at doubled text size. Targeted repeats reproduced it. DOM text-range
+measurements identified a long word in the passage extending past its paragraph,
+while the element box itself stayed inside the viewport. Study passages now wrap
+long words within their available width. A deterministic enlarged-text regression
+failed before that CSS fix and passes after it. Scripture text is unchanged;
+no sizing threshold was relaxed or page-level clipping added.
+
+Validation: all seven Node gates, per-file JavaScript syntax and whitespace checks,
+and the final complete set of 68 Chromium journeys passed. The menu regression
+also failed before its fix. npm audit reports zero vulnerabilities. Version
+2026.11.05.1.

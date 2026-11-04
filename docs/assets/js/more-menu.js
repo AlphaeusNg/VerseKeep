@@ -26,6 +26,8 @@
     if (!menu.contains(event.target) && !button.contains(event.target)) close();
   });
   document.addEventListener('keydown', event => {
+      if (event.defaultPrevented || event.isComposing || event.keyCode === 229
+        || event.ctrlKey || event.metaKey || event.altKey) return;
     if (menu.hidden && event.target !== button) return;
     if (event.key === 'Tab' && !menu.hidden && menu.contains(event.target)) {
       close(true); return;

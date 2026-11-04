@@ -100,3 +100,23 @@ for (const width of [390, 320]) {
   await expect(page.locator('#quiz-choices')).toBeVisible();
  });
 }
+
+
+test('study passage wraps long words at doubled text size', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/?v=Proverbs%203%3A5-6');
+  await openMedMore(page);
+  await page.locator('#med-practice-verse').click();
+  await page.locator('#play-panel [data-mode="study"]').click();
+  await expect(page.locator('#study-text')).toContainText('understanding');
+  await page.evaluate(() => { document.documentElement.style.fontSize = '32px'; });
+  const bounds = await page.locator('#study-text').evaluate(el => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    return { textRight: range.getBoundingClientRect().right,
+      blockRight: el.getBoundingClientRect().right,
+      scroll: document.documentElement.scrollWidth, viewport: innerWidth };
+  });
+  expect(bounds.textRight).toBeLessThanOrEqual(bounds.blockRight + 1);
+  expect(bounds.scroll).toBeLessThanOrEqual(bounds.viewport + 1);
+});

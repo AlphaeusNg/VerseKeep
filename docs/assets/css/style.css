@@ -644,6 +644,7 @@ main {
 }
 
 .study-box p {
+  overflow-wrap: anywhere;
   margin: 0.45rem 0 0;
   font-family: var(--serif);
   font-size: 1.2rem;
