@@ -1081,7 +1081,7 @@
     const inputs = $$("#stage .blank-input");
     inputs.forEach((inp, i) => {
       inp.addEventListener("keydown", (e) => {
-        if (e.isComposing || e.keyCode === 229) return;
+        if (e.defaultPrevented || e.isComposing || e.keyCode === 229 || e.ctrlKey || e.metaKey || e.altKey) return;
         if (e.key === "Enter") {
           e.preventDefault();
           if (i < inputs.length - 1) inputs[i + 1].focus();
@@ -1122,7 +1122,7 @@
       line.textContent = firstLetterHint(v.text);
     });
     $("#type-input")?.addEventListener("keydown", (e) => {
-      if (e.isComposing || e.keyCode === 229) return;
+      if (e.defaultPrevented || e.isComposing || e.keyCode === 229 || e.altKey) return;
       if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         checkAnswer();

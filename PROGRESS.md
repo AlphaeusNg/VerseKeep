@@ -1031,3 +1031,17 @@ checks, and all 69 Chromium journeys passed. The new regression failed on the
 original focus loss and passes with the fix. Its setup waits for the populated
 station list before focusing, avoiding a race with asynchronous catalog loading;
 three focused repeats also passed. Scripture and music defaults are unchanged.
+
+## 2026-11-05 — Respect consumed Enter events in answer fields
+
+Fill blanks leaves consumed Enter events and Ctrl/Meta/Alt chords with their
+existing handler or browser action. Free recall leaves consumed events and
+Alt-modified submit chords alone. Composition guards remain, while ordinary
+blank Enter and recall Ctrl/Meta+Enter retain their answer actions. Version
+2026.11.05.3.
+
+Validation: the expanded Chromium regression reproduced a consumed Ctrl+Enter
+being graded before the fix. All seven Node gates, recursive JavaScript syntax,
+whitespace checks and all 69 Chromium journeys passed. The final focused
+regression also confirms unchanged blank feedback for ignored keys and ordinary
+blank/recall submission afterward. Scripture and music defaults are unchanged.

@@ -1379,24 +1379,42 @@ test("Amen calendar labels refresh after midnight without changing the selected 
   await expect(page.locator("#meditate-card .med-ref")).toHaveText(verse);
 });
 
-test("composition Enter finishes typing without submitting or advancing a drill", async ({ page }) => {
+test("practice answer fields preserve composition and consumed Enter events", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await openTopics(page);
   await page.locator("#theme-grid [data-drill]").first().click();
   await page.locator('#play-panel [data-mode="type"]').click();
   await page.locator("#type-input").fill("still composing");
   const before = await page.locator("#feedback").textContent();
-  await page.locator("#type-input").evaluate((field) => field.dispatchEvent(new KeyboardEvent("keydown", {
-    key: "Enter", ctrlKey: true, isComposing: true, bubbles: true, cancelable: true,
-  })));
-  await expect(page.locator("#feedback")).toHaveText(before || "");
+  for (const extra of [{ isComposing: true }, { keyCode: 229 }, { consumed: true }, { altKey: true }]) {
+    await page.locator("#type-input").evaluate((field, extra) => {
+      const event = new KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true, cancelable: true, ...extra });
+      if (extra.consumed) event.preventDefault();
+      field.dispatchEvent(event);
+    }, extra);
+    await expect(page.locator("#feedback")).toHaveText(before || "");
+  }
   await page.locator('#play-panel [data-mode="blank"]').click();
   const first = page.locator("#stage .blank-input").first();
   await first.focus();
-  await first.evaluate((field) => field.dispatchEvent(new KeyboardEvent("keydown", {
-    key: "Enter", isComposing: true, bubbles: true, cancelable: true,
-  })));
-  await expect(first).toBeFocused();
+  const blankFeedback = await page.locator("#feedback").textContent();
+  for (const extra of [{ isComposing: true }, { keyCode: 229 }, { consumed: true }, { ctrlKey: true }, { metaKey: true }, { altKey: true }]) {
+    await first.evaluate((field, extra) => {
+      const event = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true, ...extra });
+      if (extra.consumed) event.preventDefault();
+      field.dispatchEvent(event);
+    }, extra);
+    await expect(first).toBeFocused();
+    await expect(page.locator("#feedback")).toHaveText(blankFeedback || "");
+  }
+  const blankCount = await page.locator("#stage .blank-input").count();
+  await first.press("Enter");
+  if (blankCount > 1) await expect(page.locator("#stage .blank-input").nth(1)).toBeFocused();
+  else await expect(page.locator("#feedback")).not.toHaveText("");
+  await page.locator('#play-panel [data-mode="type"]').click();
+  await page.locator("#type-input").fill("ordinary submit");
+  await page.locator("#type-input").press("Control+Enter");
+  await expect(page.locator("#feedback")).toContainText("match");
 });
 
 
