@@ -1073,3 +1073,19 @@ Validation: all four wallpaper recovery cases, all seven Node gates, fixture
 syntax and whitespace checks passed. The preceding complete local suite passed
 70 journeys; the first hosted run passed 69 and failed only at the detached-node
 setup race. Public runtime bytes and version 2026.11.06.1 are unchanged.
+
+## 2026-11-06 — Preserve practice-toolbar focus during live hydration
+
+The next hosted run exposed a separate focus race in the existing menu-direction
+journey. Delayed live text could replace the initial bundled round and move focus
+from More to its first answer field. Focusing a static practice action now counts
+as engagement, preserving the current round and toolbar focus while hydration
+finishes. Initial automatic answer-field focus still permits untouched rounds to
+upgrade to live text. Version 2026.11.06.2.
+
+Validation: a deterministic delayed-hydration regression reproduced lost More
+focus before the fix. It now awaits the actual practice promise and verifies
+retained focus, bundled labeling, upward menu opening and continued live upgrades
+for a fresh untouched round. All seven Node gates, recursive JavaScript syntax,
+whitespace checks and all 71 Chromium journeys passed on the final code.
+Scripture and stored-data formats are unchanged.

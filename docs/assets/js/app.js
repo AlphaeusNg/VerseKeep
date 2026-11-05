@@ -1653,6 +1653,9 @@
     });
     $("#theme-search")?.addEventListener("input", () => paintThemes());
     const playPanel = $("#play-panel");
+    $("#practice-actions")?.addEventListener("focusin", () => {
+      state.roundEngaged = true;
+    });
     for (const eventName of ["pointerdown", "keydown", "input"]) {
       playPanel?.addEventListener(eventName, () => {
         state.roundEngaged = true;

@@ -1819,3 +1819,38 @@ test("returns meditation action focus before closing More", async ({ page }) => 
   await expect(page.locator("#med-more-panel")).toBeHidden();
   await expect(page.locator("#med-more")).toBeFocused();
 });
+
+
+test("keeps focused practice controls when delayed live text arrives", async ({ page }) => {
+  await page.goto("/?v=Psalm%2056%3A3");
+  await expect(page.locator("#meditate-card .med-ref")).toHaveText("Psalm 56:3");
+  await page.evaluate(() => {
+    window.__releaseFocusedPractice = null;
+    window.VerseKeepBible.resolveVerse = (ref, localText) => new Promise(resolve => {
+      window.__releaseFocusedPractice = () => resolve({ text: `LIVE ${localText}`, translation: "ESV", source: "test" });
+    });
+  });
+  const practice = page.evaluate(() => window.VerseKeepPractice.practiceVerse("Psalm 56:3"));
+  await expect(page.locator("#stage .blank-input").first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => typeof window.__releaseFocusedPractice)).toBe("function");
+  const more = page.locator("#btn-more");
+  await more.focus();
+  await page.evaluate(() => window.__releaseFocusedPractice());
+  await practice;
+  await expect(more).toBeFocused();
+  await expect(page.locator("#live-bible-label")).toHaveText("(bundled)");
+  await page.keyboard.press("ArrowUp");
+  await expect(more).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator('#practice-menu [role="menuitem"], #practice-menu [role="menuitemcheckbox"]').last()).toBeFocused();
+  await page.keyboard.press("Escape");
+
+  // Initial answer-field focus still permits a fresh, untouched round to upgrade.
+  await page.evaluate(() => { window.__releaseFocusedPractice = null; });
+  const untouched = page.evaluate(() => window.VerseKeepPractice.practiceVerse("Psalm 56:3"));
+  await expect(page.locator("#stage .blank-input").first()).toBeFocused();
+  await expect.poll(() => page.evaluate(() => typeof window.__releaseFocusedPractice)).toBe("function");
+  await page.evaluate(() => window.__releaseFocusedPractice());
+  await untouched;
+  await expect(page.locator("#live-bible-label")).toHaveText("(ESV · test)");
+  await expect(page.locator("#stage .blank-input").first()).toBeFocused();
+});
