@@ -1018,3 +1018,16 @@ Validation: all seven Node gates, per-file JavaScript syntax and whitespace chec
 and the final complete set of 68 Chromium journeys passed. The menu regression
 also failed before its fix. npm audit reports zero vulnerabilities. Version
 2026.11.05.1.
+
+## 2026-11-05 — Return music-dock focus before hiding its controls
+
+Closing the music dock while one of its controls has keyboard focus returns
+focus to the visible Music tab. Focus elsewhere stays where it is. The iframe
+stays mounted with the same source, so closing the dock keeps playback intact.
+Version 2026.11.05.2.
+
+Validation: all seven Node gates, per-file JavaScript syntax and whitespace
+checks, and all 69 Chromium journeys passed. The new regression failed on the
+original focus loss and passes with the fix. Its setup waits for the populated
+station list before focusing, avoiding a race with asynchronous catalog loading;
+three focused repeats also passed. Scripture and music defaults are unchanged.

@@ -960,6 +960,23 @@ test("keeps the compact header and persistent music dock usable on a phone", asy
   await expect(frame).toHaveAttribute("src", playingSrc);
 });
 
+test("closing the music dock returns keyboard focus without interrupting audio", async ({ page }) => {
+  await page.goto("/");
+  const tab = page.locator("#music-dock-tab");
+  const frame = page.locator("#music-frame");
+  await expect(frame).toHaveAttribute("src", /spotify\.com\/embed\/playlist/);
+  const src = await frame.getAttribute("src");
+  await expect(page.locator("#music-list [data-music-id]")).not.toHaveCount(0);
+  await tab.click();
+  await expect(page.locator("#music-list [data-music-id]").first()).toBeVisible();
+  await page.locator("#music-list [data-music-id]").first().focus();
+  await expect(page.locator("#music-list [data-music-id]").first()).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(tab).toHaveAttribute("aria-expanded", "false");
+  await expect(tab).toBeFocused();
+  await expect(frame).toHaveAttribute("src", src);
+});
+
 test("exposes music sources as a pressed-button group", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("#music-dock-tab").click();

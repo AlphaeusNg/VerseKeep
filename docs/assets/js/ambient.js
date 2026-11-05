@@ -211,6 +211,7 @@
     const p = $("#music-dock-panel");
     const t = tab();
     const sc = scrim();
+    if (!dockOpen && p?.contains(document.activeElement)) t?.focus({ preventScroll: true });
     if (d) {
       d.classList.toggle("is-open", dockOpen);
       d.classList.toggle("is-dock", dockOpen);
