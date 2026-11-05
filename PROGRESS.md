@@ -1045,3 +1045,17 @@ being graded before the fix. All seven Node gates, recursive JavaScript syntax,
 whitespace checks and all 69 Chromium journeys passed. The final focused
 regression also confirms unchanged blank feedback for ignored keys and ordinary
 blank/recall submission afterward. Scripture and music defaults are unchanged.
+
+## 2026-11-06 — Keep meditation focus visible after closing More
+
+Closing meditation More now returns focus to its visible trigger when a control
+inside the panel had focus. Copy link and Shuffle previously left keyboard focus
+inside hidden content. Closing the panel preserves focus elsewhere, and practice
+or saved-verse navigation retains its own destination focus. Version
+2026.11.06.1.
+
+Validation: the new keyboard regression failed before the fix. All seven Node
+gates, recursive JavaScript syntax and whitespace checks, and all 70 Chromium
+journeys passed. The regression activates Copy link and Shuffle with Enter and
+verifies the closed panel, visible trigger focus and completed copy feedback.
+Scripture, music defaults and saved data are unchanged.

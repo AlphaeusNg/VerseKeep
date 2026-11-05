@@ -1799,3 +1799,23 @@ test('More preserves browser chords and composition navigation', async ({ page }
     }
   }
 });
+
+
+test("returns meditation action focus before closing More", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => {} } });
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#meditate-card .med-ref")).not.toHaveText("");
+  await openMedMore(page);
+  await page.locator("#med-copy-link").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#med-more-panel")).toBeHidden();
+  await expect(page.locator("#med-more")).toBeFocused();
+  await expect(page.locator("#med-feedback")).toContainText("Copied meditation link");
+  await openMedMore(page);
+  await page.locator("#med-shuffle").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#med-more-panel")).toBeHidden();
+  await expect(page.locator("#med-more")).toBeFocused();
+});

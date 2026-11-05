@@ -263,6 +263,7 @@
     const btn = $("#med-more");
     if (!panel || !btn) return;
     const next = !!open;
+    if (!next && panel.contains(document.activeElement)) btn.focus({ preventScroll: true });
     panel.hidden = !next;
     btn.setAttribute("aria-expanded", next ? "true" : "false");
   }
