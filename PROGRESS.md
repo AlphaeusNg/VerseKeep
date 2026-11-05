@@ -1059,3 +1059,17 @@ gates, recursive JavaScript syntax and whitespace checks, and all 70 Chromium
 journeys passed. The regression activates Copy link and Shuffle with Enter and
 verifies the closed panel, visible trigger focus and completed copy feedback.
 Scripture, music defaults and saved data are unchanged.
+
+## 2026-11-06 — Wait for the deferred wallpaper grid refresh in browser checks
+
+Hosted CI exposed an existing setup race in wallpaper recovery coverage: the
+community-heart refresh replaced a thumbnail while the test scrolled it into
+view. The fixture now holds counter requests until it captures the first grid,
+then releases the refresh and waits for that grid's replacement. Lazy-image,
+failed-image, aspect-preview and background assertions remain unchanged; no
+fixed delay or retry was added.
+
+Validation: all four wallpaper recovery cases, all seven Node gates, fixture
+syntax and whitespace checks passed. The preceding complete local suite passed
+70 journeys; the first hosted run passed 69 and failed only at the detached-node
+setup race. Public runtime bytes and version 2026.11.06.1 are unchanged.

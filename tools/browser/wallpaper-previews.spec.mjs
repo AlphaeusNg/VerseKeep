@@ -11,8 +11,12 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 390, height: 844 
       test.setTimeout(60_000);
       await page.setViewportSize(viewport);
       let failedPhoto;
+      let releaseHeartRefresh;
+      const heartRefreshGate = new Promise(resolve => { releaseHeartRefresh = resolve; });
       await page.route('https://**/*', async route => {
-        if (new URL(route.request().url()).hostname !== 'images.unsplash.com') return route.abort();
+        const hostname = new URL(route.request().url()).hostname;
+        if (hostname === 'api.counterapi.dev') await heartRefreshGate;
+        if (hostname !== 'images.unsplash.com') return route.abort();
         const photo = new URL(route.request().url()).pathname.slice('/photo-'.length);
         failedPhoto ||= photo;
         if (photo === failedPhoto) {
@@ -22,8 +26,14 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 390, height: 844 
       });
       await page.goto('/');
       await expect(page.locator('#wallpaper-grid .wp-card').first()).toBeAttached();
+      const initialGrid = await page.locator('#wp-all-grid').elementHandle();
       await openDetails(page, '#wp-details');
       await expect(page.locator('html')).toHaveAttribute('data-wallpaper-grid', viewport.width === 1366 ? '4' : '2');
+      // Opening the disclosure starts one deferred heart refresh that replaces
+      // the grid. Finish it before scrolling lazy images from that settled grid.
+      releaseHeartRefresh();
+      await expect.poll(() => initialGrid.evaluate(grid => grid.isConnected)).toBe(false);
+      await initialGrid.dispose();
       await expect.poll(() => failedPhoto).toBeTruthy();
       const failed = pool.find(item => item.unsplash === failedPhoto);
       expect(failed).toBeTruthy();
